@@ -4,7 +4,16 @@
 \alias{regFrac}
 \title{Regional fraction for one MRCT}
 \usage{
-regFrac(alpha, power, pi = 0.5, CP)
+regFrac(
+  alpha,
+  power,
+  pi = 0.5,
+  CP = 0.8,
+  d,
+  sigmaTrt,
+  sigmaCtrl = sigmaTrt,
+  randRatio = 1
+)
 }
 \arguments{
 \item{alpha}{The type I error.}
@@ -13,21 +22,34 @@ regFrac(alpha, power, pi = 0.5, CP)
 
 \item{pi}{The threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.}
 
-\item{CP}{the (conditional) consistency probability.}
+\item{CP}{the (conditional) consistency probability. Defaults to 80\%.}
+
+\item{d}{The true mean of difference of response.}
+
+\item{sigmaTrt}{The standard deviation of response in the treatment group.}
+
+\item{sigmaCtrl}{The standard deviation of response in the control group. Defaults to \code{sigmaTrt}.}
+
+\item{randRatio}{The randomization ratio between the treatment group and control group. Defaults to 1.}
 }
 \value{
-rF The regional fraction, a scalar.
+A list containing the following two components:
+\describe{
+\item{\code{rF}}{The regional fraction, a scalar.}
+\item{\code{N}}{The overall sample size.}
+}
 }
 \description{
-Calculate the optimal regional fraction given the (conditional) consistency probability for one MRCT.
+Calculate the minimal regional fraction given the (conditional) consistency probability for one MRCT.
 }
 \details{
-Given the (conditional) consistency probability, there is a minimum regional
-fraction \code{rF}. To calculate the minimum \code{rF}, \code{regFrac} utilizes two core computational components:
+Given the (conditional) consistency probability, there is a minimal regional
+fraction \code{rF}. To calculate the minimal \code{rF}, \code{regFrac} utilizes two core computational components:
 \itemize{
 \item The \code{\link{conProb}} function to compute the (conditional) consistency probability
 \item The \code{\link[stats]{uniroot}} function from the \pkg{stats} package for numerical root-finding
 }
+
 The solution is obtained by solving the following equation numerically:
 \deqn{
 \begin{array}{c}
@@ -35,9 +57,11 @@ The solution is obtained by solving the following equation numerically:
   \text{where } \code{rF} \in (0,1).
 \end{array}
 }
+
+The overall sample size is obtain by \code{\link{conProb}} simultaneously.
 }
 \examples{
 
-regFrac(alpha=0.025,power=0.8,pi=0.5,CP=0.8)
+regFrac(alpha = 0.025, power = 0.8, d = 1, sigmaTrt = 4)
 
 }

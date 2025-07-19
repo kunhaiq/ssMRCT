@@ -2,20 +2,25 @@
 #'
 #' @title Regional fraction for one MRCT
 #'
-#' @description Calculate the optimal regional fraction given the (conditional) consistency probability for one MRCT.
+#' @description Calculate the minimal regional fraction given the (conditional) consistency probability for one MRCT.
 #'
 #' @param alpha The type I error.
 #' @param power Power.
 #' @param pi The threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.
-#' @param CP the (conditional) consistency probability.
+#' @param CP the (conditional) consistency probability. Defaults to 80%.
+#' @param d The true mean of difference of response.
+#' @param sigmaTrt The standard deviation of response in the treatment group.
+#' @param sigmaCtrl The standard deviation of response in the control group. Defaults to \code{sigmaTrt}.
+#' @param randRatio The randomization ratio between the treatment group and control group. Defaults to 1.
 #'
 #' @details
-#' Given the (conditional) consistency probability, there is a minimum regional
-#' fraction \code{rF}. To calculate the minimum \code{rF}, \code{regFrac} utilizes two core computational components:
+#' Given the (conditional) consistency probability, there is a minimal regional
+#' fraction \code{rF}. To calculate the minimal \code{rF}, \code{regFrac} utilizes two core computational components:
 #' \itemize{
 #'   \item The \code{\link{conProb}} function to compute the (conditional) consistency probability
 #'   \item The \code{\link[stats]{uniroot}} function from the \pkg{stats} package for numerical root-finding
 #' }
+#' 
 #' The solution is obtained by solving the following equation numerically:
 #' \deqn{
 #' \begin{array}{c}
@@ -23,19 +28,37 @@
 #'   \text{where } \code{rF} \in (0,1).
 #' \end{array}
 #' }
-#' @returns rF The regional fraction, a scalar.
+#' 
+#' The overall sample size is obtain by \code{\link{conProb}} simultaneously.
+#' 
+#' @returns A list containing the following two components:
+#' \describe{
+#'   \item{\code{rF}}{The regional fraction, a scalar.}
+#'   \item{\code{N}}{The overall sample size.}
+#' } 
+#' 
 #'
 #' @examples
 #'
-#' regFrac(alpha=0.025,power=0.8,pi=0.5,CP=0.8)
+#' regFrac(alpha = 0.025, power = 0.8, d = 1, sigmaTrt = 4)
 #'
 #' @export
 #'
-regFrac <- function(alpha,power,pi=0.5,CP){
+regFrac <- function(alpha, 
+                    power, 
+                    pi = 0.5, 
+                    CP = 0.8, 
+                    d, 
+                    sigmaTrt, 
+                    sigmaCtrl = sigmaTrt, 
+                    randRatio = 1){
+  ### regional fraction
   f <- function(x){
-    return(conProb(alpha,power,pi,rF = x)-CP)
+    return(conProb(alpha, power, pi, rF = x, d, sigmaTrt, sigmaCtrl, randRatio)$CP-CP)
   }
   rF <- stats::uniroot(f,interval = c(0,1))$root
   rF <- as.numeric(rF)
-  return(rF)
+  ### sample size
+  N <- conProb(alpha, power, pi, rF, d, sigmaTrt, sigmaCtrl, randRatio)$N 
+  return(list(rF = rF, N = N))
 }

@@ -7,17 +7,17 @@
 regFrac2(
   alpha,
   power1,
-  power2 = NULL,
+  power2 = power1,
   pi = 0.5,
-  CP,
-  d1 = NULL,
-  d2 = NULL,
-  sigmaTrt1 = NULL,
-  sigmaCtrl1 = NULL,
-  sigmaTrt2 = NULL,
-  sigmaCtrl2 = NULL,
-  randRatio1 = NULL,
-  randRatio2 = NULL
+  CP = 0.8,
+  d1,
+  d2 = d1,
+  sigmaTrt1,
+  sigmaCtrl1 = sigmaTrt1,
+  sigmaTrt2 = sigmaTrt1,
+  sigmaCtrl2 = sigmaTrt2,
+  randRatio1 = 1,
+  randRatio2 = randRatio1
 )
 }
 \arguments{
@@ -29,7 +29,7 @@ regFrac2(
 
 \item{pi}{The threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.}
 
-\item{CP}{The consistency probability.}
+\item{CP}{The consistency probability. Defaults to 80\%.}
 
 \item{d1}{The true mean of difference of response for MRCT 1.}
 
@@ -50,12 +50,14 @@ regFrac2(
 \value{
 A list containing the following two components:
 \describe{
-\item{\code{rF1}}{The optimal regional fraction for MRCT 1.}
-\item{\code{rF2}}{The optimal regional fraction for MRCT 2.}
+\item{\code{rF1}}{The regional fraction for MRCT 1, a scalar.}
+\item{\code{rF2}}{The regional fraction for MRCT 2, a scalar.}
+\item{\code{N1}}{The overall sample size for MRCT 1, an integer.}
+\item{\code{N2}}{The overall sample size for MRCT 2, an integer.}
 }
 }
 \description{
-Calculate the optimal regional fractions given the (conditional) consistency probability for two MRCT.
+Calculate the optimal regional fractions given the (conditional) consistency probability for two MRCTs.
 }
 \details{
 Given the (conditional) consistency probability, there is an optimal pair of regional
@@ -77,14 +79,10 @@ The solution is obtained by solving the following equation numerically:
 }
 where \eqn{k} is the above fixed ratio between \code{rF1} and \code{rF2}.
 
-Assuming homogeneous variances, equal treatment effects
-and equal randomization ratios across two studies, any of \code{d1},
-\code{sigmaTrt1} and \code{randRatio1} is no required to provide.
+The overall sample size is obtain by \code{\link{conProb2}} simultaneously.
 }
 \examples{
 
-regFrac2(0.025,0.8,0.8,0.5,0.8)
-
-regFrac2(0.025,0.8,0.8,0.5,0.8,1,1,4,4,4,4,1,1)
+regFrac2(alpha = 0.025, power1 = 0.8, d1 = 1, sigmaTrt1 = 4)
 
 }

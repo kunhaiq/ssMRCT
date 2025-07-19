@@ -4,7 +4,16 @@
 \alias{conProb}
 \title{Consistency probability for one MRCT}
 \usage{
-conProb(alpha, power, pi = 0.5, rF)
+conProb(
+  alpha,
+  power,
+  pi = 0.5,
+  rF,
+  d,
+  sigmaTrt,
+  sigmaCtrl = sigmaTrt,
+  randRatio = 1
+)
 }
 \arguments{
 \item{alpha}{The Type I error.}
@@ -14,9 +23,21 @@ conProb(alpha, power, pi = 0.5, rF)
 \item{pi}{The threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.}
 
 \item{rF}{The regional fraction.}
+
+\item{d}{The true mean of difference of response.}
+
+\item{sigmaTrt}{The standard deviation of response in the treatment group.}
+
+\item{sigmaCtrl}{The standard deviation of response in the control group. Defaults to \code{sigmaTrt}.}
+
+\item{randRatio}{The randomization ratio between the treatment group and control group. Defaults to 1.}
 }
 \value{
-CP The consistency probability, a scalar.
+A list containing the following two components:
+\describe{
+\item{\code{CP}}{The consistency probability, a scalar.}
+\item{\code{N}}{The overall sample size.}
+}
 }
 \description{
 Calculate the (conditional) consistency probability for one MRCT.
@@ -28,8 +49,20 @@ equals
  \frac{1}{1-\beta}\int_{-z_{1-\beta}}^{\infty} \Phi\left(\frac{(1-\pi)(u + z_{1-\alpha}+z_{1-\beta})}{\sqrt{f_{k}^{-1}-1}}\right)\phi(u)du.
 }
 Since there is no closed form of above equation, \code{conProb} utilizes the \code{\link[stats]{integrate}} function for numerical integration.
+
+As the first equation includes none of \code{d}, \code{sigmaTrt},
+\code{sigmaCtrl} and \code{randRatio}, if only the consistency probability
+is considered, then the values of \code{d} and \code{sigmaTrt} could be arbitrary.
+
+The overall sample size is calculated based on the below equation,
+\deqn{
+N^{(\textrm{c})}=\frac{\left\{r^{-1}\sigma^{2(\textrm{t})}+\sigma^{2(\textrm{c})}\right\}(z_{1-\alpha}+z_{1-\beta})^{2}}{d^{2}}, \quad N^{(\textrm{t})}=rN^{(\textrm{c})}.
+}
+Then \eqn{N = N^{(\textrm{t})} + N^{(\textrm{c})}}. Additionally, both of
+\eqn{N^{(\textrm{t})}} and \eqn{N^{(\textrm{c})}} should be integers and hence \eqn{N}.
 }
 \examples{
-conProb(alpha=0.025,power=0.8,pi=0.5,rF=0.23)
+
+conProb(alpha = 0.025, power = 0.8, rF = 0.23, d = 1, sigmaTrt = 4)
 
 }

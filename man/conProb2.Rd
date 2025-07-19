@@ -7,18 +7,18 @@
 conProb2(
   alpha,
   power1,
-  power2 = NULL,
+  power2 = power1,
   pi = 0.5,
   rF1,
-  rF2 = NULL,
-  d1 = NULL,
-  d2 = NULL,
-  sigmaTrt1 = NULL,
-  sigmaCtrl1 = NULL,
-  sigmaTrt2 = NULL,
-  sigmaCtrl2 = NULL,
-  randRatio1 = NULL,
-  randRatio2 = NULL
+  rF2 = rF1,
+  d1,
+  d2 = d1,
+  sigmaTrt1,
+  sigmaCtrl1 = sigmaTrt1,
+  sigmaTrt2 = sigmaTrt1,
+  sigmaCtrl2 = sigmaTrt2,
+  randRatio1 = 1,
+  randRatio2 = randRatio1
 )
 }
 \arguments{
@@ -51,7 +51,12 @@ conProb2(
 \item{randRatio2}{The randomization ratio between the treatment group and control group for MRCT 2. Defaults to \code{randRatio1}.}
 }
 \value{
-CP The consistency probability, a scalar.
+A list containing the following two components:
+\describe{
+\item{\code{CP}}{The consistency probability, a scalar.}
+\item{\code{N1}}{The overall sample size for MRCT 1.}
+\item{\code{N2}}{The overall sample size for MRCT 2.}
+}
 }
 \description{
 Calculate the (conditional) consistency probability for two MRCTs.
@@ -63,26 +68,37 @@ equals
  \begin{aligned}
  &\frac{1}{(1-\beta_{1})(1-\beta_{2})}\int_{-z_{1-\beta_{1}}}^{\infty}\int_{-z_{1-\beta_{2}}}^{\infty} \\
  &\quad
- \Phi\left(\frac{(1-\pi)\left\{w^{(1)}\sigma^{(1)}_{d}u+w^{(2)}\sigma^{(2)}_{d}v + w^{(1)}d^{(1)} + w^{(2)}d^{(2)}\right\}}{\sqrt{\left\{\left(f_{k}^{(1)}\right)^{-1}-1\right\} \left(w^{(1)}\sigma^{(1)}_{d}\right)^{2} + \left\{\left(f_{k}^{(2)}\right)^{-1}-1\right\} \left(w^{(2)}\sigma^{(2)}_{d}\right)^{2}}} \right)\phi(u)\phi(v)dudv.
+ \Phi\left(\frac{(1-\pi)\left\{w^{(1)}\sigma^{(1)}_{d}u+w^{(2)}\sigma^{(2)}_{d}v + w^{(1)}d^{(1)} + w^{(2)}d^{(2)}\right\}}{\sqrt{\left\{\left(f_{k}^{(1)}\right)^{-1}-1\right\} \left(w^{(1)}\sigma^{(1)}_{d}\right)^{2} + \left\{\left(f_{k}^{(2)}\right)^{-1}-1\right\} \left(w^{(2)}\sigma^{(2)}_{d}\right)^{2}}} \right)\phi(u)\phi(v)dudv,
  \end{aligned}
 }
-Assuming homogeneous variances, equal treatment effects
-and equal randomization ratios across two studies, any of \code{d1},
-\code{sigmaTrt1} and \code{randRatio1} is no required to provide. Then the
-above equation reduces to
+where \eqn{w^{(s)}=N^{(s)}/(N^{(1)}+N^{(2)})} and
+\deqn{
+ \sigma_d^{2}=\var(D)=\frac{(r+1)\left\{\sigma^{2(\textrm{t})}+r\sigma^{2(\textrm{c})}\right\}}{rN}.
+}
+
+Since there is no closed forms of above equations, \code{conProb2} utilizes
+the \code{\link[cubature]{adaptIntegrate}} function for numerical integration.
+
+Additionally, if we assume homogeneous variances, equal treatment effects
+and equal randomization ratios across two studies, i.e., \eqn{\sigma^{2(\textrm{t},1)}=\sigma^{2(\textrm{t},2)}},
+\eqn{\sigma^{2(\textrm{c},1)}=\sigma^{2(\textrm{c},2)}}, \eqn{d^{(1)}=d^{(2)}}
+and \eqn{r^{(1)}=r^{(2)}}, then the above equation reduces to
 \deqn{
  \begin{aligned}
  &\frac{1}{(1-\beta_{1})(1-\beta_{2})}\int_{-(z_{1-\beta_{1}}+z_{1-\beta_{2}})/\sqrt{2}}^{\infty}\left[ \Phi\left(\frac{(1-\pi)\left\{\sqrt{2}u + (2z_{1-\alpha}+z_{1-\beta_{1}}+z_{1-\beta_{2}})\right\}}{\sqrt{\left(f_{k}^{(1)}\right)^{-1}+\left(f_{k}^{(2)}\right)^{-1}-2}}\right) \right. \\
  &\qquad\qquad\qquad\qquad \left.\left\{ \Phi\left(u+\sqrt{2}z_{1-\beta_{1}}\right)+\Phi\left(u+\sqrt{2}z_{1-\beta_{2}}\right)-1\right\} \right] \phi(u)du.
  \end{aligned}
 }
-Since there is no closed forms of above equations, \code{conProb2} utilizes
-the \code{\link[cubature]{adaptIntegrate}} function or the \code{\link[stats]{integrate}}
-function for numerical integration.
+
+Since now the above equation includes none of \code{d1}=\code{d2},
+\code{sigmaTrt1}=\code{sigmaTrt2}, \code{sigmaCtrl1}=\code{sigmaCtrl2}
+\code{randRatio1} = \code{randRatio2}, if only the consistency probability
+is considered, then the values of \code{d1} and \code{sigmaTrt1} could be arbitrary.
+
+The overall sample size is calculated in the same way as \code{\link{conProb}}.
 }
 \examples{
-conProb2(0.025,0.8,0.8,0.5,0.127)
 
-conProb2(0.025,0.8,0.8,0.5,0.127,0.127,1,1,4,4,4,4,1,1)
+conProb2(alpha = 0.025, power1 = 0.8, rF1 = 0.127, d1 = 1, sigmaTrt1 = 4)
 
 }
