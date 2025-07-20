@@ -2,7 +2,7 @@
 % Please edit documentation in R/regFrac.R
 \name{regFrac}
 \alias{regFrac}
-\title{Regional fraction for one MRCT}
+\title{Regional fraction for one MRCT via Japan's criterion I (conditional version)}
 \usage{
 regFrac(
   alpha,
@@ -16,13 +16,13 @@ regFrac(
 )
 }
 \arguments{
-\item{alpha}{The type I error.}
+\item{alpha}{The Type I error.}
 
 \item{power}{Power.}
 
 \item{pi}{The threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.}
 
-\item{CP}{the (conditional) consistency probability. Defaults to 80\%.}
+\item{CP}{the consistency probability. Defaults to 80\%.}
 
 \item{d}{The true mean of difference of response.}
 
@@ -40,10 +40,10 @@ A list containing the following two components:
 }
 }
 \description{
-Calculate the minimal regional fraction given the (conditional) consistency probability for one MRCT.
+Calculate the minimal regional fraction given the consistency probability for one MRCT via Japan's criterion I (conditional version).
 }
 \details{
-Given the (conditional) consistency probability, there is a minimal regional
+Given the consistency probability, there is a minimal regional
 fraction \code{rF}. To calculate the minimal \code{rF}, \code{regFrac} utilizes two core computational components:
 \itemize{
 \item The \code{\link{conProb}} function to compute the (conditional) consistency probability
@@ -61,7 +61,8 @@ The solution is obtained by solving the following equation numerically:
 The overall sample size is obtain by \code{\link{conProb}} simultaneously.
 }
 \examples{
+conProb(alpha = 0.05, power = 0.8, rF = 0.271, d = 1, sigmaTrt = 4)
 
-regFrac(alpha = 0.025, power = 0.8, d = 1, sigmaTrt = 4)
-
+regFrac(alpha = 0.05, power = 0.8, d = 1, sigmaTrt = 4)
+  
 }

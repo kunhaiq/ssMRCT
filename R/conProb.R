@@ -1,8 +1,8 @@
 #' @name conProb
 #'
-#' @title Consistency probability for one MRCT
+#' @title Consistency probability for one MRCT via Japan's criterion I (conditional version)
 #'
-#' @description Calculate the (conditional) consistency probability for one MRCT.
+#' @description Calculate the consistency probability for one MRCT via Japan's criterion I (conditional version).
 #'
 #' @param alpha The Type I error.
 #' @param power Power.
@@ -14,8 +14,9 @@
 #' @param randRatio The randomization ratio between the treatment group and control group. Defaults to 1.
 #'
 #' @details
-#' The (conditional) consistency probability, \eqn{\mathrm{Pr}\left(D_{k}\ge \pi D\ |\ T>z_{1-\alpha}\right)},
-#' equals
+#' The consistency probability via Japan's criterion I (conditional version),
+#' \eqn{\mathrm{Pr}\left(D_{k}\ge \pi D\ |\ T>z_{1-\alpha}\right)},
+#' is approximately
 #' \deqn{
 #'  \frac{1}{1-\beta}\int_{-z_{1-\beta}}^{\infty} \Phi\left(\frac{(1-\pi)(u + z_{1-\alpha}+z_{1-\beta})}{\sqrt{f_{k}^{-1}-1}}\right)\phi(u)du.
 #' }
@@ -40,7 +41,7 @@
 #' 
 #' @examples
 #' 
-#' conProb(alpha = 0.025, power = 0.8, rF = 0.23, d = 1, sigmaTrt = 4)
+#' conProb(alpha = 0.05, power = 0.8, rF = 0.271, d = 1, sigmaTrt = 4)
 #'
 #' @export
 #'

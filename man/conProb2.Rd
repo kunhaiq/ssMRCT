@@ -2,7 +2,7 @@
 % Please edit documentation in R/conProb2.R
 \name{conProb2}
 \alias{conProb2}
-\title{Consistency probability for two MRCTs}
+\title{Consistency probability for two MRCTs via the extended Japan's criterion I (conditional version)}
 \usage{
 conProb2(
   alpha,
@@ -22,13 +22,13 @@ conProb2(
 )
 }
 \arguments{
-\item{alpha}{The type I error.}
+\item{alpha}{The Type I error.}
 
 \item{power1}{Power for MRCT 1.}
 
 \item{power2}{Power for MRCT 2. Defaults to \code{power1}.}
 
-\item{pi}{The threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.}
+\item{pi}{The threshold ratio in the extended Japan's criterion I (conditional version). Defaults to 0.5.}
 
 \item{rF1}{The regional fraction for MRCT 1.}
 
@@ -59,11 +59,12 @@ A list containing the following two components:
 }
 }
 \description{
-Calculate the (conditional) consistency probability for two MRCTs.
+Calculate the consistency probability for two MRCTs via the extended Japan's criterion I (conditional version).
 }
 \details{
-The extended (conditional) consistency probability, \eqn{\mathrm{Pr}\left(D_{k,\textrm{pool}}\ge \pi D_\textrm{pool}\ |\ T^{(1)}>z_{1-\alpha},T^{(2)}>z_{1-\alpha}\right)},
-equals
+The extended consistency probability via the extended Japan's criterion I (conditional version),
+\eqn{\mathrm{Pr}\left(D_{k,\textrm{pool}}\ge \pi D_\textrm{pool}\ |\ T^{(1)}>z_{1-\alpha},T^{(2)}>z_{1-\alpha}\right)},
+is approximately
 \deqn{
  \begin{aligned}
  &\frac{1}{(1-\beta_{1})(1-\beta_{2})}\int_{-z_{1-\beta_{1}}}^{\infty}\int_{-z_{1-\beta_{2}}}^{\infty} \\
@@ -96,9 +97,14 @@ Since now the above equation includes none of \code{d1}=\code{d2},
 is considered, then the values of \code{d1} and \code{sigmaTrt1} could be arbitrary.
 
 The overall sample size is calculated in the same way as \code{\link{conProb}}.
+But additionally requiring all of \eqn{N^{(\textrm{t})}_{k}} and \eqn{N^{(\textrm{c})}_{k}}
+should be integers and hence \eqn{N^{(\textrm{t})}}, \eqn{N^{(\textrm{c})}} and \eqn{N}.
 }
 \examples{
-
-conProb2(alpha = 0.025, power1 = 0.8, rF1 = 0.127, d1 = 1, sigmaTrt1 = 4)
+### Remark 7
+conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1 = 0.141, d1 = 1, sigmaTrt1 = 4)
+conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1 = 0.100, rF2 = 0.238, d1 = 1, sigmaTrt1 = 4)
+### Remark 9
+conProb2(alpha = 0.05, power1 = 0.8, rF1 = 0.154, d1 = 1, sigmaTrt1 = 4)
 
 }

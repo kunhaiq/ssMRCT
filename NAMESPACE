@@ -2,6 +2,8 @@
 
 export(conProb)
 export(conProb2)
+export(conProbII)
+export(conProbII2)
 export(regFrac)
 export(regFrac2)
 importFrom(cubature,adaptIntegrate)

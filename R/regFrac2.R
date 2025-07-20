@@ -1,13 +1,13 @@
 #' @name regFrac2
 #'
-#' @title Regional fraction for two MRCTs
+#' @title Regional fraction for two MRCTs via the extended Japan's criterion I (conditional version)
 #'
-#' @description Calculate the optimal regional fractions given the (conditional) consistency probability for two MRCTs.
+#' @description Calculate the optimal regional fractions given the consistency probability for two MRCTs via the extended Japan's criterion I (conditional version).
 #'
-#' @param alpha The type I error.
+#' @param alpha The Type I error.
 #' @param power1 Power for MRCT 1.
 #' @param power2 Power for MRCT 2. Defaults to \code{power1}.
-#' @param pi The threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.
+#' @param pi The threshold ratio in the extended Japan's criterion I (conditional version). Defaults to 0.5.
 #' @param CP The consistency probability. Defaults to 80%.
 #' @param d1 The true mean of difference of response for MRCT 1.
 #' @param d2 The true mean of difference of response for MRCT 2. Defaults to \code{d1}.
@@ -19,7 +19,7 @@
 #' @param randRatio2 The randomization ratio between the treatment group and control group for MRCT 2. Defaults to \code{randRatio1}.
 #'
 #' @details
-#' Given the (conditional) consistency probability, there is an optimal pair of regional
+#' Given the consistency probability, there is an optimal pair of regional
 #' fractions \code{rF1} and \code{rF2} that minimized the combined region sample size,
 #' i.e., \eqn{f_{k}^{(1)}N^{(1)} + f_{k}^{(2)}N^{(2)}}. Theoretically,
 #' the ratio between such \code{rF1} and \code{rF2} is fixed. Hence,
@@ -49,9 +49,13 @@
 #' }
 #' 
 #' @examples 
+#' ### Remark 7
+#' conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1 = 0.141, d1 = 1, sigmaTrt1 = 4) 
 #' 
-#' regFrac2(alpha = 0.025, power1 = 0.8, d1 = 1, sigmaTrt1 = 4)
-#'
+#' regFrac2(alpha = 0.05, power1 = 0.8, power2 = 0.9, d1 = 1, sigmaTrt1 = 4)
+#' 
+#' conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1=0.1407622, d1 = 1, sigmaTrt1 = 4)
+#' 
 #' @export
 #'
 regFrac2 <- function(alpha,

@@ -1,13 +1,13 @@
 #' @name conProb2
 #'
-#' @title Consistency probability for two MRCTs
+#' @title Consistency probability for two MRCTs via the extended Japan's criterion I (conditional version)
 #'
-#' @description Calculate the (conditional) consistency probability for two MRCTs.
+#' @description Calculate the consistency probability for two MRCTs via the extended Japan's criterion I (conditional version).
 #'
-#' @param alpha The type I error.
+#' @param alpha The Type I error.
 #' @param power1 Power for MRCT 1.
 #' @param power2 Power for MRCT 2. Defaults to \code{power1}.
-#' @param pi The threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.
+#' @param pi The threshold ratio in the extended Japan's criterion I (conditional version). Defaults to 0.5.
 #' @param rF1 The regional fraction for MRCT 1.
 #' @param rF2 The regional fraction for MRCT 2. Defaults to \code{rF1}.
 #' @param d1 The true mean of difference of response for MRCT 1.
@@ -20,8 +20,9 @@
 #' @param randRatio2 The randomization ratio between the treatment group and control group for MRCT 2. Defaults to \code{randRatio1}.
 #'
 #' @details
-#' The extended (conditional) consistency probability, \eqn{\mathrm{Pr}\left(D_{k,\textrm{pool}}\ge \pi D_\textrm{pool}\ |\ T^{(1)}>z_{1-\alpha},T^{(2)}>z_{1-\alpha}\right)},
-#' equals
+#' The extended consistency probability via the extended Japan's criterion I (conditional version),
+#' \eqn{\mathrm{Pr}\left(D_{k,\textrm{pool}}\ge \pi D_\textrm{pool}\ |\ T^{(1)}>z_{1-\alpha},T^{(2)}>z_{1-\alpha}\right)},
+#' is approximately
 #' \deqn{
 #'  \begin{aligned}
 #'  &\frac{1}{(1-\beta_{1})(1-\beta_{2})}\int_{-z_{1-\beta_{1}}}^{\infty}\int_{-z_{1-\beta_{2}}}^{\infty} \\
@@ -54,6 +55,8 @@
 #' is considered, then the values of \code{d1} and \code{sigmaTrt1} could be arbitrary.
 #'  
 #' The overall sample size is calculated in the same way as \code{\link{conProb}}.
+#' But additionally requiring all of \eqn{N^{(\textrm{t})}_{k}} and \eqn{N^{(\textrm{c})}_{k}} 
+#' should be integers and hence \eqn{N^{(\textrm{t})}}, \eqn{N^{(\textrm{c})}} and \eqn{N}.
 #'  
 #' @returns A list containing the following two components:
 #' \describe{
@@ -63,9 +66,12 @@
 #' }
 #'   
 #' @examples 
-#'
-#' conProb2(alpha = 0.025, power1 = 0.8, rF1 = 0.127, d1 = 1, sigmaTrt1 = 4)
-#'
+#' ### Remark 7
+#' conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1 = 0.141, d1 = 1, sigmaTrt1 = 4)
+#' conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1 = 0.100, rF2 = 0.238, d1 = 1, sigmaTrt1 = 4)
+#' ### Remark 9
+#' conProb2(alpha = 0.05, power1 = 0.8, rF1 = 0.154, d1 = 1, sigmaTrt1 = 4)
+#' 
 #' @export
 #'
 conProb2 <- function(alpha,

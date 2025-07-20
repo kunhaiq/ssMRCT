@@ -2,7 +2,7 @@
 % Please edit documentation in R/regFrac2.R
 \name{regFrac2}
 \alias{regFrac2}
-\title{Regional fraction for two MRCTs}
+\title{Regional fraction for two MRCTs via the extended Japan's criterion I (conditional version)}
 \usage{
 regFrac2(
   alpha,
@@ -21,13 +21,13 @@ regFrac2(
 )
 }
 \arguments{
-\item{alpha}{The type I error.}
+\item{alpha}{The Type I error.}
 
 \item{power1}{Power for MRCT 1.}
 
 \item{power2}{Power for MRCT 2. Defaults to \code{power1}.}
 
-\item{pi}{The threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.}
+\item{pi}{The threshold ratio in the extended Japan's criterion I (conditional version). Defaults to 0.5.}
 
 \item{CP}{The consistency probability. Defaults to 80\%.}
 
@@ -57,10 +57,10 @@ A list containing the following two components:
 }
 }
 \description{
-Calculate the optimal regional fractions given the (conditional) consistency probability for two MRCTs.
+Calculate the optimal regional fractions given the consistency probability for two MRCTs via the extended Japan's criterion I (conditional version).
 }
 \details{
-Given the (conditional) consistency probability, there is an optimal pair of regional
+Given the consistency probability, there is an optimal pair of regional
 fractions \code{rF1} and \code{rF2} that minimized the combined region sample size,
 i.e., \eqn{f_{k}^{(1)}N^{(1)} + f_{k}^{(2)}N^{(2)}}. Theoretically,
 the ratio between such \code{rF1} and \code{rF2} is fixed. Hence,
@@ -82,7 +82,11 @@ where \eqn{k} is the above fixed ratio between \code{rF1} and \code{rF2}.
 The overall sample size is obtain by \code{\link{conProb2}} simultaneously.
 }
 \examples{
+### Remark 7
+conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1 = 0.141, d1 = 1, sigmaTrt1 = 4) 
 
-regFrac2(alpha = 0.025, power1 = 0.8, d1 = 1, sigmaTrt1 = 4)
+regFrac2(alpha = 0.05, power1 = 0.8, power2 = 0.9, d1 = 1, sigmaTrt1 = 4)
+
+conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1=0.1407622, d1 = 1, sigmaTrt1 = 4)
 
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/conProb.R
 \name{conProb}
 \alias{conProb}
-\title{Consistency probability for one MRCT}
+\title{Consistency probability for one MRCT via Japan's criterion I (conditional version)}
 \usage{
 conProb(
   alpha,
@@ -40,11 +40,12 @@ A list containing the following two components:
 }
 }
 \description{
-Calculate the (conditional) consistency probability for one MRCT.
+Calculate the consistency probability for one MRCT via Japan's criterion I (conditional version).
 }
 \details{
-The (conditional) consistency probability, \eqn{\mathrm{Pr}\left(D_{k}\ge \pi D\ |\ T>z_{1-\alpha}\right)},
-equals
+The consistency probability via Japan's criterion I (conditional version),
+\eqn{\mathrm{Pr}\left(D_{k}\ge \pi D\ |\ T>z_{1-\alpha}\right)},
+is approximately
 \deqn{
  \frac{1}{1-\beta}\int_{-z_{1-\beta}}^{\infty} \Phi\left(\frac{(1-\pi)(u + z_{1-\alpha}+z_{1-\beta})}{\sqrt{f_{k}^{-1}-1}}\right)\phi(u)du.
 }
@@ -63,6 +64,6 @@ Then \eqn{N = N^{(\textrm{t})} + N^{(\textrm{c})}}. Additionally, both of
 }
 \examples{
 
-conProb(alpha = 0.025, power = 0.8, rF = 0.23, d = 1, sigmaTrt = 4)
+conProb(alpha = 0.05, power = 0.8, rF = 0.271, d = 1, sigmaTrt = 4)
 
 }
