@@ -1,6 +1,6 @@
 Package: ssMRCT
 Type: Package
-Title: Regional consistency evaluation and sample size calculation for MRCT
+Title: Regional consistency evaluation and sample size calculation for MRCTs
 Version: 0.1.0 
 Author: Kunhai Qing [cre, aut], Xinru Ren [aut], Jin Xu [aut]
 Maintainer: Kunhai Qing <kunhaiq@qq.com>

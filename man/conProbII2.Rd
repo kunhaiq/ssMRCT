@@ -97,6 +97,8 @@ For binary response, the above approximation loses precision under moderate samp
 Hence \code{conProbII2} applies Monto Carlo to calculate the correct consistency probability.
 
 The overall sample size is calculated in the same way as \code{\link{conProb}}.
+But additionally requiring all of \eqn{N^{(\textrm{t},s)}_{k}} and \eqn{N^{(\textrm{c},s)}_{k}}
+should be integers and hence \eqn{N^{(\textrm{t},s)}}, \eqn{N^{(\textrm{c,s})}} and \eqn{N^{s}}.
 }
 \examples{
 

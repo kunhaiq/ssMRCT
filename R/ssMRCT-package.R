@@ -30,9 +30,9 @@
 #' }
 #' 
 #' @references  
-#' MHLW (2007). Basic Principles on Global Clinical Trials.
+#' MHLW (2007). Basic Principles on Global Clinical Trials. https://www.pmda.go.jp/files/000153265.pdf
 #' 
-#' Kunhai Qing, Xinru Ren, Shuping Jiang, Ping Yang, Menggang Yu and Jin Xu (2025). Regional consistency evaluation and sample size calculation under two MRCTs.
+#' Kunhai Qing, Xinru Ren, Shuping Jiang, Ping Yang, Menggang Yu and Jin Xu (2025). Regional consistency evaluation and sample size calculation under two MRCTs. http://arxiv.org/abs/2411.15567
 #' 
 #'
 #' @importFrom cubature adaptIntegrate

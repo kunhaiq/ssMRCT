@@ -97,8 +97,8 @@ Since now the above equation includes none of \code{d1}=\code{d2},
 is considered, then the values of \code{d1} and \code{sigmaTrt1} could be arbitrary.
 
 The overall sample size is calculated in the same way as \code{\link{conProb}}.
-But additionally requiring all of \eqn{N^{(\textrm{t})}_{k}} and \eqn{N^{(\textrm{c})}_{k}}
-should be integers and hence \eqn{N^{(\textrm{t})}}, \eqn{N^{(\textrm{c})}} and \eqn{N}.
+Additionally, both of \eqn{N^{(\textrm{t},s)}} and \eqn{N^{(\textrm{c},s)}}
+should be integers and hence \eqn{N^{s}}.
 }
 \examples{
 ### Remark 7
