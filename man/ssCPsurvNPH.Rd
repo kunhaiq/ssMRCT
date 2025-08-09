@@ -19,58 +19,58 @@ ssCPsurvNPH(
   PW = T,
   unimin,
   unimax,
-  pi,
-  k,
+  pi = 0.5,
+  randRatio = 1,
   target,
   f,
   eta
 )
 }
 \arguments{
-\item{alpha}{one-sided Type I error.}
+\item{alpha}{Type I error for one-sided test.}
 
 \item{beta}{Type II error.}
 
-\item{lambda0a}{vector rate parameter of the piece-wise exponential distribution on or before the breakpoint in the control group for all regions.}
+\item{lambda0a}{vector rate parameter of the piece-wise exponential distribution on or before the breakpoint in the control group. a \code{R x 1} vector with each component representing the rate parameter in region \eqn{r}.}
 
-\item{lambda0b}{vector rate parameter of the piece-wise exponential distribution after the breakpoint in the control group for all regions.}
+\item{lambda0b}{vector rate parameter of the piece-wise exponential distribution after the breakpoint in the control group. a \code{R x 1} vector with each component representing the rate parameter in region \eqn{r}.}
 
-\item{lambda1a}{vector rate parameter of the piece-wise exponential distribution on or before the breakpoint in the treatment group for all regions.}
+\item{lambda1a}{vector rate parameter of the piece-wise exponential distribution on or before the breakpoint in the treatment group. a \code{R x 1} vector with each component representing the rate parameter in region \eqn{r}.}
 
-\item{lambda1b}{vector rate parameter of the piece-wise exponential distribution before the breakpoint in the treatment group for all regions.}
+\item{lambda1b}{vector rate parameter of the piece-wise exponential distribution before the breakpoint in the treatment group. a \code{R x 1} vector with each component representing the rate parameter in region \eqn{r}.}
 
 \item{breakpoint}{scalar of the time at which the hazard changes. Assumed universal breakpoint value across groups and regions.}
 
-\item{shape0}{vector of the shape parameter of the weibull distribution in the control group for all regions (shape=1 reduces to exponential)}
+\item{shape0}{vector of the shape parameter of the weibull distribution in the control group (shape=1 reduces to exponential). a \code{R x 1} vector with each component representing the shape parameter in region \eqn{r}.}
 
-\item{scale0}{vector of the scale parameter of the weibull distribution in the control group for all regions (scale=1/rate)}
+\item{scale0}{vector of the scale parameter of the weibull distribution in the control group (scale=1/rate). a \code{R x 1} vector with each component representing the scale parameter in region \eqn{r}.}
 
-\item{shape1}{vector of the shape parameter of the weibull distribution in the treatment group for all regions (shape=1 reduces to exponential)}
+\item{shape1}{vector of the shape parameter of the weibull distribution in the treatment group(shape=1 reduces to exponential). a \code{R x 1} vector with each component representing the shape parameter in region \eqn{r}.}
 
-\item{scale1}{vector of the scale  parameter of the weibull distribution in the treatment group for all regions (scale=1/rate)}
+\item{scale1}{vector of the scale  parameter of the weibull distribution in the treatment group (scale=1/rate). a \code{R x 1} vector with each component representing the scale parameter in region \eqn{r}.}
 
-\item{PW}{logical; if TURE (default), survival time follow piece-wise exponential distribution. Otherwise weibull distribution}
+\item{PW}{logical; if TURE (default), survival time follow piece-wise exponential distribution. Otherwise Weibull distribution}
 
-\item{unimin}{vector of the lower limits of the uniform distribution.}
+\item{unimin}{vector of the lower limits of the uniform distribution. a \code{R x 1} vector with each component representing the lower limit in region \eqn{r}.}
 
-\item{unimax}{vector of the upper limits of the uniform distribution.}
+\item{unimax}{vector of the upper limits of the uniform distribution. a \code{R x 1} vector with each component representing the upper parameter in region \eqn{r}.}
 
 \item{pi}{threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.}
 
-\item{k}{randomization ratio between the treatment group and control group. Defaults to 1.}
+\item{randRatio}{randomization ratio between the treatment group and control group. Defaults to 1.}
 
-\item{target}{index for the region of interest. Should be an integer.}
+\item{target}{index for the region of interest. an integer of value referring to the region with the corresponding position in \code{f}.}
 
-\item{f}{vector of regional fractions.Specified for all regions with length that equals to the total number of region.}
+\item{f}{vector of regional fractions. a \code{R x 1} vector with each component representing the regional fraction in region \eqn{r} and the sum must equal 1.}
 
-\item{eta}{scalar of truncated time in RMST.}
+\item{eta}{a scalar of truncated time in RMST. Assumed universal truncated time across groups and regions.}
 }
 \value{
 A list containing the following components:
 \describe{
 \item{\code{Dr}}{regional effect}
-\item{\code{sigma2.0r}}{asymptotic vairance of RMST estimate of region r for the control group }
-\item{\code{sigma2.1r}}{asymptotic vairance of RMST estimate of region r for the treatment group }
+\item{\code{sigma2.0r}}{asymptotic vairance of RMST estimate of the control group in region r}
+\item{\code{sigma2.1r}}{asymptotic vairance of RMST estimate of the treatment group in region r}
 \item{\code{n0}}{The overall sample size of the control group}
 \item{\code{n1}}{The overall sample size of the treatment group}
 \item{\code{n}}{The overall sample size.}
@@ -83,37 +83,42 @@ A list containing the following components:
 Calculate the overall sample size and consistency probability for one MRCT via Japan's criterion I (conditional version) under random effects model for the survival endpoint with nPH assumption.
 }
 \details{
+Assume the survival endpoint follows either piece-wise exponential distribution with hazard function (i.e., rate function)
+\eqn{\lambda_k^{(r)}I(0<t\le \psi )+\gamma_k^{(r)}I(t> \psi)}, where \eqn{\psi}(\code{breakpoint}) is the change point
+and \eqn{\lambda_k^{(r)}} (\code{lambda0a}, \code{lambda0b}), \eqn{\gamma_k^{(r)}} (\code{lambda1a}, \code{lambda1b})
+represent the hazard on or before and after the change point \eqn{\psi} in group \eqn{k} of region \eqn{r}.
+or Weibull distribution (i.e., Weibull(\eqn{\nu_k^{(r)}, \theta_k^{(r)}})),
+with shape parameter \eqn{\nu_k^{(r)}} (\code{shape0},\code{shape1})
+and scale parameter (i.e., 1/rate parameter) \eqn{\theta_k^{(r)}} (\code{scale0}, \code{scale1}) for group \eqn{k} region \eqn{r}.
+Assume the censoring time follows uniform distribution with lower limit \code{unimin} and upper limit \code{unimax}.
+
 The overall sample size is calculated based on the below equation,
 \deqn{
-\sum_r\left(\tau^2+\frac{\Omega_r}{n_0f_r}\right)^{-1} =\frac{(z_{1-\alpha}+z_{1-\beta})^2}{\delta^2} \quad n_1=kn_0.
+\sum_r\left(\tau^2+\frac{\Omega_r}{n_0f_r}\right)^{-1} =\frac{(z_{1-\alpha}+z_{1-\beta})^2}{\delta^2} \quad n_1=\ell n_0.
 }
 Since there is no closed form of above equation, \code{ssCPsurvPH} utilizes the \code{\link[stats]{uniroot}} function for numerical solution for \eqn{n_0}.
-Then \eqn{n = n_0+n_1}. Additionally, both of
-\eqn{n_0} and \eqn{n_1} should be integers and hence \eqn{n_0}.
+Then \eqn{n = n_0+n_1}, where both of \eqn{n_0} and \eqn{n_1} should be integers and hence \eqn{n_0}.
 
 The consistency probability via Japan's criterion I (conditional version) under random effects model,
 \eqn{\mathrm{Pr}\left(\widetilde{D}_{r}\ge \pi \widetilde{D} | T>z_{1-\alpha}\right)},
 is approximately
 \deqn{
  \frac{1}{1-\beta}\int_{u>z_{\beta}}\Phi\left(\frac{(1-\pi) \left(u+z_{1-\alpha}+z_{1-\beta}\right) }{\sqrt{\rho_r^{-1}-1}}\right) d\Phi(u)
-}provided \eqn{\frac{\tau}{\delta}<\frac{\sqrt{R}}{z_{1-\alpha}+z_{1-\beta}}} where \eqn{\rho_r^{-1}=\rho_r^{-1}=1+\frac{h_r}{h_r+1}\sum_{j \ne r}^R\frac{h_j}{h_j+1},
-\quad w=\frac{1}{\tau^2}\sum_{j=1}^R\frac{h_j}{h_j+1}, \quad h_r=\tau^2/\sigma^{2(r)},
-\quad \sigma^{2(r)}=\Omega_r/(n_0f_r)}
+}
+where \eqn{\rho_r^{-1}-1=\frac{h_r}{h_r+1}\sum_{j \ne r}^R\frac{h_j}{h_j+1},
+w=\frac{1}{\tau^2}\sum_{j=1}^R\frac{h_j}{h_j+1}, h_r=\tau^2/\sigma^{2(r)}, \sigma^{2(r)}=\Omega_r/(n_0f_r)}.
 Since there is no closed form of above equation, \code{ssCPsurvPH} utilizes the \code{\link[stats]{integrate}} function for numerical integration.
 
-Assume the survival endpoint follows either piece-wise exponential distribution or Weibull distribution.
-The piece-wise exponential distribution with \code{lambda0a} or \code{lambda0b}=\eqn{\lambda_k^{(r)}}, \code{lambda1a} or \code{lambda1b}=\eqn{\gamma_k^{(r)}} and \code{breakpoint}=\eqn{\psi}
-has hazard function of \eqn{\lambda_k^{(r)}I(0<t\le \psi )+\gamma_k^{(r)}I(t> \psi)} where \eqn{\psi} is the change point.
-\enumerate{
-\item \eqn{\Omega_r=\ell^{-1}\sigma_1^{2(r)}+\sigma_1^{2(r)}},
-\item \eqn{\delta} and \eqn{\tau} are derived based on the naive approach as the mean and standard deviation of the regional RMST between group difference.
-}
+For survival endpoint under non-PH assumption, \eqn{\Omega_r=\ell^{-1}\sigma_1^{2(r)}+\sigma_1^{2(r)}}.
+\eqn{\delta} and \eqn{\tau} are derived based on the naive approach as the mean and standard deviation of the regional RMST between group difference.
 }
 \examples{
 
-ssCPsurvNPH(alpha=0.025, beta=0.2,lambda0a=c(0.07,0.07,0.07,0.07), 
-    lambda0b=c(0.03,0.04,0.05,0.06),lambda1a=c(0.02,0.03,0.04,0.05), 
-    lambda1b=c(0.03,0.04,0.05,0.06),breakpoint=10, unimin=rep(0,4), 
-    unimax=rep(80*3,4), pi=0.5, k=1, target=1, f=rep(1/4,4), eta=80)
+ssCPsurvNPH(alpha=0.025, beta=0.2,
+            lambda0a=c(0.07,0.07,0.07,0.07),lambda0b=c(0.03,0.04,0.05,0.06),
+            lambda1a=c(0.02,0.03,0.04,0.05),lambda1b=c(0.03,0.04,0.05,0.06),
+            breakpoint=10,
+            unimin=rep(0,4),unimax=rep(80*3,4),
+            pi=0.5, randRatio=1, target=1, f=rep(1/4,4), eta=80)
 
 }
