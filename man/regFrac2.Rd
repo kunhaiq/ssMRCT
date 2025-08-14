@@ -2,7 +2,7 @@
 % Please edit documentation in R/regFrac2.R
 \name{regFrac2}
 \alias{regFrac2}
-\title{Regional fraction for two MRCTs via the extended Japan's criterion I (conditional version)}
+\title{Regional fraction for two MRCTs via the extended criterion Method I of MHLW (2007) (conditional version) under fixed effects model}
 \usage{
 regFrac2(
   alpha,
@@ -27,7 +27,7 @@ regFrac2(
 
 \item{power2}{Power for MRCT 2. Defaults to \code{power1}.}
 
-\item{pi}{The threshold ratio in the extended Japan's criterion I (conditional version). Defaults to 0.5.}
+\item{pi}{The threshold ratio in the extended criterion Method I of MHLW (2007) (conditional version). Defaults to 0.5.}
 
 \item{CP}{The consistency probability. Defaults to 80\%.}
 
@@ -57,7 +57,7 @@ A list containing the following two components:
 }
 }
 \description{
-Calculate the optimal regional fractions given the consistency probability for two MRCTs via the extended Japan's criterion I (conditional version).
+Calculate the optimal regional fractions given the consistency probability for two MRCTs via the extended criterion Method I of MHLW (2007)  (conditional version) under fixed effects model
 }
 \details{
 Given the consistency probability, there is an optimal pair of regional

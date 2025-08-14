@@ -1,8 +1,8 @@
 #' @name conProbII
 #'
-#' @title Consistency probability for one MRCT via Japan's criterion II (conditional version)
+#' @title Consistency probability for MRCT via criterion Method II of MHLW (2007) (conditional version) under fixed effects model
 #'
-#' @description Calculate the consistency probability for one MRCT via Japan's criterion II (conditional version).
+#' @description Calculate the consistency probability for MRCT via criterion Method II of MHLW (2007) (conditional version) under fixed effects model.
 #'
 #' @param alpha The Type I error.
 #' @param power Power. 
@@ -18,7 +18,7 @@
 #' @param B The number of simulation by Monto Carlo for \code{responseType} = "binary". Defaults to 100,000.
 #'
 #' @details
-#' The consistency probability via Japan's criterion II (conditional version),
+#' The consistency probability via criterion Method II of MHLW (2007) (conditional version),
 #' \deqn{\mathrm{Pr}\left(D_{k}\geq 0, k=1,\ldots,K\ |\ T>z_{1-\alpha}\right),}
 #' is approximately
 #' \deqn{
@@ -33,9 +33,7 @@
 #' For binary response, the above approximation loses precision under moderate sample size.
 #' Hence \code{conProbII} applies Monto Carlo to calculate the correct consistency probability.
 #'
-#' The overall sample size is calculated in the same way as \code{\link{conProb}}.
-#' But additionally requiring all of \eqn{N^{(\textrm{t})}_{k}} and \eqn{N^{(\textrm{c})}_{k}} 
-#' should be integers and hence \eqn{N^{(\textrm{t})}}, \eqn{N^{(\textrm{c})}} and \eqn{N}.
+#' The overall sample size is calculated in the same way as \code{\link{conProb}}. 
 #' 
 #' @returns A list containing the following two components:
 #' \describe{

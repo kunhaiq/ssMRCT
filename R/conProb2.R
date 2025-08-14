@@ -1,13 +1,13 @@
 #' @name conProb2
 #'
-#' @title Consistency probability for two MRCTs via the extended Japan's criterion I (conditional version)
+#' @title Consistency probability for two MRCTs via the extended criterion Method I of MHLW (2007) (conditional version) under fixed effects model
 #'
-#' @description Calculate the consistency probability for two MRCTs via the extended Japan's criterion I (conditional version).
+#' @description Calculate the consistency probability for two MRCTs via the extended criterion Method I of MHLW (2007) (conditional version) under fixed effects model.
 #'
 #' @param alpha The Type I error.
 #' @param power1 Power for MRCT 1.
 #' @param power2 Power for MRCT 2. Defaults to \code{power1}.
-#' @param pi The threshold ratio in the extended Japan's criterion I (conditional version). Defaults to 0.5.
+#' @param pi The threshold ratio in the extended criterion Method I of MHLW (2007) (conditional version). Defaults to 0.5.
 #' @param rF1 The regional fraction for MRCT 1.
 #' @param rF2 The regional fraction for MRCT 2. Defaults to \code{rF1}.
 #' @param d1 The true mean of difference of response for MRCT 1.
@@ -20,8 +20,8 @@
 #' @param randRatio2 The randomization ratio between the treatment group and control group for MRCT 2. Defaults to \code{randRatio1}.
 #'
 #' @details
-#' The extended consistency probability via the extended Japan's criterion I (conditional version),
-#' \eqn{\mathrm{Pr}\left(D_{k,\textrm{pool}}\ge \pi D_\textrm{pool}\ |\ T^{(1)}>z_{1-\alpha},T^{(2)}>z_{1-\alpha}\right)},
+#' The extended consistency probability via the extended criterion Method I of MHLW (2007) (conditional version),
+#' \deqn{\mathrm{Pr}\left(D_{k,\textrm{pool}}\ge \pi D_\textrm{pool}\ |\ T^{(1)}>z_{1-\alpha},T^{(2)}>z_{1-\alpha}\right),}
 #' is approximately
 #' \deqn{
 #'  \begin{aligned}
@@ -32,7 +32,7 @@
 #' } 
 #' where \eqn{w^{(s)}=N^{(s)}/(N^{(1)}+N^{(2)})} and 
 #' \deqn{
-#'  \sigma_d^{2}=\var(D)=\frac{(r+1)\left\{\sigma^{2(\textrm{t})}+r\sigma^{2(\textrm{c})}\right\}}{rN}.
+#'  \sigma_d^{2}=\mathrm{var}(D)=\frac{(r+1)\left\{\sigma^{2(\textrm{t})}+r\sigma^{2(\textrm{c})}\right\}}{rN}.
 #' }
 #' 
 #' Since there is no closed forms of above equations, \code{conProb2} utilizes
@@ -54,9 +54,7 @@
 #' \code{randRatio1} = \code{randRatio2}, if only the consistency probability
 #' is considered, then the values of \code{d1} and \code{sigmaTrt1} could be arbitrary.
 #'  
-#' The overall sample size is calculated in the same way as \code{\link{conProb}}.
-#' Additionally, both of \eqn{N^{(\textrm{t},s)}} and \eqn{N^{(\textrm{c},s)}} 
-#' should be integers and hence \eqn{N^{s}}.
+#' The overall sample size is calculated in the same way as \code{\link{conProb}}. 
 #'  
 #' @returns A list containing the following two components:
 #' \describe{

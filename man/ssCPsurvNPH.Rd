@@ -2,7 +2,7 @@
 % Please edit documentation in R/ssCPsurvNPH.R
 \name{ssCPsurvNPH}
 \alias{ssCPsurvNPH}
-\title{Overall sample size and consistency probability for one MRCT via Japan's criterion I (conditional version) under random effects model.}
+\title{Overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model.}
 \usage{
 ssCPsurvNPH(
   alpha,
@@ -49,13 +49,13 @@ ssCPsurvNPH(
 
 \item{scale1}{vector of the scale  parameter of the weibull distribution in the treatment group (scale=1/rate). a \code{R x 1} vector with each component representing the scale parameter in region \eqn{r}.}
 
-\item{PW}{logical; if TURE (default), survival time follow piece-wise exponential distribution. Otherwise Weibull distribution}
+\item{PW}{logical; if TRUE (default), survival time follow piece-wise exponential distribution. Otherwise Weibull distribution}
 
 \item{unimin}{vector of the lower limits of the uniform distribution. a \code{R x 1} vector with each component representing the lower limit in region \eqn{r}.}
 
 \item{unimax}{vector of the upper limits of the uniform distribution. a \code{R x 1} vector with each component representing the upper parameter in region \eqn{r}.}
 
-\item{pi}{threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.}
+\item{pi}{threshold ratio in Method I of MHLW (2007)(conditional version). Defaults to 0.5.}
 
 \item{randRatio}{randomization ratio between the treatment group and control group. Defaults to 1.}
 
@@ -80,7 +80,7 @@ A list containing the following components:
 }
 }
 \description{
-Calculate the overall sample size and consistency probability for one MRCT via Japan's criterion I (conditional version) under random effects model for the survival endpoint with nPH assumption.
+Calculate the overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model for the survival endpoint with nPH assumption.
 }
 \details{
 Assume the survival endpoint follows either piece-wise exponential distribution with hazard function (i.e., rate function)
@@ -92,14 +92,14 @@ with shape parameter \eqn{\nu_k^{(r)}} (\code{shape0},\code{shape1})
 and scale parameter (i.e., 1/rate parameter) \eqn{\theta_k^{(r)}} (\code{scale0}, \code{scale1}) for group \eqn{k} region \eqn{r}.
 Assume the censoring time follows uniform distribution with lower limit \code{unimin} and upper limit \code{unimax}.
 
-The overall sample size is calculated based on the below equation,
+The overall sample size is calculated based on the following equation,
 \deqn{
 \sum_r\left(\tau^2+\frac{\Omega_r}{n_0f_r}\right)^{-1} =\frac{(z_{1-\alpha}+z_{1-\beta})^2}{\delta^2} \quad n_1=\ell n_0.
 }
 Since there is no closed form of above equation, \code{ssCPsurvPH} utilizes the \code{\link[stats]{uniroot}} function for numerical solution for \eqn{n_0}.
-Then \eqn{n = n_0+n_1}, where both of \eqn{n_0} and \eqn{n_1} should be integers and hence \eqn{n_0}.
+Then \eqn{n = n_0+n_1}.
 
-The consistency probability via Japan's criterion I (conditional version) under random effects model,
+The consistency probability via Method I of MHLW (2007)(conditional version) under random effects model,
 \eqn{\mathrm{Pr}\left(\widetilde{D}_{r}\ge \pi \widetilde{D} | T>z_{1-\alpha}\right)},
 is approximately
 \deqn{

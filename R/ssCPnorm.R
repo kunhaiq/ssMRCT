@@ -1,8 +1,8 @@
 #' @name ssCPnorm
 #'
-#' @title Overall sample size and consistency probability for one MRCT via Japan's criterion I (conditional version) under random effects model.
+#' @title Overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model.
 #'
-#' @description Calculate the overall sample size and consistency probability for one MRCT via Japan's criterion I (conditional version) under random effects model for the normal endpoint.
+#' @description Calculate the overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model for the normal endpoint.
 #'
 #' @param alpha Type I error for one-sided test.
 #' @param beta Type II error.
@@ -10,21 +10,21 @@
 #' @param tau standard deviation of the Gaussian prior for the regional treatment effect.
 #' @param sigma1r regional standard deviations of the response in the treatment group, a \code{R x 1} vector with each component representing the standard deviation in region \eqn{r} .
 #' @param sigma0r regional standard deviations of the response in the control group. a \code{R x 1} vector with each component representing the standard deviation in region \eqn{r}.
-#' @param pi threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.
+#' @param pi threshold ratio in Method I of MHLW (2007)(conditional version). Defaults to 0.5.
 #' @param randRatio randomization ratio between the treatment group and control group. Defaults to 1.
 #' @param target The index for the region of interest. an integer of value referring to the region with the corresponding position in \code{f}.
 #' @param f regional fractions, a \code{R x 1} vector with each component representing the fraction in region \eqn{r} and the sum must equal 1.
 #'
 #'
 #' @details
-#' The overall sample size is calculated based on the below equation,
+#' The overall sample size is calculated based on the following equation,
 #' \deqn{
 #' \sum_r\left(\tau^2+\frac{\Omega_r}{n_0f_r}\right)^{-1} =\frac{(z_{1-\alpha}+z_{1-\beta})^2}{\delta^2} \quad n_1=\ell n_0.
 #' }
 #' Since there is no closed form of above equation, \code{ssCPnorm} utilizes the \code{\link[stats]{uniroot}} function for numerical solution for \eqn{n_0}.
-#' Then \eqn{n = n_0+n_1}, where both of \eqn{n_0} and \eqn{n_1} should be integers and hence \eqn{n_0}.
+#' Then \eqn{n = n_0+n_1}.
 #'
-#' The consistency probability via Japan's criterion I (conditional version) under random effects model,
+#' The consistency probability via Method I of MHLW (2007)(conditional version) under random effects model,
 #' \eqn{\mathrm{Pr}\left(\widetilde{D}_{r}\ge \pi \widetilde{D} | T>z_{1-\alpha}\right)},
 #' is approximately
 #' \deqn{
@@ -48,7 +48,9 @@
 #'
 #' @examples
 #'
-#' ssCPnorm(alpha=0.025, beta=0.1, delta=0.25, tau=0.1, sigma1r=rep(1,3),sigma0r=rep(1,3), randRatio=1, pi=0.5, target=1, f=c(1/3,1/3,1/3))
+#' ssCPnorm(alpha=0.025, beta=0.1, delta=0.25, tau=0.1,
+#'          sigma1r=rep(1,3),sigma0r=rep(1,3),
+#'          randRatio=1, pi=0.5, target=1, f=c(1/3,1/3,1/3))
 #'
 #' @export
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ssCPsurvPH.R
 \name{ssCPsurvPH}
 \alias{ssCPsurvPH}
-\title{Overall sample size and consistency probability for one MRCT via Japan's criterion I (conditional version) under random effects model.}
+\title{Overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model.}
 \usage{
 ssCPsurvPH(alpha, beta, lambda0r, hr, pi = 0.5, randRatio = 1, target, f, L)
 }
@@ -15,7 +15,7 @@ ssCPsurvPH(alpha, beta, lambda0r, hr, pi = 0.5, randRatio = 1, target, f, L)
 
 \item{hr}{vector of hazard ratios of treatment group vs control group. a \code{R x 1} vector with each component representing the hr in region \eqn{r}.}
 
-\item{pi}{threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.}
+\item{pi}{threshold ratio in Method I of MHLW (2007)(conditional version). Defaults to 0.5.}
 
 \item{randRatio}{randomization ratio between the treatment group and control group. Defaults to 1.}
 
@@ -37,7 +37,7 @@ A list containing the following components:
 }
 }
 \description{
-Calculate the overall sample size and consistency probability for one MRCT via Japan's criterion I (conditional version) under random effects model for survival endpoint with PH assumption.
+Calculate the overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model for survival endpoint with PH assumption.
 }
 \details{
 Assume the survival endpoint in region \eqn{r} of group \eqn{k} follows exponential distribution
@@ -48,14 +48,14 @@ Assume a study with fixed study duration where each subject is followed for the
 same length in time (i.e.,\eqn{L} time units) and administrative censoring at the end of study follow-up
 is the only type of censoring.
 
-The overall sample size is calculated based on the below equation,
+The overall sample size is calculated based on the following equation,
 \deqn{
 \sum_r\left(\tau^2+\frac{\Omega_r}{n_0f_r}\right)^{-1} =\frac{(z_{1-\alpha}+z_{1-\beta})^2}{\delta^2} \quad n_1=\ell n_0.
 }
 Since there is no closed form of above equation, \code{ssCPsurvPH} utilizes the \code{\link[stats]{uniroot}} function for numerical solution for \eqn{n_0}.
-Then \eqn{n = n_0+n_1}, where both of \eqn{n_0} and \eqn{n_1} should be integers and hence \eqn{n_0}.
+Then \eqn{n = n_0+n_1}.
 
-The consistency probability via Japan's criterion I (conditional version) under random effects model,
+The consistency probability via Method I of MHLW (2007)(conditional version) under random effects model,
 \eqn{\mathrm{Pr}\left(\widetilde{D}_{r}\ge \pi \widetilde{D} | T>z_{1-\alpha}\right)},
 is approximately
 \deqn{
@@ -71,7 +71,8 @@ Note for survival endpoint under PH assumption,
 }
 \examples{
 
-ssCPsurvPH(alpha=0.025, beta=0.2, lambda0r=rep(0.05,3), hr=c(0.7,0.6,0.4), pi=0.5, randRatio=1, target=1, f=rep(1/3,3), L=36)
+ssCPsurvPH(alpha=0.025, beta=0.2, lambda0r=rep(0.05,3), hr=c(0.7,0.6,0.4),
+           pi=0.5, randRatio=1, target=1, f=rep(1/3,3), L=36)
 
 
 }

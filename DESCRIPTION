@@ -4,7 +4,7 @@ Title: Regional consistency evaluation and sample size calculation for MRCTs
 Version: 0.1.0 
 Author: Kunhai Qing [cre, aut], Xinru Ren [aut], Jin Xu [aut]
 Maintainer: Kunhai Qing <kunhaiq@qq.com>
-Description: A comprehensive suite of functions for designing and analyzing Multi-Regional Clinical Trials (MRCTs), featuring sepcialized tools for consistency probability calculation and optimal regional fraction(s) determination. Support extends to both one MRCT (one trial encompassing all regions) and two MRCTs (two pivotal, independent MRCTs) frameworks. Developed for regulatory decision support and trial optimization in global drug development programs.
+Description: A comprehensive suite of functions for designing and analyzing Multi-Regional Clinical Trials (MRCTs) under fixed effects model and random effects model. It features sepcialized tools for consistency probability calculation and optimal regional fraction(s) determination. Support extends two MRCTs (two pivotal, independent MRCTs) under fixed effects model. Developed for regulatory decision support and trial optimization in global drug development programs.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

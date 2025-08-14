@@ -1,12 +1,12 @@
 #' @name regFrac
 #'
-#' @title Regional fraction for one MRCT via Japan's criterion I (conditional version)
+#' @title Regional fraction for MRCT via criterion Method I of MHLW (2007) (conditional version) under fixed effects model
 #'
-#' @description Calculate the minimal regional fraction given the consistency probability for one MRCT via Japan's criterion I (conditional version).
+#' @description Calculate the minimal regional fraction given the consistency probability for MRCT via criterion Method I of MHLW (2007) (conditional version) under fixed effects model.
 #'
 #' @param alpha The Type I error.
 #' @param power Power.
-#' @param pi The threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.
+#' @param pi The threshold ratio in criterion Method I of MHLW (2007) (conditional version). Defaults to 0.5.
 #' @param CP the consistency probability. Defaults to 80%.
 #' @param d The true mean of difference of response.
 #' @param sigmaTrt The standard deviation of response in the treatment group.

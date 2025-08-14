@@ -8,24 +8,36 @@
 #' Multi-Regional Clinical Trials (MRCTs), featuring specialized tools for:
 #' \itemize{
 #'   \item \strong{Consistency Probability Calculation}: Computes the probability that treatment effects
-#'         across regions satisfy predefined consistency criteria;
+#'         across regions satisfy predefined consistency criteria
+#'          under fixed effects model and random effects model;
 #'   \item \strong{Optimal Regional Fraction Determination}: Identifies the ideal regional enrollment
-#'         proportions to minimize regional sample size while maintaining consistency probability.
+#'         proportions to minimize regional sample size while maintaining consistency probability
+#'         under fixed effects model.
 #' }
-#' Support extends to both \emph{one MRCT} (one trial encompassing all regions) and \emph{two MRCTs}
-#' (two pivotal, independent MRCTs) frameworks. Developed for regulatory decision
-#' support and trial optimization in global drug development programs.
-#'
+#' Support extends two MRCTs (two pivotal, independent MRCTs) under fixed effects model. 
+#' Developed for regulatory decision support and trial optimization in global drug development programs.
+#' In this package, all sample sizes are rounded up to be integers. 
 #' @section Functions:
 #' Key functions included in the package:
 #' \describe{
 #'   \item{\link{conProb}, \link{conProb2}}{
-#'    Calculate the (conditional) consistency probability for one/two MRCT(s) 
-#'    with corresponding overall sample size(s).
+#'    Calculate the (conditional) consistency probability under criterion Method I of MHLW (2007)
+#'    for one/two MRCT(s) with corresponding overall sample size(s) under fixed effects model.
 #'   }
 #'   \item{\link{regFrac}, \link{regFrac2}}{
 #'     Calculate the optimal regional fraction(s) given the (conditional) 
-#'     consistency probability for one/two MRCT(s), with corresponding overall sample size(s).
+#'     consistency probability under criterion Method I of MHLW (2007)
+#'     for one/two MRCT(s), with corresponding overall sample size(s) under fixed effects model.
+#'   }
+#'   \item{\link{ssCPnorm}, \link{ssCPbinary}}{
+#'     Calculate the (conditional) consistency probability under criterion Method I of MHLW (2007)
+#'     for MRCT with corresponding overall sample size under random effects model
+#'     with normal and binary response, respectively.
+#'   }
+#'   \item{\link{ssCPsurvPH}, \link{ssCPsurvNPH}}{
+#'     Calculate the (conditional) consistency probability under criterion Method I of MHLW (2007)
+#'     for MRCT with corresponding overall sample size under random effects model
+#'     with survival endpoints (proportional or non-proportional hazard).
 #'   }
 #' }
 #' 
@@ -34,6 +46,7 @@
 #' 
 #' Kunhai Qing, Xinru Ren, Shuping Jiang, Ping Yang, Menggang Yu and Jin Xu (2025). Regional consistency evaluation and sample size calculation under two MRCTs. http://arxiv.org/abs/2411.15567
 #' 
+#' Xinru Ren, Jin Xu (2025). Consistency assessment and regional sample size calculation for MRCTs under random effects model.  https://arxiv.org/abs/2508.09443
 #'
 #' @importFrom cubature adaptIntegrate
 #' @importFrom stats dnorm pnorm qnorm sd integrate uniroot rbinom rnorm

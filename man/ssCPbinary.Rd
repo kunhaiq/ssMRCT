@@ -2,7 +2,7 @@
 % Please edit documentation in R/ssCPbinary.R
 \name{ssCPbinary}
 \alias{ssCPbinary}
-\title{Overall sample size and consistency probability for one MRCT via Japan's criterion I (conditional version) under random effects model.}
+\title{Overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model.}
 \usage{
 ssCPbinary(alpha, beta, p0r, p1r, pi = 0.5, randRatio = 1, target, f)
 }
@@ -15,7 +15,7 @@ ssCPbinary(alpha, beta, p0r, p1r, pi = 0.5, randRatio = 1, target, f)
 
 \item{p1r}{vector of probabilities in the treatment group. a \code{R x 1} vector with each component representing the probability in region \eqn{r}.}
 
-\item{pi}{threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.}
+\item{pi}{threshold ratio in Method I of MHLW (2007)(conditional version). Defaults to 0.5.}
 
 \item{randRatio}{randomization ratio between the treatment group and control group. Defaults to 1.}
 
@@ -35,17 +35,17 @@ A list containing the following components:
 }
 }
 \description{
-Calculate the overall sample size and consistency probability for one MRCT via Japan's criterion I (conditional version) under random effects model for the binary endpoint.
+Calculate the overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model for the binary endpoint.
 }
 \details{
-The overall sample size is calculated based on the below equation,
+The overall sample size is calculated based on the following equation,
 \deqn{
 \sum_r\left(\tau^2+\frac{\Omega_r}{n_0f_r}\right)^{-1} =\frac{(z_{1-\alpha}+z_{1-\beta})^2}{\delta^2} \quad n_1=\ell n_0.
 }
 Since there is no closed form of above equation, \code{ssCPbinary} utilizes the \code{\link[stats]{uniroot}} function for numerical solution for \eqn{n_0}.
-Then \eqn{n = n_0+n_1}, where both of \eqn{n_0} and \eqn{n_1} should be integers and hence \eqn{n_0}.
+Then \eqn{n = n_0+n_1}.
 
-The consistency probability via Japan's criterion I (conditional version) under random effects model,
+The consistency probability via Method I of MHLW (2007)(conditional version) under random effects model,
 \eqn{\mathrm{Pr}\left(\widetilde{D}_{r}\ge \pi \widetilde{D} | T>z_{1-\alpha}\right)},
 is approximately
 \deqn{
@@ -62,6 +62,8 @@ For the binary endpoint,
 }
 \examples{
 
-ssCPbinary(alpha=0.025, beta=0.2, p0r=rep(0.3,3), p1r=c(0.6,0.4,0.2)+rep(0.3,3), pi=0.5, randRatio=1, target=1, f=rep(1/3,3))
+ssCPbinary(alpha=0.025, beta=0.2, p0r=rep(0.3,3),
+           p1r=c(0.6,0.4,0.2)+rep(0.3,3), pi=0.5,
+           randRatio=1, target=1, f=rep(1/3,3))
 
 }

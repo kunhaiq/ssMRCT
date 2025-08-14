@@ -1,12 +1,12 @@
 #' @name conProb
 #'
-#' @title Consistency probability for one MRCT via Japan's criterion I (conditional version)
+#' @title Consistency probability for MRCT via criterion Method I of MHLW (2007) (conditional version) under fixed effects model
 #'
-#' @description Calculate the consistency probability for one MRCT via Japan's criterion I (conditional version).
+#' @description Calculate the consistency probability for MRCT via criterion Method I of MHLW (2007) (conditional version) under fixed effects model.
 #'
 #' @param alpha The Type I error.
 #' @param power Power.
-#' @param pi The threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.
+#' @param pi The threshold ratio in criterion Method I of MHLW (2007) (conditional version). Defaults to 0.5.
 #' @param rF The regional fraction.
 #' @param d The true mean of difference of response.
 #' @param sigmaTrt The standard deviation of response in the treatment group.
@@ -14,8 +14,8 @@
 #' @param randRatio The randomization ratio between the treatment group and control group. Defaults to 1.
 #'
 #' @details
-#' The consistency probability via Japan's criterion I (conditional version),
-#' \eqn{\mathrm{Pr}\left(D_{k}\ge \pi D\ |\ T>z_{1-\alpha}\right)},
+#' The consistency probability via criterion Method I of MHLW (2007) (conditional version),
+#' \deqn{\mathrm{Pr}\left(D_{k}\ge \pi D\ |\ T>z_{1-\alpha}\right),}
 #' is approximately
 #' \deqn{
 #'  \frac{1}{1-\beta}\int_{-z_{1-\beta}}^{\infty} \Phi\left(\frac{(1-\pi)(u + z_{1-\alpha}+z_{1-\beta})}{\sqrt{f_{k}^{-1}-1}}\right)\phi(u)du.
@@ -26,12 +26,11 @@
 #' \code{sigmaCtrl} and \code{randRatio}, if only the consistency probability
 #' is considered, then the values of \code{d} and \code{sigmaTrt} could be arbitrary.
 #' 
-#' The overall sample size is calculated based on the below equation,
+#' The overall sample size is calculated based on the following equation,
 #' \deqn{
 #' N^{(\textrm{c})}=\frac{\left\{r^{-1}\sigma^{2(\textrm{t})}+\sigma^{2(\textrm{c})}\right\}(z_{1-\alpha}+z_{1-\beta})^{2}}{d^{2}}, \quad N^{(\textrm{t})}=rN^{(\textrm{c})}.
 #' }
-#' Then \eqn{N = N^{(\textrm{t})} + N^{(\textrm{c})}}. Additionally, both of 
-#' \eqn{N^{(\textrm{t})}} and \eqn{N^{(\textrm{c})}} should be integers and hence \eqn{N}.
+#' Then \eqn{N = N^{(\textrm{t})} + N^{(\textrm{c})}}. 
 #' 
 #' @returns A list containing the following two components:
 #' \describe{

@@ -1,8 +1,8 @@
 #' @name ssCPsurvNPH
 #'
-#' @title Overall sample size and consistency probability for one MRCT via Japan's criterion I (conditional version) under random effects model.
+#' @title Overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model.
 #'
-#' @description Calculate the overall sample size and consistency probability for one MRCT via Japan's criterion I (conditional version) under random effects model for the survival endpoint with nPH assumption.
+#' @description Calculate the overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model for the survival endpoint with nPH assumption.
 #'
 #' @param alpha Type I error for one-sided test.
 #' @param beta Type II error.
@@ -15,10 +15,10 @@
 #' @param scale0 vector of the scale parameter of the weibull distribution in the control group (scale=1/rate). a \code{R x 1} vector with each component representing the scale parameter in region \eqn{r}.
 #' @param shape1 vector of the shape parameter of the weibull distribution in the treatment group(shape=1 reduces to exponential). a \code{R x 1} vector with each component representing the shape parameter in region \eqn{r}.
 #' @param scale1 vector of the scale  parameter of the weibull distribution in the treatment group (scale=1/rate). a \code{R x 1} vector with each component representing the scale parameter in region \eqn{r}.
-#' @param PW logical; if TURE (default), survival time follow piece-wise exponential distribution. Otherwise Weibull distribution
+#' @param PW logical; if TRUE (default), survival time follow piece-wise exponential distribution. Otherwise Weibull distribution
 #' @param unimin vector of the lower limits of the uniform distribution. a \code{R x 1} vector with each component representing the lower limit in region \eqn{r}.
 #' @param unimax vector of the upper limits of the uniform distribution. a \code{R x 1} vector with each component representing the upper parameter in region \eqn{r}.
-#' @param pi threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.
+#' @param pi threshold ratio in Method I of MHLW (2007)(conditional version). Defaults to 0.5.
 #' @param randRatio randomization ratio between the treatment group and control group. Defaults to 1.
 #' @param target index for the region of interest. an integer of value referring to the region with the corresponding position in \code{f}.
 #' @param f vector of regional fractions. a \code{R x 1} vector with each component representing the regional fraction in region \eqn{r} and the sum must equal 1.
@@ -35,14 +35,14 @@
 #' Assume the censoring time follows uniform distribution with lower limit \code{unimin} and upper limit \code{unimax}.
 #'
 #'
-#' The overall sample size is calculated based on the below equation,
+#' The overall sample size is calculated based on the following equation,
 #' \deqn{
 #' \sum_r\left(\tau^2+\frac{\Omega_r}{n_0f_r}\right)^{-1} =\frac{(z_{1-\alpha}+z_{1-\beta})^2}{\delta^2} \quad n_1=\ell n_0.
 #' }
 #' Since there is no closed form of above equation, \code{ssCPsurvPH} utilizes the \code{\link[stats]{uniroot}} function for numerical solution for \eqn{n_0}.
-#' Then \eqn{n = n_0+n_1}, where both of \eqn{n_0} and \eqn{n_1} should be integers and hence \eqn{n_0}.
+#' Then \eqn{n = n_0+n_1}.
 #'
-#' The consistency probability via Japan's criterion I (conditional version) under random effects model,
+#' The consistency probability via Method I of MHLW (2007)(conditional version) under random effects model,
 #' \eqn{\mathrm{Pr}\left(\widetilde{D}_{r}\ge \pi \widetilde{D} | T>z_{1-\alpha}\right)},
 #' is approximately
 #' \deqn{

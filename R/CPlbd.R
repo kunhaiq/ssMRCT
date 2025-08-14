@@ -1,8 +1,8 @@
 #' @name CPlbd
 #'
-#' @title Lower bound of the consistency probability for one MRCT via Japan's criterion I (conditional version) under random effects model.
+#' @title Lower bound of the consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model.
 #'
-#' @description Calculate the lower bound of consistency probability for one MRCT via Japan's criterion I (conditional version) under random effects model for normal endpoint.
+#' @description Calculate the lower bound of consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model for normal endpoint.
 #'
 #' @param alpha The one-sided Type I error.
 #' @param beta The Type II error.
@@ -10,22 +10,26 @@
 #' @param delta The mean of the Gaussian prior for the regional treatment effect.
 #' @param sigma0r The standard deviation(s) of response in the treatment group for region(s) of interest. A scalar or vector of length equals to the total number of region(s) of interest.
 #' @param sigma1r The standard deviation(s) of response in the control group for region(s) of interest. A scalar or vector of length equals to \code{sigma0r}.
-#' @param pi The threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.
+#' @param pi The threshold ratio in Method I of MHLW (2007)(conditional version). Defaults to 0.5.
 #' @param randRatio The randomization ratio between the treatment group and control group. Defaults to 1.
 #' @param fr The regional fraction(s) for the region(s) of interest. A scalar or vector of equal length to \code{sigma0r} and \code{sigma1r}.
 #'
 #'
 #' @details
-#' The lower bound of the consistency probability via Japan's criterion I (conditional version) under random effects model,
+#' The lower bound of the consistency probability via Method I of MHLW (2007)(conditional version) under random effects model,
 #' \eqn{ \mathrm{Pr} \left( \widetilde{D}_{r} \ge \pi \widetilde{D} | T > z_{1-\alpha} \right) },
 #' is approximately
 #' \deqn{
 #'  \frac{1}{1-\beta}\int_{u>z_{\beta}}\Phi\left(\frac{2\delta^2(1-\pi)(u+z_{1-\alpha}+z_{1-\beta})}{\tau^2(z_{1-\alpha}+z_{1-\beta})^2} \right) d\Phi(u).
 #' }
-#' provided \eqn{\frac{\tau}{\delta}<\frac{\sqrt{2}}{z_{1-\alpha}+z_{1-\beta}}}
+#' provided \eqn{\frac{\tau}{\delta}<\frac{\sqrt{2}}{z_{1-\alpha}+z_{1-\beta}}}. Otherwise,
+#' CP will also be greater than
+#' \deqn{
+#' \frac{1}{1-\beta}\int_{u>z_{\beta}}\Phi\left(\frac{(1-\pi) \left(u+z_{1-\alpha}+z_{1-\beta}\right) }{\sqrt{\frac{\tau^2}{\delta^2}(z_{1-\alpha}+z_{1-\beta})^2-1}}\right) d\Phi(u).
+#' }.
 #' Since there is no closed form of above equation, \code{CPlbd} utilizes the \code{\link[stats]{integrate}} function for numerical integration.
 #'
-#' The sample size(s) for the region(s) of interest at the lower bound are calculated based on solving the below equation for \eqn{n_0^{(r)}},
+#' The sample size(s) for the region(s) of interest at the lower bound are calculated based on solving the following equation for \eqn{n_0^{(r)}},
 #' \deqn{
 #' \frac{h_r}{h_r+1}=\frac{\tau^2}{2\delta^2}(z_{1-\alpha}+z_{1-\beta})^2, \quad n_1^{(r)}=\ell n_0^{(r)}
 #' }
@@ -44,8 +48,10 @@
 #' }
 #'
 #' @examples
-#' CPlbd(alpha=0.05, beta=0.2, tau_delta_r=0.4, pi=0.5, delta=0.25, sigma0r=1, sigma1r=1, randRatio=1, fr=c(0.1))
-#' CPlbd(alpha=0.05, beta=0.2, tau_delta_r=0.4, pi=0.5, delta=0.25, sigma0r=c(1,1), sigma1r=c(1,1), randRatio=1, fr=c(0.1,0.5))
+#' CPlbd(alpha=0.05, beta=0.2, tau_delta_r=0.4, pi=0.5, delta=0.25,
+#'       sigma0r=1, sigma1r=1, randRatio=1, fr=c(0.1))
+#' CPlbd(alpha=0.05, beta=0.2, tau_delta_r=0.4, pi=0.5, delta=0.25,
+#'       sigma0r=c(1,1), sigma1r=c(1,1), randRatio=1, fr=c(0.1,0.5))
 #'
 #' @export
 #'

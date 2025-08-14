@@ -2,7 +2,7 @@
 % Please edit documentation in R/conProb2.R
 \name{conProb2}
 \alias{conProb2}
-\title{Consistency probability for two MRCTs via the extended Japan's criterion I (conditional version)}
+\title{Consistency probability for two MRCTs via the extended criterion Method I of MHLW (2007) (conditional version) under fixed effects model}
 \usage{
 conProb2(
   alpha,
@@ -28,7 +28,7 @@ conProb2(
 
 \item{power2}{Power for MRCT 2. Defaults to \code{power1}.}
 
-\item{pi}{The threshold ratio in the extended Japan's criterion I (conditional version). Defaults to 0.5.}
+\item{pi}{The threshold ratio in the extended criterion Method I of MHLW (2007) (conditional version). Defaults to 0.5.}
 
 \item{rF1}{The regional fraction for MRCT 1.}
 
@@ -59,11 +59,11 @@ A list containing the following two components:
 }
 }
 \description{
-Calculate the consistency probability for two MRCTs via the extended Japan's criterion I (conditional version).
+Calculate the consistency probability for two MRCTs via the extended criterion Method I of MHLW (2007) (conditional version) under fixed effects model.
 }
 \details{
-The extended consistency probability via the extended Japan's criterion I (conditional version),
-\eqn{\mathrm{Pr}\left(D_{k,\textrm{pool}}\ge \pi D_\textrm{pool}\ |\ T^{(1)}>z_{1-\alpha},T^{(2)}>z_{1-\alpha}\right)},
+The extended consistency probability via the extended criterion Method I of MHLW (2007) (conditional version),
+\deqn{\mathrm{Pr}\left(D_{k,\textrm{pool}}\ge \pi D_\textrm{pool}\ |\ T^{(1)}>z_{1-\alpha},T^{(2)}>z_{1-\alpha}\right),}
 is approximately
 \deqn{
  \begin{aligned}
@@ -74,7 +74,7 @@ is approximately
 }
 where \eqn{w^{(s)}=N^{(s)}/(N^{(1)}+N^{(2)})} and
 \deqn{
- \sigma_d^{2}=\var(D)=\frac{(r+1)\left\{\sigma^{2(\textrm{t})}+r\sigma^{2(\textrm{c})}\right\}}{rN}.
+ \sigma_d^{2}=\mathrm{var}(D)=\frac{(r+1)\left\{\sigma^{2(\textrm{t})}+r\sigma^{2(\textrm{c})}\right\}}{rN}.
 }
 
 Since there is no closed forms of above equations, \code{conProb2} utilizes
@@ -97,8 +97,6 @@ Since now the above equation includes none of \code{d1}=\code{d2},
 is considered, then the values of \code{d1} and \code{sigmaTrt1} could be arbitrary.
 
 The overall sample size is calculated in the same way as \code{\link{conProb}}.
-Additionally, both of \eqn{N^{(\textrm{t},s)}} and \eqn{N^{(\textrm{c},s)}}
-should be integers and hence \eqn{N^{s}}.
 }
 \examples{
 ### Remark 7

@@ -2,7 +2,7 @@
 % Please edit documentation in R/regFrac.R
 \name{regFrac}
 \alias{regFrac}
-\title{Regional fraction for one MRCT via Japan's criterion I (conditional version)}
+\title{Regional fraction for MRCT via criterion Method I of MHLW (2007) (conditional version) under fixed effects model}
 \usage{
 regFrac(
   alpha,
@@ -20,7 +20,7 @@ regFrac(
 
 \item{power}{Power.}
 
-\item{pi}{The threshold ratio in Japan's criterion I (conditional version). Defaults to 0.5.}
+\item{pi}{The threshold ratio in criterion Method I of MHLW (2007) (conditional version). Defaults to 0.5.}
 
 \item{CP}{the consistency probability. Defaults to 80\%.}
 
@@ -40,7 +40,7 @@ A list containing the following two components:
 }
 }
 \description{
-Calculate the minimal regional fraction given the consistency probability for one MRCT via Japan's criterion I (conditional version).
+Calculate the minimal regional fraction given the consistency probability for MRCT via criterion Method I of MHLW (2007) (conditional version) under fixed effects model.
 }
 \details{
 Given the consistency probability, there is a minimal regional

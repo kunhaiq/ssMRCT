@@ -1,13 +1,13 @@
 #' @name regFrac2
 #'
-#' @title Regional fraction for two MRCTs via the extended Japan's criterion I (conditional version)
+#' @title Regional fraction for two MRCTs via the extended criterion Method I of MHLW (2007) (conditional version) under fixed effects model
 #'
-#' @description Calculate the optimal regional fractions given the consistency probability for two MRCTs via the extended Japan's criterion I (conditional version).
+#' @description Calculate the optimal regional fractions given the consistency probability for two MRCTs via the extended criterion Method I of MHLW (2007)  (conditional version) under fixed effects model
 #'
 #' @param alpha The Type I error.
 #' @param power1 Power for MRCT 1.
 #' @param power2 Power for MRCT 2. Defaults to \code{power1}.
-#' @param pi The threshold ratio in the extended Japan's criterion I (conditional version). Defaults to 0.5.
+#' @param pi The threshold ratio in the extended criterion Method I of MHLW (2007) (conditional version). Defaults to 0.5.
 #' @param CP The consistency probability. Defaults to 80%.
 #' @param d1 The true mean of difference of response for MRCT 1.
 #' @param d2 The true mean of difference of response for MRCT 2. Defaults to \code{d1}.
