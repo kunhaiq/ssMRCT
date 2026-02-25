@@ -4,7 +4,6 @@
 # ssMRCT
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 The goal of ssMRCT is to provide a comprehensive suite of functions for
@@ -55,7 +54,7 @@ Also we could consider to conduct two MRCTs
 ## conProb2() gives the consistency probability under fixed effects model
 conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1 = 0.141, d1 = 1, sigmaTrt1 = 4) 
 #> $CP
-#> [1] 0.8002532
+#> [1] 0.8005016
 #> 
 #> $N1
 #> [1] 396
@@ -63,18 +62,8 @@ conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1 = 0.141, d1 = 1, sigmaTrt
 #> $N2
 #> [1] 550
 ## regFrac2() gives the optimal regional fractions under fixed effects model
-regFrac2(alpha = 0.05, power1 = 0.8, power2 = 0.9, d1 = 1, sigmaTrt1 = 4)
-#> $rF1
-#> [1] 0.1407622
-#> 
-#> $rF2
-#> [1] 0.1407622
-#> 
-#> $N1
-#> [1] 396
-#> 
-#> $N2
-#> [1] 550
+regFrac2(alpha = 0.05, power = 0.8)
+#> [1] 0.1530893
 ```
 
 For MRCT under random effects model, one could use

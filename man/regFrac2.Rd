@@ -4,89 +4,38 @@
 \alias{regFrac2}
 \title{Regional fraction for two MRCTs via the extended criterion Method I of MHLW (2007) (conditional version) under fixed effects model}
 \usage{
-regFrac2(
-  alpha,
-  power1,
-  power2 = power1,
-  pi = 0.5,
-  CP = 0.8,
-  d1,
-  d2 = d1,
-  sigmaTrt1,
-  sigmaCtrl1 = sigmaTrt1,
-  sigmaTrt2 = sigmaTrt1,
-  sigmaCtrl2 = sigmaTrt2,
-  randRatio1 = 1,
-  randRatio2 = randRatio1
-)
+regFrac2(alpha, power, pi = 0.5, CP = 0.8)
 }
 \arguments{
 \item{alpha}{The Type I error.}
 
-\item{power1}{Power for MRCT 1.}
-
-\item{power2}{Power for MRCT 2. Defaults to \code{power1}.}
+\item{power}{Power for MRCT 1 and 2.}
 
 \item{pi}{The threshold ratio in the extended criterion Method I of MHLW (2007) (conditional version). Defaults to 0.5.}
 
 \item{CP}{The consistency probability. Defaults to 80\%.}
-
-\item{d1}{The true mean of difference of response for MRCT 1.}
-
-\item{d2}{The true mean of difference of response for MRCT 2. Defaults to \code{d1}.}
-
-\item{sigmaTrt1}{The standard deviation of response in the treatment group for MRCT 1.}
-
-\item{sigmaCtrl1}{The standard deviation of response in the control group for MRCT 1. Defaults to \code{sigmaTrt1}.}
-
-\item{sigmaTrt2}{The standard deviation of response in the treatment group for MRCT 2. Defaults to \code{sigmaTrt1}.}
-
-\item{sigmaCtrl2}{The standard deviation of response in the control group for MRCT 2. Defaults to \code{sigmaTrt2}.}
-
-\item{randRatio1}{The randomization ratio between the treatment group and control group for MRCT 1.}
-
-\item{randRatio2}{The randomization ratio between the treatment group and control group for MRCT 2. Defaults to \code{randRatio1}.}
 }
 \value{
-A list containing the following two components:
+A list containing the following one component:
 \describe{
-\item{\code{rF1}}{The regional fraction for MRCT 1, a scalar.}
-\item{\code{rF2}}{The regional fraction for MRCT 2, a scalar.}
-\item{\code{N1}}{The overall sample size for MRCT 1, an integer.}
-\item{\code{N2}}{The overall sample size for MRCT 2, an integer.}
+\item{\code{rF}}{The regional fraction for MRCT 1 and 2, a scalar.}
 }
 }
 \description{
 Calculate the optimal regional fractions given the consistency probability for two MRCTs via the extended criterion Method I of MHLW (2007)  (conditional version) under fixed effects model
 }
 \details{
-Given the consistency probability, there is an optimal pair of regional
-fractions \code{rF1} and \code{rF2} that minimized the combined region sample size,
-i.e., \eqn{f_{k}^{(1)}N^{(1)} + f_{k}^{(2)}N^{(2)}}. Theoretically,
-the ratio between such \code{rF1} and \code{rF2} is fixed. Hence,
-\code{regFrac2} utilizes two core computational components:
-\itemize{
-\item The \code{\link{conProb2}} function to compute the (conditional) consistency probability for two MRCTs
-\item The \code{\link[stats]{uniroot}} function from the \pkg{stats} package for numerical root-finding
-}
-
-The solution is obtained by solving the following equation numerically:
+If we assume equal treatment effects, common regional fractions, common powers and common randomization ratios across
+two studies, i.e., \eqn{\sigma^{2(\textrm{t},1)}=\sigma^{2(\textrm{t},2)}, \sigma^{2(\textrm{c},1)}=\sigma^{2(\textrm{c},2)},
+d^{(1)}=d^{(2)}, f_k^{(1)}=f_k^{(2)}=f_k, \beta_1=\beta_2} and \eqn{r^{(1)}=r^{(2)}}, then the CP reduces to
 \deqn{
-\begin{array}{c}
-  \code{conProb2(rF2*k,rF2)} - \code{CP} = 0 \\
-  \text{where } \code{rF2} \in (0,\min(1/k,1)),
-\end{array}
+ \frac{1}{(1-\beta)^2} \int_{-z_{1-\beta}}^{\infty} \int_{-z_{1-\beta}}^{\infty} \Phi\left( \frac{(1-\pi) (2z_{1-\alpha} + 2z_{1-\beta} + u + v)}{\sqrt{2(f_k^{-1} - 1)}} \right) \phi(u)\phi(v) \mathrm{d}u \mathrm{d}v.
 }
-where \eqn{k} is the above fixed ratio between \code{rF1} and \code{rF2}.
+Given the consistency probability, there is a minimal regional fraction \code{rF}.
 
 The overall sample size is obtain by \code{\link{conProb2}} simultaneously.
 }
 \examples{
-### Remark 7
-conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1 = 0.141, d1 = 1, sigmaTrt1 = 4) 
-
-regFrac2(alpha = 0.05, power1 = 0.8, power2 = 0.9, d1 = 1, sigmaTrt1 = 4)
-
-conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1=0.1407622, d1 = 1, sigmaTrt1 = 4)
+regFrac2(alpha = 0.05, power = 0.8)  
 
 }

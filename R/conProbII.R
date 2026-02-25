@@ -22,9 +22,12 @@
 #' \deqn{\mathrm{Pr}\left(D_{k}\geq 0, k=1,\ldots,K\ |\ T>z_{1-\alpha}\right),}
 #' is approximately
 #' \deqn{
-#'  \frac{1}{1-\beta}\int_{-z_{1-\beta}}^{\infty} \prod_{k=1}^{K}\Phi\left(\frac{u + z_{1-\alpha}+z_{1-\beta}}{\sqrt{f_{k}^{-1}-1}}\right)\phi(u)du.
+#' \frac{1}{1-\beta}\int_{-z_{1-\beta}}^{\infty} \Phi_K\left\{ \mathbf{0};-(u + z_{1-\alpha} + z_{1-\beta})\mathbf{1}_K, \mathbf{\Lambda} - \mathbf{1}_K \mathbf{1}_K^\top \right\} \phi(u) \mathrm{d} u,
 #' }
-#' Since there is no closed form of above equation, \code{conProbII} utilizes the \code{\link[stats]{integrate}} function for numerical integration.
+#' where \eqn{\Phi_K(\mathbf{x}; \vec{\mu}, \Sigma)} denotes the cumulative distribution function of a \eqn{K}-dimensional normal distribution with mean \eqn{\vec{\mu}}
+#' and covariance matrix \eqn{\Sigma}, \eqn{\mathbf{1}_K} is the vector of \eqn{K} ones, \eqn{\mathbf{\Lambda} = \text{diag}(f_{1}^{-1}, \dots, f_{K}^{-1})}. 
+#' 
+#' Since there is no closed form of above equation, \code{conProbII} utilizes the \code{\link[mvtnorm]{pmvnorm}} function for numerical integration.
 #'   
 #' As the first equation includes none of \code{d}, \code{sigmaTrt}, 
 #' \code{sigmaCtrl} and \code{randRatio}, if only the consistency probability
@@ -41,19 +44,20 @@
 #'   \item{\code{N}}{The overall sample size.}
 #' } 
 #' 
+#' @export 
+#' @importFrom mvtnorm pmvnorm GenzBretz
 #' @examples
-#' ### Example 1
+#' # Example 1 in Qing et al (2025)
 #' alpha <- 0.05
-#' power <- 0.8 
+#' power <- 0.8
 #' conProbII(alpha, power, rF = rep(1/2,2), d = 1, sigmaTrt = 4, responseType = "continuous")
 #' conProbII(alpha, power, rF = rep(1/3,3), d = 1, sigmaTrt = 4, responseType = "continuous")
-#' conProbII(alpha, power, rF = rep(1/4,4), d = 1, sigmaTrt = 4, responseType = "continuous") 
-#' rFk1 <- 0.101
+#' conProbII(alpha, power, rF = rep(1/4,4), d = 1, sigmaTrt = 4, responseType = "continuous")
+#' rFk1 <- 0.110
 #' rFk2 <- rFk3 <- (1-rFk1)/2
 #' rF <- c(rFk1, rFk2, rFk3)
 #' conProbII(alpha, power, rF = rF, d = 1, sigmaTrt = 4, responseType = "continuous") 
-#' 
-#' ### Example 2
+#' # Example 2 in Qing et al (2025)
 #' rFk1 <- 0.149
 #' rFk2 <- rFk3 <- (1-rFk1)/2
 #' rF <- c(rFk1, rFk2, rFk3)
@@ -63,13 +67,13 @@
 #' rFk2 <- rFk3 <- (1-rFk1)/2
 #' rF <- c(rFk1, rFk2, rFk3)
 #' set.seed(123)
-#' conProbII(alpha, power, rF = rF, pTrt = 0.7, pCtrl = 0.6, responseType = "binary") 
-#' rFk1 <- 0.101
+#' conProbII(alpha, power, rF = rF, pTrt = 0.7, pCtrl = 0.6, responseType = "binary")
+#' rFk1 <- 0.110
 #' rFk2 <- rFk3 <- (1-rFk1)/2
 #' rF <- c(rFk1, rFk2, rFk3)
 #' set.seed(123)
-#' conProbII(alpha, power, rF = rF, pTrt = 0.8, pCtrl = 0.7, responseType = "binary") 
-#' conProbII(alpha, power, rF = rF, pTrt = 0.7, pCtrl = 0.6, responseType = "binary") 
+#' conProbII(alpha, power, rF = rF, pTrt = 0.8, pCtrl = 0.7, responseType = "binary")
+#' conProbII(alpha, power, rF = rF, pTrt = 0.7, pCtrl = 0.6, responseType = "binary")
 #'
 #' @export
 #'
@@ -89,17 +93,20 @@ conProbII <- function(alpha,
     } 
   ### consistency probability
   if (responseType == "continuous"){
-  integerandElement <- function(x, rFk){
-    return(pnorm((x+qnorm(1-alpha)+qnorm(power))/sqrt(1/rFk-1)))
-  }
-  integerand <- function(x){
-    resultsVector <- sapply(rF, integerandElement, x = x, USE.NAMES = FALSE)
-    value <- as.numeric(prod(resultsVector)*dnorm(x))
-    return(value)
-  } 
-  integerandVec <- Vectorize(integerand)
-  CP <- stats::integrate(integerandVec,lower=-qnorm(power),upper=Inf)
-  CP <- CP$value/power 
+    z_alpha = qnorm(1 - alpha)
+    z_beta = qnorm(power)
+    K <- length(rF)
+    Lambda = diag(1 / rF)
+    Sigma = Lambda - matrix(1, K, K)
+    
+    integrand <- function(z) {
+      sapply(z, function(zi) {
+        mu_val = -(zi + z_alpha + z_beta)
+        mu_vec = rep(mu_val, K) 
+        mvtnorm::pmvnorm(upper = -mu_vec, mean = rep(0, K), sigma = Sigma, algorithm = GenzBretz(abseps = 1e-5))[1] * dnorm(zi)
+      })
+    }
+    CP <- integrate(integrand, lower = -z_beta, upper = Inf, rel.tol = 1e-4)$value/(power)
   ### sample size
   NTrt <-  ceiling((1/randRatio*sigmaTrt^2 + sigmaCtrl^2)*(qnorm(1-alpha) + qnorm(power))^2/d^2)
   NCtrl <- ceiling(randRatio*NTrt)

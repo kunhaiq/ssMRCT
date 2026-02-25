@@ -9,8 +9,8 @@ regFrac(
   power,
   pi = 0.5,
   CP = 0.8,
-  d,
-  sigmaTrt,
+  d = 1,
+  sigmaTrt = 4,
   sigmaCtrl = sigmaTrt,
   randRatio = 1
 )
@@ -24,9 +24,9 @@ regFrac(
 
 \item{CP}{the consistency probability. Defaults to 80\%.}
 
-\item{d}{The true mean of difference of response.}
+\item{d}{The true mean of difference of response. Defaults to 1.}
 
-\item{sigmaTrt}{The standard deviation of response in the treatment group.}
+\item{sigmaTrt}{The standard deviation of response in the treatment group. Defaults to 4.}
 
 \item{sigmaCtrl}{The standard deviation of response in the control group. Defaults to \code{sigmaTrt}.}
 

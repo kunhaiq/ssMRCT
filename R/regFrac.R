@@ -8,8 +8,8 @@
 #' @param power Power.
 #' @param pi The threshold ratio in criterion Method I of MHLW (2007) (conditional version). Defaults to 0.5.
 #' @param CP the consistency probability. Defaults to 80%.
-#' @param d The true mean of difference of response.
-#' @param sigmaTrt The standard deviation of response in the treatment group.
+#' @param d The true mean of difference of response. Defaults to 1.
+#' @param sigmaTrt The standard deviation of response in the treatment group. Defaults to 4.
 #' @param sigmaCtrl The standard deviation of response in the control group. Defaults to \code{sigmaTrt}.
 #' @param randRatio The randomization ratio between the treatment group and control group. Defaults to 1.
 #'
@@ -49,8 +49,8 @@ regFrac <- function(alpha,
                     power, 
                     pi = 0.5, 
                     CP = 0.8, 
-                    d, 
-                    sigmaTrt, 
+                    d = 1, 
+                    sigmaTrt = 4, 
                     sigmaCtrl = sigmaTrt, 
                     randRatio = 1){
   ### regional fraction

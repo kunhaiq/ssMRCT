@@ -2,7 +2,7 @@
 % Please edit documentation in R/conProbII2.R
 \name{conProbII2}
 \alias{conProbII2}
-\title{Consistency probability for two MRCTs via criterion Method II of MHLW (2007) (conditional version) under fixed effects model}
+\title{Consistency probability for two MRCTs via criterion Method II (conditional version)}
 \usage{
 conProbII2(
   alpha,
@@ -79,19 +79,15 @@ A list containing the following two components:
 Calculate the consistency probability for two MRCTs via criterion Method II of MHLW (2007) (conditional version) under fixed effects model.
 }
 \details{
-The extended consistency probability via the extended criterion Method II of MHLW (2007) (conditional version),
-\deqn{\mathrm{Pr}\left(D_{k,\textrm{pool}}\geq 0, k=1,\cdots,K\ |\ T^{(1)}>z_{1-\alpha},T^{(2)}>z_{1-\alpha}\right),}
+The extended consistency probability via the extended riterion Method II of MHLW (2007) (conditional version),
+\deqn{\mathrm{Pr}\left(D_{k,\textrm{pool}}\geq 0, k=1,\cdots,K\ |\ T^{(1)}>z_{1-\alpha},T^{(2)}>z_{1-\alpha}\right)>1-\gamma,}
 is approximately
 \deqn{
- \begin{aligned} 
-   &\frac{1}{(1-\beta_{1})(1-\beta_{2})}\int_{-z_{1-\beta_{1}}}^{\infty}\int_{-z_{1-\beta_{2}}}^{\infty}  \notag\\ 
-   &\quad\prod_{k=1}^{K}\Phi\left(\frac{ w^{(1)}\sigma^{(1)}_{d}u+w^{(2)}\sigma^{(2)}_{d}v + w^{(1)}d^{(1)} + w^{(2)}d^{(2)} }{\sqrt{\left\{\left(f_{k}^{(1)}\right)^{-1}-1\right\} \left(w^{(1)}\sigma^{(1)}_{d}\right)^{2} + \left\{\left(f_{k}^{(2)}\right)^{-1}-1\right\} \left(w^{(2)}\sigma^{(2)}_{d}\right)^{2}}} \right)\phi(u)\phi(v)dudv,
-\end{aligned} 
+\frac{1}{(1-\beta_{1})(1-\beta_{2})}\int_{-z_{1-\beta_{1}}}^{\infty}\int_{-z_{1-\beta_{2}}}^{\infty} \Phi_K\left( \mathbf{0}; -\vec{\xi}(u,v), \Omega \right) \phi(u)\phi(v) \mathrm{d}u \mathrm{d}v,
 }
-where \eqn{w^{(s)}} and \eqn{\sigma_d^{2}} are defined in \code{\link{conProb2}}.
+where \eqn{\vec{\xi}} and \eqn{\Omega} are given in Qing et al (2025).
 
-Since there is no closed forms of above equations, \code{conProbII2} utilizes
-the \code{\link[cubature]{adaptIntegrate}} function for numerical integration.
+Since there is no closed form of above equation, \code{conProbII2} utilizes the \code{\link[mvtnorm]{pmvnorm}} function for numerical integration.
 
 For binary response, the above approximation loses precision under moderate sample size.
 Hence \code{conProbII2} applies Monto Carlo to calculate the correct consistency probability.
@@ -99,28 +95,33 @@ Hence \code{conProbII2} applies Monto Carlo to calculate the correct consistency
 The overall sample size is calculated in the same way as \code{\link{conProb}}.
 }
 \examples{
-
-### Example 3
+# Example 3 in Qing et al (2025)
 alpha <- 0.05
-power1 <- 0.8 
-conProbII2(alpha, power1, rF1 = rep(1/2,2), d1 = 1, sigmaTrt1 = 4, responseType = "continuous")
-conProbII2(alpha, power1, rF1 = rep(1/3,3), d1 = 1, sigmaTrt1 = 4, responseType = "continuous")
-conProbII2(alpha, power1, rF1 = rep(1/4,4), d1 = 1, sigmaTrt1 = 4, responseType = "continuous") 
-rF11 <- 0.044
-rF12 <- rF13 <- (1-rF11)/2
-rF1 <- c(rF11, rF12, rF13)
-conProbII2(alpha, power1, rF1 = rF1, d1 = 1, sigmaTrt1 = 4, responseType = "continuous") 
+power1 <- 0.8
+conProbII2(alpha = alpha, power1 = power1, rF1 = rep(1/2,2), d1 = 1, 
+sigmaTrt1 = 4, responseType = "continuous")
+conProbII2(alpha = alpha, power1 = power1, rF1 = rep(1/3,3), d1 = 1, 
+sigmaTrt1 = 4, responseType = "continuous")
+conProbII2(alpha = alpha, power1 = power1, rF1 = rep(1/4,4), d1 = 1, 
+sigmaTrt1 = 4, responseType = "continuous")
+rFk1 <- 0.044
+rFk2 <- rFk3 <- (1-rFk1)/2
+rF <- c(rFk1, rFk2, rFk3)
+conProbII2(alpha = alpha, power1 = power1, rF1 = rF, d1 = 1, 
+sigmaTrt1 = 4, responseType = "continuous")
 
-### Example 4
-rF11 <- 0.06
-rF12 <- rF13 <- (1-rF11)/2
-rF1 <- c(rF11, rF12, rF13)
-set.seed(123)
-conProbII2(alpha, power1, rF1 = rF1, pTrt1 = 0.8, pCtrl1 = 0.7, responseType = "binary") 
-rF11 <- 0.044
-rF12 <- rF13 <- (1-rF11)/2
-rF1 <- c(rF11, rF12, rF13)
-set.seed(123)
-conProbII2(alpha, power1, rF1 = rF1, pTrt1 = 0.8, pCtrl1 = 0.7, responseType = "binary") 
+# Example 4 in Qing et al (2025)
+alpha <- 0.05
+power1 <- 0.8
+rFk1 <- 0.06
+rFk2 <- rFk3 <- (1-rFk1)/2
+rF <- c(rFk1, rFk2, rFk3)
+conProbII2(alpha = alpha, power1 = power1, rF1 = rF, pTrt1 = 0.9, 
+pCtrl1 = 0.8, responseType = "binary")
+rFk1 <- 0.044
+rFk2 <- rFk3 <- (1-rFk1)/2
+rF <- c(rFk1, rFk2, rFk3)
+conProbII2(alpha = alpha, power1 = power1, rF1 = rF, pTrt1 = 0.9, 
+pCtrl1 = 0.8, responseType = "binary")
 
 }

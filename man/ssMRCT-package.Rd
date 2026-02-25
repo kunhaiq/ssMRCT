@@ -47,7 +47,7 @@ with survival endpoints (proportional or non-proportional hazard).
 \references{
 MHLW (2007). Basic Principles on Global Clinical Trials. https://www.pmda.go.jp/files/000153265.pdf
 
-Kunhai Qing, Xinru Ren, Shuping Jiang, Ping Yang, Menggang Yu and Jin Xu (2025). Regional consistency evaluation and sample size calculation under two MRCTs. http://arxiv.org/abs/2411.15567
+Kunhai Qing, Xinru Ren, Shuping Jiang, Ping Yang, Menggang Yu and Jin Xu (2025). Regional consistency evaluation and sample size calculation under two MRCTs. Statistics in Medicine 44, no. 25-27 (2025): e70306, https://doi.org/10.1002/sim.70306.
 
 Xinru Ren, Jin Xu (2025). Consistency assessment and regional sample size calculation for MRCTs under random effects model.  https://arxiv.org/abs/2508.09443
 }

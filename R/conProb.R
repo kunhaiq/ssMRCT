@@ -18,11 +18,11 @@
 #' \deqn{\mathrm{Pr}\left(D_{k}\ge \pi D\ |\ T>z_{1-\alpha}\right),}
 #' is approximately
 #' \deqn{
-#'  \frac{1}{1-\beta}\int_{-z_{1-\beta}}^{\infty} \Phi\left(\frac{(1-\pi)(u + z_{1-\alpha}+z_{1-\beta})}{\sqrt{f_{k}^{-1}-1}}\right)\phi(u)du.
+#'  \frac{1}{1-\beta}\int_{-z_{1-\beta}}^{\infty} \Phi\left(\frac{(1-\pi)(u + z_{1-\alpha}+z_{1-\beta})}{\sqrt{f_{k}^{-1}-1}}\right)\phi(u)\mathrm{d}u.
 #' }
 #' Since there is no closed form of above equation, \code{conProb} utilizes the \code{\link[stats]{integrate}} function for numerical integration.
 #'   
-#' As the first equation includes none of \code{d}, \code{sigmaTrt}, 
+#' As the equation includes none of \code{d}, \code{sigmaTrt}, 
 #' \code{sigmaCtrl} and \code{randRatio}, if only the consistency probability
 #' is considered, then the values of \code{d} and \code{sigmaTrt} could be arbitrary.
 #' 

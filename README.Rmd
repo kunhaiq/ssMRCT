@@ -52,7 +52,7 @@ Also we could consider to conduct two MRCTs
 ## conProb2() gives the consistency probability under fixed effects model
 conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1 = 0.141, d1 = 1, sigmaTrt1 = 4) 
 ## regFrac2() gives the optimal regional fractions under fixed effects model
-regFrac2(alpha = 0.05, power1 = 0.8, power2 = 0.9, d1 = 1, sigmaTrt1 = 4)
+regFrac2(alpha = 0.05, power = 0.8)
 ```
 
 For MRCT under random effects model, one could use

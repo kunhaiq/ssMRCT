@@ -13,6 +13,8 @@ conProb2(
   rF2 = rF1,
   d1,
   d2 = d1,
+  muCtrl1 = 0,
+  muCtrl2 = muCtrl1,
   sigmaTrt1,
   sigmaCtrl1 = sigmaTrt1,
   sigmaTrt2 = sigmaTrt1,
@@ -38,6 +40,10 @@ conProb2(
 
 \item{d2}{The true mean of difference of response for MRCT 2. Defaults to \code{d1}.}
 
+\item{muCtrl1}{The true mean of response in the control group for MRCT 1. Defaults to 0.}
+
+\item{muCtrl2}{The true mean of response in the control group for MRCT 2. Defaults to \code{muCtrl1}.}
+
 \item{sigmaTrt1}{The standard deviation of response in the treatment group for MRCT 1.}
 
 \item{sigmaCtrl1}{The standard deviation of response in the control group for MRCT 1. Defaults to \code{sigmaTrt1}.}
@@ -46,7 +52,7 @@ conProb2(
 
 \item{sigmaCtrl2}{The standard deviation of response in the control group for MRCT 2. Defaults to \code{sigmaTrt2}.}
 
-\item{randRatio1}{The randomization ratio between the treatment group and control group for MRCT 1.}
+\item{randRatio1}{The randomization ratio between the treatment group and control group for MRCT 1. Defaults to 1.}
 
 \item{randRatio2}{The randomization ratio between the treatment group and control group for MRCT 2. Defaults to \code{randRatio1}.}
 }
@@ -66,29 +72,18 @@ The extended consistency probability via the extended criterion Method I of MHLW
 \deqn{\mathrm{Pr}\left(D_{k,\textrm{pool}}\ge \pi D_\textrm{pool}\ |\ T^{(1)}>z_{1-\alpha},T^{(2)}>z_{1-\alpha}\right),}
 is approximately
 \deqn{
- \begin{aligned}
- &\frac{1}{(1-\beta_{1})(1-\beta_{2})}\int_{-z_{1-\beta_{1}}}^{\infty}\int_{-z_{1-\beta_{2}}}^{\infty} \\
- &\quad
- \Phi\left(\frac{(1-\pi)\left\{w^{(1)}\sigma^{(1)}_{d}u+w^{(2)}\sigma^{(2)}_{d}v + w^{(1)}d^{(1)} + w^{(2)}d^{(2)}\right\}}{\sqrt{\left\{\left(f_{k}^{(1)}\right)^{-1}-1\right\} \left(w^{(1)}\sigma^{(1)}_{d}\right)^{2} + \left\{\left(f_{k}^{(2)}\right)^{-1}-1\right\} \left(w^{(2)}\sigma^{(2)}_{d}\right)^{2}}} \right)\phi(u)\phi(v)dudv,
- \end{aligned}
+ \frac{1}{(1-\beta_{1})(1-\beta_{2})} \int_{-z_{1-\beta_1}}^{\infty} \int_{-z_{1-\beta_2}}^{\infty} \Phi\left( \frac{\mu_{L|D} (u, v)}{\sigma_{L|D}} \right) \phi(u)\phi(v) \mathrm{d}u\mathrm{d}v,
 }
-where \eqn{w^{(s)}=N^{(s)}/(N^{(1)}+N^{(2)})} and
-\deqn{
- \sigma_d^{2}=\mathrm{var}(D)=\frac{(r+1)\left\{\sigma^{2(\textrm{t})}+r\sigma^{2(\textrm{c})}\right\}}{rN}.
-}
+where the conditional mean \eqn{\mu_{L|D}} and conditional variance \eqn{\sigma_{L|D}} are given in Qing et al (2025).
 
 Since there is no closed forms of above equations, \code{conProb2} utilizes
-the \code{\link[cubature]{adaptIntegrate}} function for numerical integration.
+the \code{\link[stats]{integrate}} function for numerical integration.
 
-Additionally, if we assume homogeneous variances, equal treatment effects
-and equal randomization ratios across two studies, i.e., \eqn{\sigma^{2(\textrm{t},1)}=\sigma^{2(\textrm{t},2)}},
-\eqn{\sigma^{2(\textrm{c},1)}=\sigma^{2(\textrm{c},2)}}, \eqn{d^{(1)}=d^{(2)}}
-and \eqn{r^{(1)}=r^{(2)}}, then the above equation reduces to
+Additionally, if we assume equal treatment effects, common regional fractions, common powers and common randomization ratios across
+two studies, i.e., \eqn{\sigma^{2(\textrm{t},1)}=\sigma^{2(\textrm{t},2)}, \sigma^{2(\textrm{c},1)}=\sigma^{2(\textrm{c},2)},
+d^{(1)}=d^{(2)}, f_k^{(1)}=f_k^{(2)}=f_k, \beta_1=\beta_2} and \eqn{r^{(1)}=r^{(2)}}, then the above equation reduces to
 \deqn{
- \begin{aligned}
- &\frac{1}{(1-\beta_{1})(1-\beta_{2})}\int_{-(z_{1-\beta_{1}}+z_{1-\beta_{2}})/\sqrt{2}}^{\infty}\left[ \Phi\left(\frac{(1-\pi)\left\{\sqrt{2}u + (2z_{1-\alpha}+z_{1-\beta_{1}}+z_{1-\beta_{2}})\right\}}{\sqrt{\left(f_{k}^{(1)}\right)^{-1}+\left(f_{k}^{(2)}\right)^{-1}-2}}\right) \right. \\
- &\qquad\qquad\qquad\qquad \left.\left\{ \Phi\left(u+\sqrt{2}z_{1-\beta_{1}}\right)+\Phi\left(u+\sqrt{2}z_{1-\beta_{2}}\right)-1\right\} \right] \phi(u)du.
- \end{aligned}
+ \frac{1}{(1-\beta)^2} \int_{-z_{1-\beta}}^{\infty} \int_{-z_{1-\beta}}^{\infty} \Phi\left( \frac{(1-\pi) (2z_{1-\alpha} + 2z_{1-\beta} + u + v)}{\sqrt{2(f_k^{-1} - 1)}} \right) \phi(u)\phi(v) \mathrm{d}u \mathrm{d}v.
 }
 
 Since now the above equation includes none of \code{d1}=\code{d2},
@@ -99,10 +94,7 @@ is considered, then the values of \code{d1} and \code{sigmaTrt1} could be arbitr
 The overall sample size is calculated in the same way as \code{\link{conProb}}.
 }
 \examples{
-### Remark 7
 conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1 = 0.141, d1 = 1, sigmaTrt1 = 4)
-conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1 = 0.100, rF2 = 0.238, d1 = 1, sigmaTrt1 = 4)
-### Remark 9
-conProb2(alpha = 0.05, power1 = 0.8, rF1 = 0.154, d1 = 1, sigmaTrt1 = 4)
+
 
 }
