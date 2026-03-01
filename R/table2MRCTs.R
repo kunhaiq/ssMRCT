@@ -73,7 +73,7 @@ table2MRCTs <- function(numSimu,choice,seed = 1) {
   }
   #Table2
   table2 <- function(numSimu){
-    consistencyProb <- data.frame()
+    consistencyProb  <- data.frame()
     consistencyProbRow <- function(power,d){
       sigmaTrt <- 4
       sigmaCtrl <- sigmaTrt
