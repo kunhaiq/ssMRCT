@@ -2,60 +2,120 @@
 % Please edit documentation in R/regATE_dr.R
 \name{regATE_dr}
 \alias{regATE_dr}
+\alias{print.regATE_dr}
 \title{Doubly robust estimator for regional average treatment effects}
 \usage{
-regATE_dr(Y, X, D, Trt, num_boot = 1000, conf_level = 0.95)
+regATE_dr(
+  dat,
+  target_region = 1,
+  compute_se = TRUE,
+  region_wise = FALSE,
+  p1 = NULL,
+  p0 = NULL,
+  pi = NULL,
+  v1 = "const",
+  v0 = "const",
+  config = list()
+)
+
+\method{print}{regATE_dr}(x, ...)
 }
 \arguments{
-\item{Y}{A numeric vector of the observed outcome.}
+\item{dat}{A data frame with columns \code{y}, \code{trt}, \code{region} and
+numeric covariates.}
 
-\item{X}{A matrix or data frame of covariates.}
+\item{target_region}{Integer. The region of interest (default \code{1}).}
 
-\item{D}{A binary vector (0 or 1) indicating the region (1 for the target region).}
+\item{compute_se}{Logical. Whether to compute the EIF-based standard error
+(default \code{TRUE}).}
 
-\item{Trt}{A binary vector (0 or 1) indicating treatment assignment (1 for the treatment group).}
+\item{region_wise}{Logical. Whether to run the region-wise ANCOVA F-test
+screening (default \code{FALSE}).}
 
-\item{num_boot}{Integer. The number of bootstrap iterations for inference. Default is 1000.}
+\item{p1}{Numeric scalar, numeric vector, or \code{NULL}. A constant treatment
+propensity \eqn{p_1(X)}; if \code{NULL} it is estimated by logistic
+regression within the target region.}
 
-\item{conf_level}{Numeric. Confidence level for the interval. Default is 1000.}
+\item{p0}{Same as \code{p1}, but for \eqn{p_0(X)}.}
+
+\item{pi}{Numeric scalar, numeric vector, or \code{NULL}. A constant region
+propensity; if \code{NULL} it is estimated by logistic regression.}
+
+\item{v1}{Controls the variance ratio \eqn{v_1(X)}: a numeric scalar (fixed
+constant), \code{"const"} (default; estimated constant), or
+\code{"log_linear"} (pointwise prediction from a log-linear variance model).}
+
+\item{v0}{Same as \code{v1}, but for \eqn{v_0(X)}.}
+
+\item{config}{A named list to override screening settings. The only supported
+element is \code{check_p_threshold} (default \code{0.05}), the p-value
+threshold used in the region-wise ANCOVA F-test.}
+
+\item{x}{An object of class \code{regATE_dr}.}
+
+\item{...}{Additional arguments passed to other methods (currently unused).}
 }
 \value{
-A list containing:
-\item{estimate}{The point estimate of the regional ATE.}
-\item{se}{The bootstrap standard error.}
-\item{conf_int}{A named vector with the lower and upper confidence limits.}
-\item{p_value_two_sided}{The p-value for a two-sided test (\eqn{H_0: \text{regional ATE} = 0}).}
-\item{p_value_one_sided}{The p-value for a one-sided test (\eqn{H_0: \text{regional ATE} \leq 0}).}
+A list of class \code{regATE_dr} with components:
+\describe{
+\item{\code{estimate}}{The simple-pooling doubly robust estimate.}
+\item{\code{se_eif}}{The EIF-based standard error (if \code{compute_se = TRUE}).}
+\item{\code{ci}}{The 95\% Wald confidence interval (if \code{compute_se = TRUE}).}
+\item{\code{remaining_regions}}{The candidate source regions.}
+\item{\code{config}}{The (possibly merged) configuration list.}
+\item{\code{check_results}}{A data frame of region-wise ANCOVA F-test
+results (only if \code{region_wise = TRUE}).}
+\item{\code{excluded_by_check}}{Source regions excluded by the screening
+(only if \code{region_wise = TRUE}).}
+\item{\code{region_wise_estimate}, \code{region_wise_se},
+\code{region_wise_ci}}{The estimate, standard error and confidence
+interval based on the retained regions (only if
+\code{region_wise = TRUE}).}
+\item{\code{region_wise_remaining_regions}}{Source regions retained after
+screening (only if \code{region_wise = TRUE}).}
+}
 }
 \description{
 This function implements a doubly robust estimator for the average treatment
-effect (ATE) in a specific region within a MRCT.
+effect (ATE) in a target region within a Multi-Regional Clinical Trial (MRCT).
+It optionally performs region-wise ANCOVA F-test screening to adaptively
+borrow information from source regions that are compatible with the target
+region.
 }
 \details{
-The estimator uses the formula:
-\deqn{\widehat{\tau}_\mathrm{dr} = \frac{1}{n \cdot \mathrm{Pr}(D=1)} \sum_{i=1}^{n} \left[ D_i\{\widehat{m}_1(X_i) - \widehat{m}_0(X_i)\} + \widehat{W}_{1,i}\{Y_i - \widehat{m}_1(X_i)\} - \widehat{W}_{0,i}\{Y_i - \widehat{m}_0(X_i)\} \right]}
-where \eqn{\widehat{W}_{1,i}} and \eqn{\widehat{W}_{0,i}} are weights derived from the propensity scores of being in the
-target region and receiving treatment.
+The doubly robust estimator is given by
+\deqn{
+\widehat{\tau}_{\mathrm{dr}} = \frac{1}{q} \sum_{i=1}^{n} \left[
+  D_i\{\widehat{m}_1(X_i) - \widehat{m}_0(X_i)\} +
+  \widehat{W}_{1,i}\{Y_i - \widehat{m}_1(X_i)\} -
+  \widehat{W}_{0,i}\{Y_i - \widehat{m}_0(X_i)\}
+\right],
+}
+where \eqn{q = \mathrm{Pr}(D=1)} is the target-region proportion and
+\eqn{\widehat{W}_{1,i}}, \eqn{\widehat{W}_{0,i}} are weights constructed from
+the region and treatment propensity scores (optionally adjusted by the
+variance ratios \eqn{v_1(X), v_0(X)}). When \code{region_wise = TRUE}, each
+source region is screened by an ANCOVA F-test comparing the reduced model
+\eqn{y \sim X} with the full model \eqn{y \sim X + D_s + X:D_s}; regions that
+fail the test (p-value below \code{check_p_threshold} in either the treated or
+the control group) are excluded from the borrowing pool.
 }
 \examples{
- 
 set.seed(42)
-sampleSize <- 300
-regionProp <- 0.16
-sampleSizeRegion <- round(regionProp * sampleSize)
-sampleSizeNon    <- sampleSize - sampleSizeRegion
-# define region and treatment (1:1 randomization)
-region <- c(rep(1, sampleSizeRegion), rep(0, sampleSizeNon))
-trt <- c(rep(1, sampleSizeRegion/2), rep(0, sampleSizeRegion/2),
-         rep(1, sampleSizeNon/2),    rep(0, sampleSizeNon/2))
-# generate covariates with regional heterogeneity
-x1 <- c(rnorm(sampleSizeRegion, mean = 0.5), rnorm(sampleSizeNon, mean = 1.0))
-x2 <- rnorm(sampleSize, mean = 0)
-X  <- data.frame(x1 = x1, x2 = x2)
-# generate outcome 
-epsilon <- rnorm(sampleSize, mean = 0)
-Y <- x1 + x2 + trt * (x1 + x2) + epsilon
-# estimation regATE_dr
-results <- regATE_dr(Y = Y, X = X, D = region, Trt = trt, num_boot = 1000)
-print(results)
+n <- 600
+region <- c(rep(1, 150), rep(2, 200), rep(3, 250))
+x1 <- rnorm(n)
+x2 <- rnorm(n)
+trt <- rbinom(n, 1, 0.5)
+y <- x1 + x2 + trt * (1 + 0.5 * x1) + rnorm(n)
+dat <- data.frame(y = y, trt = trt, region = region, x1 = x1, x2 = x2)
+
+## Simple-pooling doubly robust estimate
+res <- regATE_dr(dat, target_region = 1)
+print(res)
+
+## Region-wise screening
+res2 <- regATE_dr(dat, target_region = 1, region_wise = TRUE)
+print(res2)
+
 }
