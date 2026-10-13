@@ -2,7 +2,7 @@
 % Please edit documentation in R/conProb2.R
 \name{conProb2}
 \alias{conProb2}
-\title{Consistency probability for two MRCTs via the extended criterion Method I of MHLW (2007) (conditional version) under fixed effects model}
+\title{Pooled consistency probability for two MRCTs: Method I}
 \usage{
 conProb2(
   alpha,
@@ -24,77 +24,56 @@ conProb2(
 )
 }
 \arguments{
-\item{alpha}{The Type I error.}
+\item{alpha}{One-sided significance level, between 0 and 0.5.}
 
-\item{power1}{Power for MRCT 1.}
+\item{power1, power2}{Overall power in studies 1 and 2; each lies in \verb{(alpha, 1)}.}
 
-\item{power2}{Power for MRCT 2. Defaults to \code{power1}.}
+\item{pi}{Fraction of the overall effect to preserve; \verb{0 <= pi < 1}.}
 
-\item{pi}{The threshold ratio in the extended criterion Method I of MHLW (2007) (conditional version). Defaults to 0.5.}
+\item{rF1, rF2}{Fractions in the target region in studies 1 and 2, in \verb{(0, 1]}.}
 
-\item{rF1}{The regional fraction for MRCT 1.}
+\item{d1, d2}{Positive treatment-minus-control mean differences.}
 
-\item{rF2}{The regional fraction for MRCT 2. Defaults to \code{rF1}.}
+\item{muCtrl1, muCtrl2}{Control-arm means; needed when pooling weights differ.}
 
-\item{d1}{The true mean of difference of response for MRCT 1.}
+\item{sigmaTrt1, sigmaTrt2}{Positive treatment-arm outcome standard deviations.}
 
-\item{d2}{The true mean of difference of response for MRCT 2. Defaults to \code{d1}.}
+\item{sigmaCtrl1, sigmaCtrl2}{Positive control-arm outcome standard deviations.}
 
-\item{muCtrl1}{The true mean of response in the control group for MRCT 1. Defaults to 0.}
-
-\item{muCtrl2}{The true mean of response in the control group for MRCT 2. Defaults to \code{muCtrl1}.}
-
-\item{sigmaTrt1}{The standard deviation of response in the treatment group for MRCT 1.}
-
-\item{sigmaCtrl1}{The standard deviation of response in the control group for MRCT 1. Defaults to \code{sigmaTrt1}.}
-
-\item{sigmaTrt2}{The standard deviation of response in the treatment group for MRCT 2. Defaults to \code{sigmaTrt1}.}
-
-\item{sigmaCtrl2}{The standard deviation of response in the control group for MRCT 2. Defaults to \code{sigmaTrt2}.}
-
-\item{randRatio1}{The randomization ratio between the treatment group and control group for MRCT 1. Defaults to 1.}
-
-\item{randRatio2}{The randomization ratio between the treatment group and control group for MRCT 2. Defaults to \code{randRatio1}.}
+\item{randRatio1, randRatio2}{Positive treatment-to-control allocation ratios.}
 }
 \value{
-A list containing the following two components:
-\describe{
-\item{\code{CP}}{The consistency probability, a scalar.}
-\item{\code{N1}}{The overall sample size for MRCT 1.}
-\item{\code{N2}}{The overall sample size for MRCT 2.}
-}
+A list with \code{CP}, \code{N1} and \code{N2}: the conditional consistency
+probability and recommended total sample sizes in studies 1 and 2.
 }
 \description{
-Calculate the consistency probability for two MRCTs via the extended criterion Method I of MHLW (2007) (conditional version) under fixed effects model.
+Calculate Method I consistency probability from pooled data,
+conditional on both independent trials being significant.
 }
 \details{
-The extended consistency probability via the extended criterion Method I of MHLW (2007) (conditional version),
-\deqn{\mathrm{Pr}\left(D_{k,\textrm{pool}}\ge \pi D_\textrm{pool}\ |\ T^{(1)}>z_{1-\alpha},T^{(2)}>z_{1-\alpha}\right),}
-is approximately
-\deqn{
- \frac{1}{(1-\beta_{1})(1-\beta_{2})} \int_{-z_{1-\beta_1}}^{\infty} \int_{-z_{1-\beta_2}}^{\infty} \Phi\left( \frac{\mu_{L|D} (u, v)}{\sigma_{L|D}} \right) \phi(u)\phi(v) \mathrm{d}u\mathrm{d}v,
+Treatment and control outcomes are pooled separately using their sample
+sizes. Overall and regional pooling weights can differ.
+\deqn{\Pr(D_{r,\mathrm{pool}} \ge \pi D_{\mathrm{pool}}
+  \mid T_1 > z_{1-\alpha}, T_2 > z_{1-\alpha}).}
+The conditional normal probability is integrated over both significant
+study results. Study 2 defaults to the corresponding study 1 inputs.
 }
-where the conditional mean \eqn{\mu_{L|D}} and conditional variance \eqn{\sigma_{L|D}} are given in Qing et al (2025).
+\section{Sample sizes}{
 
-Since there is no closed forms of above equations, \code{conProb2} utilizes
-the \code{\link[stats]{integrate}} function for numerical integration.
-
-Additionally, if we assume equal treatment effects, common regional fractions, common powers and common randomization ratios across
-two studies, i.e., \eqn{\sigma^{2(\textrm{t},1)}=\sigma^{2(\textrm{t},2)}, \sigma^{2(\textrm{c},1)}=\sigma^{2(\textrm{c},2)},
-d^{(1)}=d^{(2)}, f_k^{(1)}=f_k^{(2)}=f_k, \beta_1=\beta_2} and \eqn{r^{(1)}=r^{(2)}}, then the above equation reduces to
-\deqn{
- \frac{1}{(1-\beta)^2} \int_{-z_{1-\beta}}^{\infty} \int_{-z_{1-\beta}}^{\infty} \Phi\left( \frac{(1-\pi) (2z_{1-\alpha} + 2z_{1-\beta} + u + v)}{\sqrt{2(f_k^{-1} - 1)}} \right) \phi(u)\phi(v) \mathrm{d}u \mathrm{d}v.
+CP uses the continuous design at the requested power. The recommended
+control count is rounded up first, followed by the treatment count.
+Returned counts do not re-evaluate CP after integer regional allocation.
 }
 
-Since now the above equation includes none of \code{d1}=\code{d2},
-\code{sigmaTrt1}=\code{sigmaTrt2}, \code{sigmaCtrl1}=\code{sigmaCtrl2}
-\code{randRatio1} = \code{randRatio2}, if only the consistency probability
-is considered, then the values of \code{d1} and \code{sigmaTrt1} could be arbitrary.
-
-The overall sample size is calculated in the same way as \code{\link{conProb}}.
-}
 \examples{
-conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9, rF1 = 0.141, d1 = 1, sigmaTrt1 = 4)
-
-
+conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9,
+         rF1 = 0.141, d1 = 1, sigmaTrt1 = 4)
+}
+\references{
+Qing et al. (2025). Regional consistency evaluation and sample
+size calculation under two MRCTs. \doi{10.1002/sim.70306}.
+The implementation uses the corrected pooling weights and covariance structure.
+}
+\seealso{
+\code{\link[=conProb]{conProb()}}, \code{\link[=regFrac2]{regFrac2()}}.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/conProbII2.R
 \name{conProbII2}
 \alias{conProbII2}
-\title{Consistency probability for two MRCTs via criterion Method II (conditional version)}
+\title{Pooled consistency probability for all regions in two MRCTs}
 \usage{
 conProbII2(
   alpha,
@@ -23,105 +23,94 @@ conProbII2(
   randRatio1 = 1,
   randRatio2 = randRatio1,
   responseType = c("continuous", "binary"),
-  B = 1e+05
+  B = 1e+05,
+  muCtrl1 = 0,
+  muCtrl2 = muCtrl1
 )
 }
 \arguments{
-\item{alpha}{The Type I error.}
+\item{alpha}{One-sided significance level, between 0 and 0.5.}
 
-\item{power1}{Power for MRCT 1.}
+\item{power1, power2}{Overall power in studies 1 and 2; each lies in \verb{(alpha, 1)}.}
 
-\item{power2}{Power for MRCT 2. Defaults to \code{power1}.}
+\item{rF1, rF2}{Positive regional fraction vectors, each summing to one
+and listing the same regions in the same order.}
 
-\item{rF1}{The regional fractions for MRCT 1, a \code{K x 1} vector with each component
-representing the regional fraction in region \eqn{k} and the sum must equal 1.}
+\item{d1, d2}{Positive continuous-endpoint effects; ignored for binary endpoints.}
 
-\item{rF2}{The regional fractions for MRCT 2, a \code{K x 1} vector with each component
-representing the regional fraction in region \eqn{k} and the sum must equal 1. Defaults to \code{rF1}.}
+\item{sigmaTrt1, sigmaTrt2}{Positive treatment-arm outcome standard deviations.}
 
-\item{d1}{The true mean of difference of response for MRCT 1.}
+\item{sigmaCtrl1, sigmaCtrl2}{Positive control-arm outcome standard deviations.}
 
-\item{d2}{The true mean of difference of response for MRCT 2. Defaults to \code{d1}.}
+\item{pTrt1, pTrt2}{Treatment response probabilities for binary endpoints,
+strictly between zero and one.}
 
-\item{sigmaTrt1}{The standard deviation of response in the treatment group for MRCT 1.}
+\item{pCtrl1, pCtrl2}{Control response probabilities for binary endpoints,
+strictly between zero and the corresponding treatment probability.}
 
-\item{sigmaCtrl1}{The standard deviation of response in the control group for MRCT 1. Defaults to \code{sigmaTrt1}.}
+\item{randRatio1, randRatio2}{Positive treatment-to-control allocation ratios.}
 
-\item{sigmaTrt2}{The standard deviation of response in the treatment group for MRCT 2. Defaults to \code{sigmaTrt1}.}
+\item{responseType}{Endpoint type: \code{"continuous"} or \code{"binary"}.}
 
-\item{sigmaCtrl2}{The standard deviation of response in the control group for MRCT 2. Defaults to \code{sigmaTrt2}.}
+\item{B}{Positive integer number of replicates; used only for binary endpoints.}
 
-\item{pTrt1}{The mean of the response in the treatment group for MRCT 1.}
-
-\item{pCtrl1}{The mean of the response in the control group for MRCT 1.}
-
-\item{pTrt2}{The mean of the response in the treatment group for MRCT 2. Defaults to \code{pTrt1}.}
-
-\item{pCtrl2}{The mean of the response in the control group for MRCT 2. Defaults to \code{pTrt2}.}
-
-\item{randRatio1}{The randomization ratio between the treatment group and control group for MRCT 1.}
-
-\item{randRatio2}{The randomization ratio between the treatment group and control group for MRCT 2. Defaults to \code{randRatio1}.}
-
-\item{responseType}{The type of response. One of "continuous" and "binary".}
-
-\item{B}{The number of simulation by Monto Carlo for \code{responseType} = "binary". Defaults to 100,000.}
+\item{muCtrl1, muCtrl2}{Control means for continuous endpoints only.}
 }
 \value{
-A list containing the following two components:
+A list with \code{CP}, \code{N1} and \code{N2}. For binary endpoints, \code{N1} and
+\code{N2} are the actual simulated totals and additional entries are:
 \describe{
-\item{\code{CP}}{The consistency probability, a scalar.}
-\item{\code{N1}}{The overall sample size for MRCT 1.}
-\item{\code{N2}}{The overall sample size for MRCT 2.}
+\item{nTrtReg1, nCtrlReg1}{Regional arm counts in study 1.}
+\item{nTrtReg2, nCtrlReg2}{Regional arm counts in study 2.}
+\item{achievedPower}{Simulated probability of the conditioning event.}
+\item{MCSE}{Monte Carlo standard error of CP.}
+\item{successes}{Number of replicates meeting the conditioning event.}
+\item{consistentSuccesses}{Number also meeting regional consistency.}
+\item{B}{Number of simulation replicates.}
 }
+Here \code{achievedPower} is the simulated probability that both studies succeed.
 }
 \description{
-Calculate the consistency probability for two MRCTs via criterion Method II of MHLW (2007) (conditional version) under fixed effects model.
+Calculate Method II consistency probability from pooled
+regional data, conditional on both independent trials being significant.
 }
 \details{
-The extended consistency probability via the extended riterion Method II of MHLW (2007) (conditional version),
-\deqn{\mathrm{Pr}\left(D_{k,\textrm{pool}}\geq 0, k=1,\cdots,K\ |\ T^{(1)}>z_{1-\alpha},T^{(2)}>z_{1-\alpha}\right)>1-\gamma,}
-is approximately
-\deqn{
-\frac{1}{(1-\beta_{1})(1-\beta_{2})}\int_{-z_{1-\beta_{1}}}^{\infty}\int_{-z_{1-\beta_{2}}}^{\infty} \Phi_K\left( \mathbf{0}; -\vec{\xi}(u,v), \Omega \right) \phi(u)\phi(v) \mathrm{d}u \mathrm{d}v,
+Consistency requires every pooled regional effect to be nonnegative.
+Treatment and control outcomes are pooled separately. The conditioning
+event is significance in both trials, not in a single pooled test.
+For continuous endpoints, a joint normal calculation accounts for
+regional/overall dependence and different control means. Set the seed
+for reproducible numerical integration or simulation.
 }
-where \eqn{\vec{\xi}} and \eqn{\Omega} are given in Qing et al (2025).
+\section{Sample sizes}{
 
-Since there is no closed form of above equation, \code{conProbII2} utilizes the \code{\link[mvtnorm]{pmvnorm}} function for numerical integration.
-
-For binary response, the above approximation loses precision under moderate sample size.
-Hence \code{conProbII2} applies Monto Carlo to calculate the correct consistency probability.
-
-The overall sample size is calculated in the same way as \code{\link{conProb}}.
+CP uses the continuous design at the requested power. The recommended
+control count is rounded up first, followed by the treatment count.
+Returned counts do not re-evaluate CP after integer regional allocation.
 }
+
+\section{Binary calculation}{
+
+The function simulates regional binomial counts with separately rounded
+arm sizes. CP is the number of consistent overall successes divided by
+the number of overall successes. Zero regional effects count as consistent.
+Wald tests use the actual arm counts. With zero estimated variance, only
+a positive estimated effect rejects the null.
+
+No overall successes gives \code{NA} for CP and its Monte Carlo standard error,
+with a warning. Set the random seed for reproducibility.
+}
+
 \examples{
-# Example 3 in Qing et al (2025)
-alpha <- 0.05
-power1 <- 0.8
-conProbII2(alpha = alpha, power1 = power1, rF1 = rep(1/2,2), d1 = 1, 
-sigmaTrt1 = 4, responseType = "continuous")
-conProbII2(alpha = alpha, power1 = power1, rF1 = rep(1/3,3), d1 = 1, 
-sigmaTrt1 = 4, responseType = "continuous")
-conProbII2(alpha = alpha, power1 = power1, rF1 = rep(1/4,4), d1 = 1, 
-sigmaTrt1 = 4, responseType = "continuous")
-rFk1 <- 0.044
-rFk2 <- rFk3 <- (1-rFk1)/2
-rF <- c(rFk1, rFk2, rFk3)
-conProbII2(alpha = alpha, power1 = power1, rF1 = rF, d1 = 1, 
-sigmaTrt1 = 4, responseType = "continuous")
-
-# Example 4 in Qing et al (2025)
-alpha <- 0.05
-power1 <- 0.8
-rFk1 <- 0.06
-rFk2 <- rFk3 <- (1-rFk1)/2
-rF <- c(rFk1, rFk2, rFk3)
-conProbII2(alpha = alpha, power1 = power1, rF1 = rF, pTrt1 = 0.9, 
-pCtrl1 = 0.8, responseType = "binary")
-rFk1 <- 0.044
-rFk2 <- rFk3 <- (1-rFk1)/2
-rF <- c(rFk1, rFk2, rFk3)
-conProbII2(alpha = alpha, power1 = power1, rF1 = rF, pTrt1 = 0.9, 
-pCtrl1 = 0.8, responseType = "binary")
-
+set.seed(42)
+conProbII2(alpha = 0.05, power1 = 0.8, rF1 = rep(1/3, 3),
+           d1 = 1, sigmaTrt1 = 4)
+}
+\references{
+Qing et al. (2025). Regional consistency evaluation and sample
+size calculation under two MRCTs. \doi{10.1002/sim.70306}.
+The implementation uses the corrected pooling weights and covariance structure.
+}
+\seealso{
+\code{\link[=conProbII]{conProbII()}}, \code{\link[=conProb2]{conProb2()}}.
 }

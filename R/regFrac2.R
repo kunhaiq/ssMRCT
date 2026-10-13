@@ -1,63 +1,32 @@
-#' @name regFrac2
+#' Common regional fraction for two symmetric MRCTs
 #'
-#' @title Regional fraction for two MRCTs via the extended criterion Method I of MHLW (2007) (conditional version) under fixed effects model
+#' @description Solve for a common regional fraction attaining the target
+#' Method I consistency probability in two independent, symmetric trials.
 #'
-#' @description Calculate the optimal regional fractions given the consistency probability for two MRCTs via the extended criterion Method I of MHLW (2007)  (conditional version) under fixed effects model
-#'
-#' @param alpha The Type I error.
-#' @param power Power for MRCT 1 and 2. 
-#' @param pi The threshold ratio in the extended criterion Method I of MHLW (2007) (conditional version). Defaults to 0.5.
-#' @param CP The consistency probability. Defaults to 80%.
+#' @inheritParams conProb
+#' @param power Common overall power for both trials, with `alpha < power < 1`.
+#' @param CP Target consistency probability, in `(0.5, 1]`.
 #'
 #' @details
-#' If we assume equal treatment effects, common regional fractions, common powers and common randomization ratios across 
-#' two studies, i.e., \eqn{\sigma^{2(\textrm{t},1)}=\sigma^{2(\textrm{t},2)}, \sigma^{2(\textrm{c},1)}=\sigma^{2(\textrm{c},2)},
-#' d^{(1)}=d^{(2)}, f_k^{(1)}=f_k^{(2)}=f_k, \beta_1=\beta_2} and \eqn{r^{(1)}=r^{(2)}}, then the CP reduces to
-#' \deqn{
-#'  \frac{1}{(1-\beta)^2} \int_{-z_{1-\beta}}^{\infty} \int_{-z_{1-\beta}}^{\infty} \Phi\left( \frac{(1-\pi) (2z_{1-\alpha} + 2z_{1-\beta} + u + v)}{\sqrt{2(f_k^{-1} - 1)}} \right) \phi(u)\phi(v) \mathrm{d}u \mathrm{d}v.
-#' } 
-#' Given the consistency probability, there is a minimal regional fraction \code{rF}. 
+#' Both trials must have the same treatment effect, arm-specific variances,
+#' randomization ratio, power and regional fraction. The function solves for
+#' that common fraction. It does not optimize two unequal regional fractions.
+#' A target of one returns the full-region boundary.
 #'
-#' The overall sample size is obtain by \code{\link{conProb2}} simultaneously. 
-#' 
-#' @returns A list containing the following one component:
-#' \describe{
-#'   \item{\code{rF}}{The regional fraction for MRCT 1 and 2, a scalar.}
-#' }
-#' 
-#' @examples 
-#' regFrac2(alpha = 0.05, power = 0.8)  
-#' 
+#' @returns A numeric scalar: the common regional fraction for both trials.
+#' @seealso [conProb2()] for a general two-trial CP calculation.
+#' @references Qing et al. (2025). Regional consistency evaluation and sample
+#' size calculation under two MRCTs. \doi{10.1002/sim.70306}.
+#' The implementation uses the corrected pooling weights and covariance structure.
+#' @examples
+#' fraction <- regFrac2(alpha = 0.05, power = 0.8)
+#' conProb2(alpha = 0.05, power1 = 0.8, rF1 = fraction,
+#'          d1 = 1, sigmaTrt1 = 4)
 #' @export
-#'
-regFrac2 <-  function(alpha, 
-                      power, 
-                      pi = 0.5, 
-                      CP = 0.8) { 
-  za <- qnorm(1 - alpha)
-  zb <- qnorm(power) 
-  calculate_cp <- function(fk) { 
-    if (fk <= 0 || fk >= 1) return(NA) 
-    denom_val <- sqrt(2 * (1/fk - 1)) 
-    integrand_func <- function(v) {
-      sapply(v, function(vi) {
-        
-        inner_func <- function(u) { 
-          numerator <- (1 - pi) * (2 * za + 2 * zb + u + vi) 
-          pnorm(numerator / denom_val) * dnorm(u)
-        } 
-        res_u <- integrate(inner_func, lower = -zb, upper = Inf)$value 
-        return(res_u * dnorm(vi))
-      })
-    } 
-    integral_res <- integrate(integrand_func, lower = -zb, upper = Inf)$value 
-    cp_val <- integral_res / ((power)^2)
-    return(cp_val)
-  }
-   
-  obj_func <- function(fk) {
-    calculate_cp(fk) - CP
-  } 
-  root_res <- uniroot(obj_func, interval = c(0.001, 0.999), tol = 1e-6)
-  return(root_res$root)
+regFrac2 <- function(alpha, power, pi=0.5, CP=0.8) {
+  .check_design(alpha, power, pi)
+  .check_number(CP, "CP", 0.5, 1, TRUE)
+  if (CP == 1) return(1)
+  uniroot(function(f) .method1_cp(alpha, power, pi, f, 2L)-CP,
+          c(0,1), tol=1e-8)$root
 }

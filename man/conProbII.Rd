@@ -2,7 +2,7 @@
 % Please edit documentation in R/conProbII.R
 \name{conProbII}
 \alias{conProbII}
-\title{Consistency probability for MRCT via criterion Method II of MHLW (2007) (conditional version) under fixed effects model}
+\title{Consistency probability for all regions in one MRCT}
 \usage{
 conProbII(
   alpha,
@@ -19,87 +19,79 @@ conProbII(
 )
 }
 \arguments{
-\item{alpha}{The Type I error.}
+\item{alpha}{One-sided significance level, between 0 and 0.5.}
 
-\item{power}{Power.}
+\item{power}{Target overall power, with \verb{alpha < power < 1}.}
 
-\item{rF}{The regional fractions, a \code{K x 1} vector with each component
-representing the regional fraction in region \eqn{k} and the sum must equal 1.}
+\item{rF}{Positive fractions for all regions, summing to one.}
 
-\item{d}{The true mean of difference of response.}
+\item{d, sigmaTrt, sigmaCtrl}{Continuous-endpoint effect and standard deviations;
+see \code{\link[=conProb]{conProb()}}. Ignored for binary endpoints.}
 
-\item{sigmaTrt}{The standard deviation of response in the treatment group.}
+\item{pTrt, pCtrl}{Treatment and control response probabilities for a binary
+endpoint, strictly between zero and one, with \code{pTrt > pCtrl}.}
 
-\item{sigmaCtrl}{The standard deviation of response in the control group. Defaults to \code{sigmaTrt}.}
+\item{randRatio}{Treatment-to-control allocation ratio, strictly positive.}
 
-\item{pTrt}{The mean of the response in the treatment group.}
+\item{responseType}{Endpoint type: \code{"continuous"} or \code{"binary"}.}
 
-\item{pCtrl}{The mean of the response in the control group.}
-
-\item{randRatio}{The randomization ratio between the treatment group and control group. Defaults to 1.}
-
-\item{responseType}{The type of response. One of "continuous" and "binary".}
-
-\item{B}{The number of simulation by Monto Carlo for \code{responseType} = "binary". Defaults to 100,000.}
+\item{B}{Positive integer number of replicates; used only for binary endpoints.}
 }
 \value{
-A list containing the following two components:
+A list with \code{CP} and total sample size \code{N}.
+For binary endpoints, \code{N} is the actual simulated total and the list also contains:
 \describe{
-\item{\code{CP}}{The consistency probability, a scalar.}
-\item{\code{N}}{The overall sample size.}
+\item{nTrt, nCtrl}{Actual overall treatment and control counts.}
+\item{nTrtReg, nCtrlReg}{Actual regional treatment and control counts.}
+\item{achievedPower}{Simulated probability of the conditioning event.}
+\item{MCSE}{Monte Carlo standard error of CP.}
+\item{successes}{Number of replicates meeting the conditioning event.}
+\item{consistentSuccesses}{Number also meeting regional consistency.}
+\item{B}{Number of simulation replicates.}
 }
 }
 \description{
-Calculate the consistency probability for MRCT via criterion Method II of MHLW (2007) (conditional version) under fixed effects model.
+Calculate Method II consistency probability: all regional
+effect estimates are nonnegative, conditional on overall significance.
 }
 \details{
-The consistency probability via criterion Method II of MHLW (2007) (conditional version),
-\deqn{\mathrm{Pr}\left(D_{k}\geq 0, k=1,\ldots,K\ |\ T>z_{1-\alpha}\right),}
-is approximately
-\deqn{
-\frac{1}{1-\beta}\int_{-z_{1-\beta}}^{\infty} \Phi_K\left\{ \mathbf{0};-(u + z_{1-\alpha} + z_{1-\beta})\mathbf{1}_K, \mathbf{\Lambda} - \mathbf{1}_K \mathbf{1}_K^\top \right\} \phi(u) \mathrm{d} u,
+\deqn{\mathrm{CP} = \Pr(D_r \ge 0 \text{ for all }r
+  \mid T > z_{1-\alpha}).}
+Continuous endpoints use a joint normal probability, retaining dependence
+between regional and overall effects. Numerical integration can vary
+slightly with the random seed.
 }
-where \eqn{\Phi_K(\mathbf{x}; \vec{\mu}, \Sigma)} denotes the cumulative distribution function of a \eqn{K}-dimensional normal distribution with mean \eqn{\vec{\mu}}
-and covariance matrix \eqn{\Sigma}, \eqn{\mathbf{1}_K} is the vector of \eqn{K} ones, \eqn{\mathbf{\Lambda} = \text{diag}(f_{1}^{-1}, \dots, f_{K}^{-1})}.
+\section{Sample sizes}{
 
-Since there is no closed form of above equation, \code{conProbII} utilizes the \code{\link[mvtnorm]{pmvnorm}} function for numerical integration.
-
-As the first equation includes none of \code{d}, \code{sigmaTrt},
-\code{sigmaCtrl} and \code{randRatio}, if only the consistency probability
-is considered, then the values of \code{d} and \code{sigmaTrt} could be arbitrary.
-
-For binary response, the above approximation loses precision under moderate sample size.
-Hence \code{conProbII} applies Monto Carlo to calculate the correct consistency probability.
-
-The overall sample size is calculated in the same way as \code{\link{conProb}}.
+CP uses the continuous design at the requested power. The recommended
+control count is rounded up first, followed by the treatment count.
+Returned counts do not re-evaluate CP after integer regional allocation.
 }
+
+\section{Binary calculation}{
+
+The function simulates regional binomial counts with separately rounded
+arm sizes. CP is the number of consistent overall successes divided by
+the number of overall successes. Zero regional effects count as consistent.
+Wald tests use the actual arm counts. With zero estimated variance, only
+a positive estimated effect rejects the null.
+
+No overall successes gives \code{NA} for CP and its Monte Carlo standard error,
+with a warning. Set the random seed for reproducibility.
+}
+
 \examples{
-# Example 1 in Qing et al (2025)
-alpha <- 0.05
-power <- 0.8
-conProbII(alpha, power, rF = rep(1/2,2), d = 1, sigmaTrt = 4, responseType = "continuous")
-conProbII(alpha, power, rF = rep(1/3,3), d = 1, sigmaTrt = 4, responseType = "continuous")
-conProbII(alpha, power, rF = rep(1/4,4), d = 1, sigmaTrt = 4, responseType = "continuous")
-rFk1 <- 0.110
-rFk2 <- rFk3 <- (1-rFk1)/2
-rF <- c(rFk1, rFk2, rFk3)
-conProbII(alpha, power, rF = rF, d = 1, sigmaTrt = 4, responseType = "continuous") 
-# Example 2 in Qing et al (2025)
-rFk1 <- 0.149
-rFk2 <- rFk3 <- (1-rFk1)/2
-rF <- c(rFk1, rFk2, rFk3)
-set.seed(123)
-conProbII(alpha, power, rF = rF, pTrt = 0.8, pCtrl = 0.7, responseType = "binary")
-rFk1 <- 0.14
-rFk2 <- rFk3 <- (1-rFk1)/2
-rF <- c(rFk1, rFk2, rFk3)
-set.seed(123)
-conProbII(alpha, power, rF = rF, pTrt = 0.7, pCtrl = 0.6, responseType = "binary")
-rFk1 <- 0.110
-rFk2 <- rFk3 <- (1-rFk1)/2
-rF <- c(rFk1, rFk2, rFk3)
-set.seed(123)
-conProbII(alpha, power, rF = rF, pTrt = 0.8, pCtrl = 0.7, responseType = "binary")
-conProbII(alpha, power, rF = rF, pTrt = 0.7, pCtrl = 0.6, responseType = "binary")
-
+set.seed(42)
+conProbII(alpha = 0.05, power = 0.8, rF = rep(1/3, 3),
+          d = 1, sigmaTrt = 4)
+conProbII(alpha = 0.05, power = 0.8, rF = rep(1/3, 3),
+          pTrt = 0.8, pCtrl = 0.7, responseType = "binary", B = 10000)
+}
+\references{
+Qing et al. (2025). Regional consistency evaluation and sample
+size calculation under two MRCTs. \doi{10.1002/sim.70306}.
+The implementation uses the corrected pooling weights and covariance structure.
+}
+\seealso{
+\code{\link[=conProbII2]{conProbII2()}}, \code{\link[=conProb]{conProb()}}.
 }

@@ -2,77 +2,68 @@
 % Please edit documentation in R/ssCPsurvPH.R
 \name{ssCPsurvPH}
 \alias{ssCPsurvPH}
-\title{Overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model.}
+\title{Random-effects design for a proportional-hazards endpoint}
 \usage{
 ssCPsurvPH(alpha, beta, lambda0r, hr, pi = 0.5, randRatio = 1, target, f, L)
 }
 \arguments{
-\item{alpha}{one-sided Type I error.}
+\item{alpha}{One-sided significance level, between 0 and 0.5.}
 
-\item{beta}{Type II error.}
+\item{beta}{Type II error probability; \verb{alpha < 1 - beta < 1}.}
 
-\item{lambda0r}{vector of rate parameters in the control group. a \code{R x 1} vector with each component representing the rate parameter in region \eqn{r}.}
+\item{lambda0r}{Positive control hazard rates, as a scalar or regional vector.}
 
-\item{hr}{vector of hazard ratios of treatment group vs control group. a \code{R x 1} vector with each component representing the hr in region \eqn{r}.}
+\item{hr}{Positive treatment-to-control hazard ratios, as a scalar or
+regional vector. The mean of \code{-log(hr)} must be positive.}
 
-\item{pi}{threshold ratio in Method I of MHLW (2007)(conditional version). Defaults to 0.5.}
+\item{pi}{Fraction of the overall effect to preserve; \verb{0 <= pi < 1}.}
 
-\item{randRatio}{randomization ratio between the treatment group and control group. Defaults to 1.}
+\item{randRatio}{Treatment-to-control allocation ratio, strictly positive.}
 
-\item{target}{index for the region of interest. an integer of value referring to the region with the corresponding position in \code{f}.}
+\item{target}{Index of the region of interest in \code{f}.}
 
-\item{f}{vector of regional fractions. a \code{R x 1} vector with each component representing the regional fraction in region \eqn{r} and the sum must equal 1.}
+\item{f}{Positive regional fractions summing to one. At least two regions are required.}
 
-\item{L}{scalar of follow-up time in a study assuming fixed study duration design.}
+\item{L}{Positive follow-up duration, in the same time units as the hazard rates.}
 }
 \value{
-A list containing the following components:
+A list with:
 \describe{
-\item{\code{n0}}{The overall sample size of the control group}
-\item{\code{n1}}{The overall sample size of the treatment group}
-\item{\code{n}}{The overall sample size.}
-\item{\code{CP}}{The consistency probability, a scalar.}
-\item{\code{"error: condition not met. negative n0 returned"}}{}
-\item{\code{"error: regional fractions do not sum up to 1"}}{When vector f does not sum up to 1}
+\item{n0, n1}{Recommended overall control and treatment counts.}
+\item{n}{Total count, \code{n0 + n1}.}
+\item{CP}{Conditional consistency probability, without rounding.}
 }
 }
 \description{
-Calculate the overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model for survival endpoint with PH assumption.
+Calculate sample size and shrinkage-based Method I consistency
+probability for exponential survival with a common fixed follow-up time.
 }
 \details{
-Assume the survival endpoint in region \eqn{r} of group \eqn{k} follows exponential distribution
-with rate parameter \eqn{\lambda_k^{(r)}}:
-\eqn{T_k^{(r)} \sim \textrm{exp}(\lambda_k^{(r)}), k=0,1, r=1\ldots R}.
-Assume the censoring time follows uniform distribution with lower limit \code{unimin} and upper limit \code{unimax}.
-Assume a study with fixed study duration where each subject is followed for the
-same length in time (i.e.,\eqn{L} time units) and administrative censoring at the end of study follow-up
-is the only type of censoring.
-
-The overall sample size is calculated based on the following equation,
-\deqn{
-\sum_r\left(\tau^2+\frac{\Omega_r}{n_0f_r}\right)^{-1} =\frac{(z_{1-\alpha}+z_{1-\beta})^2}{\delta^2} \quad n_1=\ell n_0.
+All participants are followed for \code{L} time units. Administrative censoring
+at \code{L} is the only censoring mechanism. Regional effects are \code{-log(hr)};
+their mean and sample standard deviation define \code{delta} and \code{tau}.
+With event probabilities \eqn{P_{kr}=1-\exp(-\lambda_{kr}L)},
+\deqn{\Omega_r=\frac{(\ell+1)^2}{\ell(P_{0r}+\ell P_{1r})}.}
+For delayed effects or crossing survival curves, use \code{\link[=ssCPsurvNPH]{ssCPsurvNPH()}}.
 }
-Since there is no closed form of above equation, \code{ssCPsurvPH} utilizes the \code{\link[stats]{uniroot}} function for numerical solution for \eqn{n_0}.
-Then \eqn{n = n_0+n_1}.
+\section{Design assumptions}{
 
-The consistency probability via Method I of MHLW (2007)(conditional version) under random effects model,
-\eqn{\mathrm{Pr}\left(\widetilde{D}_{r}\ge \pi \widetilde{D} | T>z_{1-\alpha}\right)},
-is approximately
-\deqn{
- \frac{1}{1-\beta}\int_{u>z_{\beta}}\Phi\left(\frac{(1-\pi) \left(u+z_{1-\alpha}+z_{1-\beta}\right) }{\sqrt{\rho_r^{-1}-1}}\right) d\Phi(u)
+Regional inputs may be scalars or vectors of length \code{length(f)}.
+The calculation uses a normal random-effects approximation and the
+sample-size equation in \code{\link[=ssCPnorm]{ssCPnorm()}}. Invalid inputs and designs with
+no finite solution raise errors. CP uses the continuous design;
+returned group counts are rounded recommendations.
 }
-where \eqn{\rho_r^{-1}-1=\frac{h_r}{h_r+1}\sum_{j \ne r}^R\frac{h_j}{h_j+1},
-w=\frac{1}{\tau^2}\sum_{j=1}^R\frac{h_j}{h_j+1}, h_r=\tau^2/\sigma^{2(r)}, \sigma^{2(r)}=\Omega_r/(n_0f_r)}.
-Since there is no closed form of above equation, \code{ssCPsurvPH} utilizes the \code{\link[stats]{integrate}} function for numerical integration.
 
-Note for survival endpoint under PH assumption,
-\eqn{\Omega_r=(\ell+1)^2/\{\ell(P_0^{(r)}+\ell P_1^{(r)})\}, P_k^{(r)}=1-e^{-\lambda_k^{(r)L}}}.
-\eqn{\delta} and \eqn{\tau} are derived based on the naive approach as the mean and standard deviation of the regional hazard ratios.
-}
 \examples{
-
-ssCPsurvPH(alpha=0.025, beta=0.2, lambda0r=rep(0.05,3), hr=c(0.7,0.6,0.4),
-           pi=0.5, randRatio=1, target=1, f=rep(1/3,3), L=36)
-
-
+ssCPsurvPH(alpha = 0.025, beta = 0.2, lambda0r = 0.05,
+           hr = c(0.7, 0.6, 0.4), target = 1, f = rep(1/3, 3), L = 36)
+}
+\references{
+Ren and Xu (2026). Consistency Assessment and Regional Sample
+Size Calculation for MRCT Under Random Effects Model.
+\doi{10.1002/pst.70090}.
+}
+\seealso{
+\code{\link[=ssCPnorm]{ssCPnorm()}}, \code{\link[=ssCPsurvNPH]{ssCPsurvNPH()}}.
 }

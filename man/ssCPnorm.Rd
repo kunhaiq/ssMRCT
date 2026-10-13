@@ -2,7 +2,7 @@
 % Please edit documentation in R/ssCPnorm.R
 \name{ssCPnorm}
 \alias{ssCPnorm}
-\title{Overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model.}
+\title{Random-effects design for a normal endpoint}
 \usage{
 ssCPnorm(
   alpha,
@@ -18,64 +18,70 @@ ssCPnorm(
 )
 }
 \arguments{
-\item{alpha}{Type I error for one-sided test.}
+\item{alpha}{One-sided significance level, between 0 and 0.5.}
 
-\item{beta}{Type II error.}
+\item{beta}{Type II error probability; \verb{alpha < 1 - beta < 1}.}
 
-\item{delta}{mean of the Gaussian prior for the regional treatment effect.}
+\item{delta}{Positive mean of the regional treatment-effect distribution.}
 
-\item{tau}{standard deviation of the Gaussian prior for the regional treatment effect.}
+\item{tau}{Nonnegative standard deviation of regional treatment effects.}
 
-\item{sigma1r}{regional standard deviations of the response in the treatment group, a \code{R x 1} vector with each component representing the standard deviation in region \eqn{r} .}
+\item{sigma1r, sigma0r}{Positive treatment and control outcome standard
+deviations, as scalars or vectors with one value per region.}
 
-\item{sigma0r}{regional standard deviations of the response in the control group. a \code{R x 1} vector with each component representing the standard deviation in region \eqn{r}.}
+\item{pi}{Fraction of the overall effect to preserve; \verb{0 <= pi < 1}.}
 
-\item{pi}{threshold ratio in Method I of MHLW (2007)(conditional version). Defaults to 0.5.}
+\item{randRatio}{Treatment-to-control allocation ratio, strictly positive.}
 
-\item{randRatio}{randomization ratio between the treatment group and control group. Defaults to 1.}
+\item{target}{Index of the region of interest in \code{f}.}
 
-\item{target}{The index for the region of interest. an integer of value referring to the region with the corresponding position in \code{f}.}
-
-\item{f}{regional fractions, a \code{R x 1} vector with each component representing the fraction in region \eqn{r} and the sum must equal 1.}
+\item{f}{Positive regional fractions summing to one. At least two regions are required.}
 }
 \value{
-A list containing the following components:
+A list with:
 \describe{
-\item{\code{n0}}{The overall sample size of the control group}
-\item{\code{n1}}{The overall sample size of the treatment group}
-\item{\code{n}}{The overall sample size.}
-\item{\code{CP}}{The consistency probability, a scalar.}
-\item{\code{"error: condition not met. negative n0 returned"}}{}
-\item{\code{"error: regional fractions do not sum up to 1"}}{When vector f does not sum up to 1}
+\item{n0, n1}{Recommended overall control and treatment counts.}
+\item{n}{Total count, \code{n0 + n1}.}
+\item{CP}{Conditional consistency probability, without rounding.}
 }
 }
 \description{
-Calculate the overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model for the normal endpoint.
+Calculate overall sample size and conditional Method I
+consistency probability for an empirical shrinkage regional estimator.
 }
 \details{
-The overall sample size is calculated based on the following equation,
-\deqn{
-\sum_r\left(\tau^2+\frac{\Omega_r}{n_0f_r}\right)^{-1} =\frac{(z_{1-\alpha}+z_{1-\beta})^2}{\delta^2} \quad n_1=\ell n_0.
-}
-Since there is no closed form of above equation, \code{ssCPnorm} utilizes the \code{\link[stats]{uniroot}} function for numerical solution for \eqn{n_0}.
-Then \eqn{n = n_0+n_1}.
+Let \eqn{\ell} be \code{randRatio}, \eqn{z = z_{1-\alpha}+z_{1-\beta}}
+and \eqn{\Omega_r = \sigma_{1r}^2/\ell+\sigma_{0r}^2}.
+The continuous control count solves
+\deqn{\sum_r \left(\tau^2+\frac{\Omega_r}{n_0 f_r}\right)^{-1}
+  = \frac{z^2}{\delta^2}.}
+A finite solution requires \eqn{\tau z/\delta < \sqrt{R}},
+where \eqn{R} is the number of regions.
 
-The consistency probability via Method I of MHLW (2007)(conditional version) under random effects model,
-\eqn{\mathrm{Pr}\left(\widetilde{D}_{r}\ge \pi \widetilde{D} | T>z_{1-\alpha}\right)},
-is approximately
-\deqn{
- \frac{1}{1-\beta}\int_{u>z_{\beta}}\Phi\left(\frac{(1-\pi) \left(u+z_{1-\alpha}+z_{1-\beta}\right) }{\sqrt{\rho_r^{-1}-1}}\right) d\Phi(u)
+The target-region criterion is
+\deqn{\Pr(\widetilde D_r \ge \pi\widetilde D
+  \mid T > z_{1-\alpha}).}
+It uses the shrinkage estimator, not the raw regional mean difference.
+At \code{tau = 0}, regional and overall shrinkage estimates coincide, so CP is one.
 }
-where \eqn{\rho_r^{-1}-1=\frac{h_r}{h_r+1}\sum_{j \ne r}^R\frac{h_j}{h_j+1},
-w=\frac{1}{\tau^2}\sum_{j=1}^R\frac{h_j}{h_j+1}, h_r=\tau^2/\sigma^{2(r)}, \sigma^{2(r)}=\Omega_r/(n_0f_r)}.
-Since there is no closed form of above equation, \code{ssCPnorm} utilizes the \code{\link[stats]{integrate}} function for numerical integration.
+\section{Design assumptions}{
 
-For the normal endpoint, \eqn{\Omega_r=\ell^{-1}\sigma_1^{2(r)}+\sigma_1^{2(r)}}
+Regional inputs may be scalars or vectors of length \code{length(f)}.
+The calculation uses a normal random-effects approximation and the
+sample-size equation above. Invalid inputs and designs with
+no finite solution raise errors. CP uses the continuous design;
+returned group counts are rounded recommendations.
 }
+
 \examples{
-
-ssCPnorm(alpha=0.025, beta=0.1, delta=0.25, tau=0.1,
-         sigma1r=rep(1,3),sigma0r=rep(1,3),
-         randRatio=1, pi=0.5, target=1, f=c(1/3,1/3,1/3))
-
+ssCPnorm(alpha = 0.025, beta = 0.2, delta = 0.25, tau = 0.1,
+         sigma1r = 1, sigma0r = 1, target = 1, f = rep(1/3, 3))
+}
+\references{
+Ren and Xu (2026). Consistency Assessment and Regional Sample
+Size Calculation for MRCT Under Random Effects Model.
+\doi{10.1002/pst.70090}.
+}
+\seealso{
+\code{\link[=ssCPbinary]{ssCPbinary()}}, \code{\link[=ssCPsurvPH]{ssCPsurvPH()}}, \code{\link[=ssCPsurvNPH]{ssCPsurvNPH()}}, \code{\link[=CPlbd]{CPlbd()}}.
 }

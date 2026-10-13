@@ -2,7 +2,7 @@
 % Please edit documentation in R/CPlbd.R
 \name{CPlbd}
 \alias{CPlbd}
-\title{Lower bound of the consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model.}
+\title{Lower bound on random-effects consistency probability}
 \usage{
 CPlbd(
   alpha,
@@ -17,63 +17,57 @@ CPlbd(
 )
 }
 \arguments{
-\item{alpha}{The one-sided Type I error.}
+\item{alpha}{One-sided significance level, between 0 and 0.5.}
 
-\item{beta}{The Type II error.}
+\item{beta}{Type II error probability; \verb{alpha < 1 - beta < 1}.}
 
-\item{tau_delta_r}{The ratio of the standard deviation vs mean of the Gaussian prior for the regional treatment effect.}
+\item{tau_delta_r}{Positive ratio \code{tau / delta}.}
 
-\item{delta}{The mean of the Gaussian prior for the regional treatment effect.}
+\item{delta}{Positive mean of the regional treatment-effect distribution.}
 
-\item{sigma0r}{The standard deviation(s) of response in the treatment group for region(s) of interest. A scalar or vector of length equals to the total number of region(s) of interest.}
+\item{sigma0r, sigma1r}{Positive control and treatment outcome standard
+deviations; scalars or vectors of length \code{length(fr)}.}
 
-\item{sigma1r}{The standard deviation(s) of response in the control group for region(s) of interest. A scalar or vector of length equals to \code{sigma0r}.}
+\item{fr}{Fractions of the regions of interest, each in \verb{(0, 1]}.
+Retained for compatibility and output sizing; counts are regional and
+are not divided by these fractions. The entries need not sum to one.}
 
-\item{fr}{The regional fraction(s) for the region(s) of interest. A scalar or vector of equal length to \code{sigma0r} and \code{sigma1r}.}
+\item{pi}{Fraction of the overall effect to preserve; \verb{0 <= pi < 1}.}
 
-\item{pi}{The threshold ratio in Method I of MHLW (2007)(conditional version). Defaults to 0.5.}
-
-\item{randRatio}{The randomization ratio between the treatment group and control group. Defaults to 1.}
+\item{randRatio}{Treatment-to-control allocation ratio, strictly positive.}
 }
 \value{
-A list containing the following components:
+A list with:
 \describe{
-\item{\code{CPlbd}}{The lower bound of consistency probability, a scalar.}
-\item{\code{n0r}}{The regional sample size of the control group. (n.a. when the condition for positive sample size is not met)}
-\item{\code{n1r}}{The regional sample size of the treatment group. (n.a. when the condition for positive sample size is not met)}
-\item{\code{nr}}{The regional sample size. (n.a. when the condition for positive sample size is not met)}
-
+\item{CPlbd}{Scalar CP lower bound, without rounding.}
+\item{n0r, n1r}{Rounded regional control and treatment counts.}
+\item{nr}{Regional total, \code{n0r + n1r}.}
 }
+Sample-size entries are numeric \code{NA} when the equality condition fails.
 }
 \description{
-Calculate the lower bound of consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model for normal endpoint.
+Calculate the Method I CP lower bound from Ren and Xu (2026)
+and the regional normal-endpoint counts at its equality condition.
 }
 \details{
-The lower bound of the consistency probability via Method I of MHLW (2007)(conditional version) under random effects model,
-\eqn{ \mathrm{Pr} \left( \widetilde{D}_{r} \ge \pi \widetilde{D} | T > z_{1-\alpha} \right) },
-is approximately
-\deqn{
- \frac{1}{1-\beta}\int_{u>z_{\beta}}\Phi\left(\frac{2\delta^2(1-\pi)(u+z_{1-\alpha}+z_{1-\beta})}{\tau^2(z_{1-\alpha}+z_{1-\beta})^2} \right) d\Phi(u).
-}
-provided \eqn{\frac{\tau}{\delta}<\frac{\sqrt{2}}{z_{1-\alpha}+z_{1-\beta}}}. Otherwise,
-CP will also be greater than
-\deqn{
-\frac{1}{1-\beta}\int_{u>z_{\beta}}\Phi\left(\frac{(1-\pi) \left(u+z_{1-\alpha}+z_{1-\beta}\right) }{\sqrt{\frac{\tau^2}{\delta^2}(z_{1-\alpha}+z_{1-\beta})^2-1}}\right) d\Phi(u).
-}.
-Since there is no closed form of above equation, \code{CPlbd} utilizes the \code{\link[stats]{integrate}} function for numerical integration.
-
-The sample size(s) for the region(s) of interest at the lower bound are calculated based on solving the following equation for \eqn{n_0^{(r)}},
-\deqn{
-\frac{h_r}{h_r+1}=\frac{\tau^2}{2\delta^2}(z_{1-\alpha}+z_{1-\beta})^2, \quad n_1^{(r)}=\ell n_0^{(r)}
-}
-where \eqn{h_r=\tau^2/\sigma^{2(r)}, \sigma^{2(r)}=\Omega_r/(n_0f_r), \Omega_r=\ell^{-1}\sigma_1^{2(r)}+\sigma_1^{2(r)}}.
-Then \eqn{n^{(r)} = n_0^{(r)}+n_1^{(r)}}, where both of
-\eqn{n_0^{(r)}} and \eqn{n_1^{(r)}} should be integers and hence \eqn{n^{(r)}}.
+Let \eqn{z=z_{1-\alpha}+z_{1-\beta}} and
+\eqn{a=(\tau/\delta)^2z^2/2}.
+If \eqn{a<1}, the function uses the bound in equation (13), with
+regional control count at equality
+\deqn{n_{0r}=\frac{\Omega_r}{(1/a-1)\tau^2}.}
+If \eqn{a\ge1}, it uses equation (14), and equality counts are \code{NA}.
+These counts describe the regional equality condition, not a complete
+multi-region allocation satisfying the overall design equation.
 }
 \examples{
-CPlbd(alpha=0.05, beta=0.2, tau_delta_r=0.4, pi=0.5, delta=0.25,
-      sigma0r=1, sigma1r=1, randRatio=1, fr=c(0.1))
-CPlbd(alpha=0.05, beta=0.2, tau_delta_r=0.4, pi=0.5, delta=0.25,
-      sigma0r=c(1,1), sigma1r=c(1,1), randRatio=1, fr=c(0.1,0.5))
-
+CPlbd(alpha = 0.05, beta = 0.2, tau_delta_r = 0.4, delta = 0.25,
+      sigma0r = 1, sigma1r = 1, fr = c(0.1, 0.5))
+}
+\references{
+Ren and Xu (2026). Consistency Assessment and Regional Sample
+Size Calculation for MRCT Under Random Effects Model.
+\doi{10.1002/pst.70090}.
+}
+\seealso{
+\code{\link[=ssCPnorm]{ssCPnorm()}}.
 }

@@ -1,28 +1,21 @@
-#' @name table2MRCTs
-#' 
-#' @title Reproduce all tables in Qing et al (2025)
+#' Legacy simulation tables for the two-MRCT paper
 #'
-#' @description This function reproduces the simulation results for tables 1 through 6 from Qing et al (2025).
+#' @description Internal helper for the historical simulation settings in
+#' Qing et al. (2025). This is not a general design or optimization interface.
 #'
-#' @param numSimu Integer. The number of Monte Carlo simulations to run (e.g., 10000).
-#' @param choice Integer (1-6). Specifies which table to generate.
-#' @param seed Integer. Random seed for reproducibility. Default is 1.
+#' @param numSimu Positive integer number of simulation replicates.
+#' @param choice Table number, from 1 to 6.
+#' @param seed Random seed (default 1).
 #'
-#' @return A data frame containing the simulation parameters, sample sizes, 
-#' theoretical region fractions, and empirical consistency probabilities.
-#' 
-#' @details 
-#' - Tables 1 & 2: Single MRCT with Binary and Continuous outcomes.
-#' - Tables 3 & 4: Two MRCTs with Binary and Continuous outcomes.
-#' - Tables 5 & 6: Sensitivity analysis with different randomization ratios and powers.
-#' 
-#' @examples 
-#' \dontrun{
-#' for (choice in 1:6) { 
-#' print(paste("Table", choice))
-#' print(table2MRCTs(100000,choice,1)) 
-#' }}
-#' 
+#' @details
+#' Tables 1--2 use one trial, tables 3--4 use two symmetric trials, and
+#'  tables 5--6 use different allocation ratios and powers. Some regional
+#' fractions are fixed historical settings. Numerical results need not
+#' exactly reproduce published rounding or earlier software versions.
+#'
+#' @returns A data frame of scenario inputs, recommended counts and empirical CP.
+#' @seealso [conProb()], [conProb2()], [regFrac2()].
+#' @keywords internal
 table2MRCTs <- function(numSimu,choice,seed = 1) {
   #Table1
   table1 <- function(numSimu){

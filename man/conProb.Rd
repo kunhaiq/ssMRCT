@@ -2,7 +2,7 @@
 % Please edit documentation in R/conProb.R
 \name{conProb}
 \alias{conProb}
-\title{Consistency probability for MRCT via criterion Method I of MHLW (2007) (conditional version) under fixed effects model}
+\title{Consistency probability for one MRCT: Method I}
 \usage{
 conProb(
   alpha,
@@ -16,53 +16,53 @@ conProb(
 )
 }
 \arguments{
-\item{alpha}{The Type I error.}
+\item{alpha}{One-sided significance level, between 0 and 0.5.}
 
-\item{power}{Power.}
+\item{power}{Target overall power, with \verb{alpha < power < 1}.}
 
-\item{pi}{The threshold ratio in criterion Method I of MHLW (2007) (conditional version). Defaults to 0.5.}
+\item{pi}{Fraction of the overall effect to preserve; \verb{0 <= pi < 1}.}
 
-\item{rF}{The regional fraction.}
+\item{rF}{Fraction of participants in the region of interest, in \verb{(0, 1]}.}
 
-\item{d}{The true mean of difference of response.}
+\item{d}{Positive treatment-minus-control mean difference.}
 
-\item{sigmaTrt}{The standard deviation of response in the treatment group.}
+\item{sigmaTrt}{Positive outcome standard deviation in the treatment arm.}
 
-\item{sigmaCtrl}{The standard deviation of response in the control group. Defaults to \code{sigmaTrt}.}
+\item{sigmaCtrl}{Positive outcome standard deviation in the control arm.}
 
-\item{randRatio}{The randomization ratio between the treatment group and control group. Defaults to 1.}
+\item{randRatio}{Treatment-to-control allocation ratio, strictly positive.}
 }
 \value{
-A list containing the following two components:
-\describe{
-\item{\code{CP}}{The consistency probability, a scalar.}
-\item{\code{N}}{The overall sample size.}
-}
+A list with \code{CP} (conditional consistency probability) and \code{N}
+(recommended total sample size).
 }
 \description{
-Calculate the consistency probability for MRCT via criterion Method I of MHLW (2007) (conditional version) under fixed effects model.
+Calculate the probability that a regional treatment effect
+preserves a specified fraction of the overall effect, conditional on
+overall significance, under a fixed-effects model.
 }
 \details{
-The consistency probability via criterion Method I of MHLW (2007) (conditional version),
-\deqn{\mathrm{Pr}\left(D_{k}\ge \pi D\ |\ T>z_{1-\alpha}\right),}
-is approximately
-\deqn{
- \frac{1}{1-\beta}\int_{-z_{1-\beta}}^{\infty} \Phi\left(\frac{(1-\pi)(u + z_{1-\alpha}+z_{1-\beta})}{\sqrt{f_{k}^{-1}-1}}\right)\phi(u)\mathrm{d}u.
+With regional effect estimate \eqn{D_r} and overall estimate \eqn{D},
+\deqn{\mathrm{CP} = \Pr(D_r \ge \pi D \mid T > z_{1-\alpha}).}
+The normal approximation is integrated numerically. CP depends on
+\code{alpha}, \code{power}, \code{pi} and \code{rF}; the other inputs determine sample size.
 }
-Since there is no closed form of above equation, \code{conProb} utilizes the \code{\link[stats]{integrate}} function for numerical integration.
+\section{Sample sizes}{
 
-As the equation includes none of \code{d}, \code{sigmaTrt},
-\code{sigmaCtrl} and \code{randRatio}, if only the consistency probability
-is considered, then the values of \code{d} and \code{sigmaTrt} could be arbitrary.
+CP uses the continuous design at the requested power. The recommended
+control count is rounded up first, followed by the treatment count.
+Returned counts do not re-evaluate CP after integer regional allocation.
+}
 
-The overall sample size is calculated based on the following equation,
-\deqn{
-N^{(\textrm{c})}=\frac{\left\{r^{-1}\sigma^{2(\textrm{t})}+\sigma^{2(\textrm{c})}\right\}(z_{1-\alpha}+z_{1-\beta})^{2}}{d^{2}}, \quad N^{(\textrm{t})}=rN^{(\textrm{c})}.
-}
-Then \eqn{N = N^{(\textrm{t})} + N^{(\textrm{c})}}.
-}
 \examples{
-
-conProb(alpha = 0.05, power = 0.8, rF = 0.271, d = 1, sigmaTrt = 4)
-
+conProb(alpha = 0.05, power = 0.8, rF = 0.271,
+        d = 1, sigmaTrt = 4)
+}
+\references{
+Qing et al. (2025). Regional consistency evaluation and sample
+size calculation under two MRCTs. \doi{10.1002/sim.70306}.
+The implementation uses the corrected pooling weights and covariance structure.
+}
+\seealso{
+\code{\link[=regFrac]{regFrac()}} to solve for a regional fraction; \code{\link[=conProb2]{conProb2()}} for two trials.
 }

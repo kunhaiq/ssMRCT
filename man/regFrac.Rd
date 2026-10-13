@@ -2,7 +2,7 @@
 % Please edit documentation in R/regFrac.R
 \name{regFrac}
 \alias{regFrac}
-\title{Regional fraction for MRCT via criterion Method I of MHLW (2007) (conditional version) under fixed effects model}
+\title{Regional fraction for one MRCT: Method I}
 \usage{
 regFrac(
   alpha,
@@ -16,53 +16,43 @@ regFrac(
 )
 }
 \arguments{
-\item{alpha}{The Type I error.}
+\item{alpha}{One-sided significance level, between 0 and 0.5.}
 
-\item{power}{Power.}
+\item{power}{Target overall power, with \verb{alpha < power < 1}.}
 
-\item{pi}{The threshold ratio in criterion Method I of MHLW (2007) (conditional version). Defaults to 0.5.}
+\item{pi}{Fraction of the overall effect to preserve; \verb{0 <= pi < 1}.}
 
-\item{CP}{the consistency probability. Defaults to 80\%.}
+\item{CP}{Target consistency probability, in \verb{(0.5, 1]}.}
 
-\item{d}{The true mean of difference of response. Defaults to 1.}
+\item{d}{Positive treatment-minus-control mean difference.}
 
-\item{sigmaTrt}{The standard deviation of response in the treatment group. Defaults to 4.}
+\item{sigmaTrt}{Positive outcome standard deviation in the treatment arm.}
 
-\item{sigmaCtrl}{The standard deviation of response in the control group. Defaults to \code{sigmaTrt}.}
+\item{sigmaCtrl}{Positive outcome standard deviation in the control arm.}
 
-\item{randRatio}{The randomization ratio between the treatment group and control group. Defaults to 1.}
+\item{randRatio}{Treatment-to-control allocation ratio, strictly positive.}
 }
 \value{
-A list containing the following two components:
-\describe{
-\item{\code{rF}}{The regional fraction, a scalar.}
-\item{\code{N}}{The overall sample size.}
-}
+A list with \code{rF} (regional fraction) and \code{N} (recommended total count).
 }
 \description{
-Calculate the minimal regional fraction given the consistency probability for MRCT via criterion Method I of MHLW (2007) (conditional version) under fixed effects model.
+Find the smallest continuous regional fraction attaining a
+target consistency probability under the fixed-effects model.
 }
 \details{
-Given the consistency probability, there is a minimal regional
-fraction \code{rF}. To calculate the minimal \code{rF}, \code{regFrac} utilizes two core computational components:
-\itemize{
-\item The \code{\link{conProb}} function to compute the (conditional) consistency probability
-\item The \code{\link[stats]{uniroot}} function from the \pkg{stats} package for numerical root-finding
+Solves \code{conProb(...)$CP = CP} for \code{rF}. A target of one returns \code{rF = 1}.
+Fractions are not converted to integer regional arm counts.
+}
+\section{Sample sizes}{
+
+CP uses the continuous design at the requested power. The recommended
+control count is rounded up first, followed by the treatment count.
+Returned counts do not re-evaluate CP after integer regional allocation.
 }
 
-The solution is obtained by solving the following equation numerically:
-\deqn{
-\begin{array}{c}
-  \code{conProb(rF)} - \code{CP} = 0 \\
-  \text{where } \code{rF} \in (0,1).
-\end{array}
-}
-
-The overall sample size is obtain by \code{\link{conProb}} simultaneously.
-}
 \examples{
-conProb(alpha = 0.05, power = 0.8, rF = 0.271, d = 1, sigmaTrt = 4)
-
-regFrac(alpha = 0.05, power = 0.8, d = 1, sigmaTrt = 4)
-  
+regFrac(alpha = 0.05, power = 0.8, CP = 0.8)
+}
+\seealso{
+\code{\link[=conProb]{conProb()}}, \code{\link[=regFrac2]{regFrac2()}}.
 }

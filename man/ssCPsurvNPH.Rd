@@ -2,7 +2,7 @@
 % Please edit documentation in R/ssCPsurvNPH.R
 \name{ssCPsurvNPH}
 \alias{ssCPsurvNPH}
-\title{Overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model.}
+\title{Random-effects design using restricted mean survival time}
 \usage{
 ssCPsurvNPH(
   alpha,
@@ -16,7 +16,7 @@ ssCPsurvNPH(
   scale0,
   shape1,
   scale1,
-  PW = T,
+  PW = TRUE,
   unimin,
   unimax,
   pi = 0.5,
@@ -27,98 +27,96 @@ ssCPsurvNPH(
 )
 }
 \arguments{
-\item{alpha}{Type I error for one-sided test.}
+\item{alpha}{One-sided significance level, between 0 and 0.5.}
 
-\item{beta}{Type II error.}
+\item{beta}{Type II error probability; \verb{alpha < 1 - beta < 1}.}
 
-\item{lambda0a}{vector rate parameter of the piece-wise exponential distribution on or before the breakpoint in the control group. a \code{R x 1} vector with each component representing the rate parameter in region \eqn{r}.}
+\item{lambda0a, lambda0b}{Positive control hazard rates before and after
+\code{breakpoint}. Used only when \code{PW = TRUE}.}
 
-\item{lambda0b}{vector rate parameter of the piece-wise exponential distribution after the breakpoint in the control group. a \code{R x 1} vector with each component representing the rate parameter in region \eqn{r}.}
+\item{lambda1a, lambda1b}{Positive treatment hazard rates before and after
+\code{breakpoint}. Used only when \code{PW = TRUE}.}
 
-\item{lambda1a}{vector rate parameter of the piece-wise exponential distribution on or before the breakpoint in the treatment group. a \code{R x 1} vector with each component representing the rate parameter in region \eqn{r}.}
+\item{breakpoint}{Nonnegative, common hazard change time. Used only when \code{PW = TRUE}.}
 
-\item{lambda1b}{vector rate parameter of the piece-wise exponential distribution before the breakpoint in the treatment group. a \code{R x 1} vector with each component representing the rate parameter in region \eqn{r}.}
+\item{shape0, shape1}{Positive Weibull shape parameters for control and
+treatment. Used only when \code{PW = FALSE}.}
 
-\item{breakpoint}{scalar of the time at which the hazard changes. Assumed universal breakpoint value across groups and regions.}
+\item{scale0, scale1}{Positive Weibull scale parameters for control and
+treatment. Used only when \code{PW = FALSE}.}
 
-\item{shape0}{vector of the shape parameter of the weibull distribution in the control group (shape=1 reduces to exponential). a \code{R x 1} vector with each component representing the shape parameter in region \eqn{r}.}
+\item{PW}{Use piecewise exponential survival (\code{TRUE}) or Weibull survival (\code{FALSE}).}
 
-\item{scale0}{vector of the scale parameter of the weibull distribution in the control group (scale=1/rate). a \code{R x 1} vector with each component representing the scale parameter in region \eqn{r}.}
+\item{unimin, unimax}{Uniform censoring limits, with \verb{0 <= unimin < unimax}.}
 
-\item{shape1}{vector of the shape parameter of the weibull distribution in the treatment group(shape=1 reduces to exponential). a \code{R x 1} vector with each component representing the shape parameter in region \eqn{r}.}
+\item{pi}{Fraction of the overall effect to preserve; \verb{0 <= pi < 1}.}
 
-\item{scale1}{vector of the scale  parameter of the weibull distribution in the treatment group (scale=1/rate). a \code{R x 1} vector with each component representing the scale parameter in region \eqn{r}.}
+\item{randRatio}{Treatment-to-control allocation ratio, strictly positive.}
 
-\item{PW}{logical; if TRUE (default), survival time follow piece-wise exponential distribution. Otherwise Weibull distribution}
+\item{target}{Index of the region of interest in \code{f}.}
 
-\item{unimin}{vector of the lower limits of the uniform distribution. a \code{R x 1} vector with each component representing the lower limit in region \eqn{r}.}
+\item{f}{Positive regional fractions summing to one. At least two regions are required.}
 
-\item{unimax}{vector of the upper limits of the uniform distribution. a \code{R x 1} vector with each component representing the upper parameter in region \eqn{r}.}
-
-\item{pi}{threshold ratio in Method I of MHLW (2007)(conditional version). Defaults to 0.5.}
-
-\item{randRatio}{randomization ratio between the treatment group and control group. Defaults to 1.}
-
-\item{target}{index for the region of interest. an integer of value referring to the region with the corresponding position in \code{f}.}
-
-\item{f}{vector of regional fractions. a \code{R x 1} vector with each component representing the regional fraction in region \eqn{r} and the sum must equal 1.}
-
-\item{eta}{a scalar of truncated time in RMST. Assumed universal truncated time across groups and regions.}
+\item{eta}{Positive common RMST horizon; must be below every \code{unimax}.}
 }
 \value{
-A list containing the following components:
+A list containing \code{n0}, \code{n1}, \code{n} and \code{CP} as in \code{\link[=ssCPnorm]{ssCPnorm()}}, plus:
 \describe{
-\item{\code{Dr}}{regional effect}
-\item{\code{sigma2.0r}}{asymptotic vairance of RMST estimate of the control group in region r}
-\item{\code{sigma2.1r}}{asymptotic vairance of RMST estimate of the treatment group in region r}
-\item{\code{n0}}{The overall sample size of the control group}
-\item{\code{n1}}{The overall sample size of the treatment group}
-\item{\code{n}}{The overall sample size.}
-\item{\code{CP}}{The consistency probability, a scalar.}
-\item{\code{"error: condition not met. negative n0 returned"}}{}
-\item{\code{"error: regional fractions do not sum up to 1"}}{When vector f does not sum up to 1}
+\item{Dr}{Treatment-minus-control RMST difference in each region.}
+\item{sigma2.1r, sigma2.0r}{Treatment and control RMST variance coefficients.
+Divide each by its regional arm count to obtain the estimator variance.}
 }
 }
 \description{
-Calculate the overall sample size and consistency probability for one MRCT via Method I of MHLW (2007)(conditional version) under random effects model for the survival endpoint with nPH assumption.
+Calculate sample size and shrinkage-based Method I consistency
+probability for a treatment-minus-control restricted mean survival time
+(RMST) difference, allowing non-proportional hazards.
 }
 \details{
-Assume the survival endpoint follows either piece-wise exponential distribution with hazard function (i.e., rate function)
-\eqn{\lambda_k^{(r)}I(0<t\le \psi )+\gamma_k^{(r)}I(t> \psi)}, where \eqn{\psi}(\code{breakpoint}) is the change point
-and \eqn{\lambda_k^{(r)}} (\code{lambda0a}, \code{lambda0b}), \eqn{\gamma_k^{(r)}} (\code{lambda1a}, \code{lambda1b})
-represent the hazard on or before and after the change point \eqn{\psi} in group \eqn{k} of region \eqn{r}.
-or Weibull distribution (i.e., Weibull(\eqn{\nu_k^{(r)}, \theta_k^{(r)}})),
-with shape parameter \eqn{\nu_k^{(r)}} (\code{shape0},\code{shape1})
-and scale parameter (i.e., 1/rate parameter) \eqn{\theta_k^{(r)}} (\code{scale0}, \code{scale1}) for group \eqn{k} region \eqn{r}.
-Assume the censoring time follows uniform distribution with lower limit \code{unimin} and upper limit \code{unimax}.
+Supply only the survival parameters needed by \code{PW}. All regional model
+parameters can be scalars or vectors of length \code{length(f)}.
+Use the same time units for \code{eta}, \code{breakpoint}, censoring limits and scales.
 
-The overall sample size is calculated based on the following equation,
-\deqn{
-\sum_r\left(\tau^2+\frac{\Omega_r}{n_0f_r}\right)^{-1} =\frac{(z_{1-\alpha}+z_{1-\beta})^2}{\delta^2} \quad n_1=\ell n_0.
-}
-Since there is no closed form of above equation, \code{ssCPsurvPH} utilizes the \code{\link[stats]{uniroot}} function for numerical solution for \eqn{n_0}.
-Then \eqn{n = n_0+n_1}.
+With \code{PW = TRUE}, hazards change once at \code{breakpoint}.
+With \code{PW = FALSE}, Weibull survival is
+\eqn{S(t)=\exp\{-(t/\mathrm{scale})^{\mathrm{shape}}\}}.
+Scale equals the reciprocal exponential rate only when shape is one.
+Event and censoring times are independent. Before \code{unimin}, censoring
+survival equals one.
 
-The consistency probability via Method I of MHLW (2007)(conditional version) under random effects model,
-\eqn{\mathrm{Pr}\left(\widetilde{D}_{r}\ge \pi \widetilde{D} | T>z_{1-\alpha}\right)},
-is approximately
-\deqn{
- \frac{1}{1-\beta}\int_{u>z_{\beta}}\Phi\left(\frac{(1-\pi) \left(u+z_{1-\alpha}+z_{1-\beta}\right) }{\sqrt{\rho_r^{-1}-1}}\right) d\Phi(u)
+Regional effects are RMST differences; their mean and sample standard
+deviation define \code{delta} and \code{tau}. The mean must be positive.
+RMST variance is integrated numerically, with
+\eqn{\Omega_r=\sigma_{1r}^2/\ell+\sigma_{0r}^2}.
 }
-where \eqn{\rho_r^{-1}-1=\frac{h_r}{h_r+1}\sum_{j \ne r}^R\frac{h_j}{h_j+1},
-w=\frac{1}{\tau^2}\sum_{j=1}^R\frac{h_j}{h_j+1}, h_r=\tau^2/\sigma^{2(r)}, \sigma^{2(r)}=\Omega_r/(n_0f_r)}.
-Since there is no closed form of above equation, \code{ssCPsurvPH} utilizes the \code{\link[stats]{integrate}} function for numerical integration.
+\section{Design assumptions}{
 
-For survival endpoint under non-PH assumption, \eqn{\Omega_r=\ell^{-1}\sigma_1^{2(r)}+\sigma_1^{2(r)}}.
-\eqn{\delta} and \eqn{\tau} are derived based on the naive approach as the mean and standard deviation of the regional RMST between group difference.
+Regional inputs may be scalars or vectors of length \code{length(f)}.
+The calculation uses a normal random-effects approximation and the
+sample-size equation in \code{\link[=ssCPnorm]{ssCPnorm()}}. Invalid inputs and designs with
+no finite solution raise errors. CP uses the continuous design;
+returned group counts are rounded recommendations.
 }
+
 \examples{
+# Piecewise exponential survival
+ssCPsurvNPH(alpha = 0.025, beta = 0.2,
+            lambda0a = 0.07, lambda0b = 0.04,
+            lambda1a = c(0.02, 0.03, 0.04), lambda1b = 0.04,
+            breakpoint = 10, unimin = 0, unimax = 240,
+            target = 1, f = rep(1/3, 3), eta = 80)
 
-ssCPsurvNPH(alpha=0.025, beta=0.2,
-            lambda0a=c(0.07,0.07,0.07,0.07),lambda0b=c(0.03,0.04,0.05,0.06),
-            lambda1a=c(0.02,0.03,0.04,0.05),lambda1b=c(0.03,0.04,0.05,0.06),
-            breakpoint=10,
-            unimin=rep(0,4),unimax=rep(80*3,4),
-            pi=0.5, randRatio=1, target=1, f=rep(1/4,4), eta=80)
-
+# Weibull survival: shape = 1 gives exponential survival
+ssCPsurvNPH(alpha = 0.025, beta = 0.2, PW = FALSE,
+            shape0 = 1, scale0 = 10, shape1 = 1, scale1 = 15,
+            unimin = 20, unimax = 30, eta = 10,
+            target = 1, f = rep(1/3, 3))
+}
+\references{
+Ren and Xu (2026). Consistency Assessment and Regional Sample
+Size Calculation for MRCT Under Random Effects Model.
+\doi{10.1002/pst.70090}.
+}
+\seealso{
+\code{\link[=ssCPsurvPH]{ssCPsurvPH()}}, \code{\link[=ssCPnorm]{ssCPnorm()}}.
 }

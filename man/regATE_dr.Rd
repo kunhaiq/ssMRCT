@@ -3,7 +3,7 @@
 \name{regATE_dr}
 \alias{regATE_dr}
 \alias{print.regATE_dr}
-\title{Doubly robust estimator for regional average treatment effects}
+\title{Doubly robust estimation of a regional treatment effect}
 \usage{
 regATE_dr(
   dat,
@@ -21,101 +21,92 @@ regATE_dr(
 \method{print}{regATE_dr}(x, ...)
 }
 \arguments{
-\item{dat}{A data frame with columns \code{y}, \code{trt}, \code{region} and
-numeric covariates.}
+\item{dat}{A data frame with numeric outcome \code{y}, binary treatment \code{trt}
+(1 = treatment), region label \code{region}, and at least one numeric covariate.
+All other numeric columns are covariates. Values must be complete and finite;
+every region must contain both arms. Use valid R covariate names; \code{D},
+\code{D_src} and \code{resid_sq} are reserved for internal use.}
 
-\item{target_region}{Integer. The region of interest (default \code{1}).}
+\item{target_region}{A single label identifying the target region in \code{dat}.}
 
-\item{compute_se}{Logical. Whether to compute the EIF-based standard error
-(default \code{TRUE}).}
+\item{compute_se}{Calculate the influence-function standard error and 95\% interval.}
 
-\item{region_wise}{Logical. Whether to run the region-wise ANCOVA F-test
-screening (default \code{FALSE}).}
+\item{region_wise}{Screen each source region using separate treatment-arm
+and control-arm ANCOVA tests before refitting.}
 
-\item{p1}{Numeric scalar, numeric vector, or \code{NULL}. A constant treatment
-propensity \eqn{p_1(X)}; if \code{NULL} it is estimated by logistic
-regression within the target region.}
+\item{p1, p0}{Treatment assignment probabilities in the target and source
+populations. Supply \code{NULL} to fit logistic models, a scalar constant,
+or a vector aligned with all rows of \code{dat}. Supplied values must be in \verb{(0, 1)}.}
 
-\item{p0}{Same as \code{p1}, but for \eqn{p_0(X)}.}
+\item{pi}{Probability of membership in the target region, given covariates.
+Accepts \code{NULL}, a scalar or a row-aligned vector, as for \code{p1}.
+This is a selection probability, not the CP preservation fraction.}
 
-\item{pi}{Numeric scalar, numeric vector, or \code{NULL}. A constant region
-propensity; if \code{NULL} it is estimated by logistic regression.}
+\item{v1, v0}{Target-to-source variance ratios in the treatment and control
+arms. Use a positive scalar, \code{"const"} for a marginal variance ratio,
+or \code{"log_linear"} for a model based on log squared residuals.}
 
-\item{v1}{Controls the variance ratio \eqn{v_1(X)}: a numeric scalar (fixed
-constant), \code{"const"} (default; estimated constant), or
-\code{"log_linear"} (pointwise prediction from a log-linear variance model).}
-
-\item{v0}{Same as \code{v1}, but for \eqn{v_0(X)}.}
-
-\item{config}{A named list to override screening settings. The only supported
-element is \code{check_p_threshold} (default \code{0.05}), the p-value
-threshold used in the region-wise ANCOVA F-test.}
+\item{config}{A named list with optional \code{check_p_threshold} in \verb{(0, 1)}
+(default 0.05). Other entries are not supported.}
 
 \item{x}{An object of class \code{regATE_dr}.}
 
 \item{...}{Additional arguments passed to other methods (currently unused).}
 }
 \value{
-A list of class \code{regATE_dr} with components:
+A list of class \code{regATE_dr} with:
 \describe{
-\item{\code{estimate}}{The simple-pooling doubly robust estimate.}
-\item{\code{se_eif}}{The EIF-based standard error (if \code{compute_se = TRUE}).}
-\item{\code{ci}}{The 95\% Wald confidence interval (if \code{compute_se = TRUE}).}
-\item{\code{remaining_regions}}{The candidate source regions.}
-\item{\code{config}}{The (possibly merged) configuration list.}
-\item{\code{check_results}}{A data frame of region-wise ANCOVA F-test
-results (only if \code{region_wise = TRUE}).}
-\item{\code{excluded_by_check}}{Source regions excluded by the screening
-(only if \code{region_wise = TRUE}).}
-\item{\code{region_wise_estimate}, \code{region_wise_se},
-\code{region_wise_ci}}{The estimate, standard error and confidence
-interval based on the retained regions (only if
-\code{region_wise = TRUE}).}
-\item{\code{region_wise_remaining_regions}}{Source regions retained after
-screening (only if \code{region_wise = TRUE}).}
+\item{estimate}{ATE using all candidate source regions.}
+\item{se_eif, ci}{Standard error and 95\% Wald interval, or \code{NULL} if disabled.}
+\item{remaining_regions}{All candidate source-region labels.}
+\item{config}{Screening settings used.}
+}
+With \code{region_wise = TRUE}, the list also contains:
+\describe{
+\item{check_results}{Source labels, arm-specific p-values and pass indicators.}
+\item{excluded_by_check}{Excluded source labels.}
+\item{region_wise_estimate}{ATE after source screening.}
+\item{region_wise_se, region_wise_ci}{Its standard error and 95\% interval.}
+\item{region_wise_remaining_regions}{Retained source labels.}
 }
 }
 \description{
-This function implements a doubly robust estimator for the average treatment
-effect (ATE) in a target region within a Multi-Regional Clinical Trial (MRCT).
-It optionally performs region-wise ANCOVA F-test screening to adaptively
-borrow information from source regions that are compatible with the target
-region.
+Estimate the average treatment effect (ATE) in a target
+region using covariate information from other regions. Optionally screen
+source regions before borrowing information.
 }
 \details{
-The doubly robust estimator is given by
-\deqn{
-\widehat{\tau}_{\mathrm{dr}} = \frac{1}{q} \sum_{i=1}^{n} \left[
-  D_i\{\widehat{m}_1(X_i) - \widehat{m}_0(X_i)\} +
-  \widehat{W}_{1,i}\{Y_i - \widehat{m}_1(X_i)\} -
-  \widehat{W}_{0,i}\{Y_i - \widehat{m}_0(X_i)\}
-\right],
+Let \eqn{D_i} indicate target-region membership and
+\eqn{\widehat q=n^{-1}\sum_i D_i}. The estimator is
+\deqn{\widehat\tau = \frac{1}{n\widehat q}\sum_{i=1}^n
+  \left[D_i\widehat\Delta(X_i)+\widehat W_{1i}\widehat U_{1i}
+  -\widehat W_{0i}\widehat U_{0i}\right].}
+Here \eqn{\widehat\Delta=\widehat m_1-\widehat m_0},
+\eqn{\widehat U_t=Y-\widehat m_t(X)}, and the residual weights combine
+selection scores, treatment assignment and variance ratios.
+Outcome models are linear; estimated probability models are logistic.
+
+Borrowing assumes conditional outcome-mean exchangeability across the
+regions retained. Double robustness concerns correct specification of
+either outcome models or both selection and treatment-assignment models;
+it does not remove the exchangeability assumption.
 }
-where \eqn{q = \mathrm{Pr}(D=1)} is the target-region proportion and
-\eqn{\widehat{W}_{1,i}}, \eqn{\widehat{W}_{0,i}} are weights constructed from
-the region and treatment propensity scores (optionally adjusted by the
-variance ratios \eqn{v_1(X), v_0(X)}). When \code{region_wise = TRUE}, each
-source region is screened by an ANCOVA F-test comparing the reduced model
-\eqn{y \sim X} with the full model \eqn{y \sim X + D_s + X:D_s}; regions that
-fail the test (p-value below \code{check_p_threshold} in either the treated or
-the control group) are excluded from the borrowing pool.
+\section{Source screening}{
+
+Each arm compares \code{y ~ X} with \code{y ~ X + D_src + X:D_src}.
+A source is excluded if either p-value is below \code{check_p_threshold}.
+Treatment probability vectors are subset with the retained rows. Selection
+probabilities are re-estimated after exclusions, because the population
+changes. If no sources remain, the estimator uses only the target region.
+The reported influence-function interval does not account for uncertainty
+from selecting the source regions.
 }
+
 \examples{
 set.seed(42)
-n <- 600
-region <- c(rep(1, 150), rep(2, 200), rep(3, 250))
-x1 <- rnorm(n)
-x2 <- rnorm(n)
-trt <- rbinom(n, 1, 0.5)
-y <- x1 + x2 + trt * (1 + 0.5 * x1) + rnorm(n)
-dat <- data.frame(y = y, trt = trt, region = region, x1 = x1, x2 = x2)
-
-## Simple-pooling doubly robust estimate
-res <- regATE_dr(dat, target_region = 1)
-print(res)
-
-## Region-wise screening
-res2 <- regATE_dr(dat, target_region = 1, region_wise = TRUE)
-print(res2)
+dat <- data.frame(region = rep(1:3, each = 100),
+                  trt = rep(c(0, 1), 150), x = rnorm(300))
+dat$y <- dat$x + dat$trt + rnorm(300)
+regATE_dr(dat, target_region = 1, p1 = 0.5, p0 = 0.5)
 
 }

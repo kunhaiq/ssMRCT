@@ -2,36 +2,31 @@
 % Please edit documentation in R/table2MRCTs.R
 \name{table2MRCTs}
 \alias{table2MRCTs}
-\title{Reproduce all tables in Qing et al (2025)}
+\title{Legacy simulation tables for the two-MRCT paper}
 \usage{
 table2MRCTs(numSimu, choice, seed = 1)
 }
 \arguments{
-\item{numSimu}{Integer. The number of Monte Carlo simulations to run (e.g., 10000).}
+\item{numSimu}{Positive integer number of simulation replicates.}
 
-\item{choice}{Integer (1-6). Specifies which table to generate.}
+\item{choice}{Table number, from 1 to 6.}
 
-\item{seed}{Integer. Random seed for reproducibility. Default is 1.}
+\item{seed}{Random seed (default 1).}
 }
 \value{
-A data frame containing the simulation parameters, sample sizes,
-theoretical region fractions, and empirical consistency probabilities.
+A data frame of scenario inputs, recommended counts and empirical CP.
 }
 \description{
-This function reproduces the simulation results for tables 1 through 6 from Qing et al (2025).
+Internal helper for the historical simulation settings in
+Qing et al. (2025). This is not a general design or optimization interface.
 }
 \details{
-\itemize{
-\item Tables 1 & 2: Single MRCT with Binary and Continuous outcomes.
-\item Tables 3 & 4: Two MRCTs with Binary and Continuous outcomes.
-\item Tables 5 & 6: Sensitivity analysis with different randomization ratios and powers.
+Tables 1--2 use one trial, tables 3--4 use two symmetric trials, and
+tables 5--6 use different allocation ratios and powers. Some regional
+fractions are fixed historical settings. Numerical results need not
+exactly reproduce published rounding or earlier software versions.
 }
+\seealso{
+\code{\link[=conProb]{conProb()}}, \code{\link[=conProb2]{conProb2()}}, \code{\link[=regFrac2]{regFrac2()}}.
 }
-\examples{
-\dontrun{
-for (choice in 1:6) { 
-print(paste("Table", choice))
-print(table2MRCTs(100000,choice,1)) 
-}}
-
-}
+\keyword{internal}

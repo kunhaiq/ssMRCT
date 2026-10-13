@@ -1,153 +1,84 @@
-#' @name conProbII
+#' Consistency probability for all regions in one MRCT
 #'
-#' @title Consistency probability for MRCT via criterion Method II of MHLW (2007) (conditional version) under fixed effects model
+#' @description Calculate Method II consistency probability: all regional
+#' effect estimates are nonnegative, conditional on overall significance.
 #'
-#' @description Calculate the consistency probability for MRCT via criterion Method II of MHLW (2007) (conditional version) under fixed effects model.
-#'
-#' @param alpha The Type I error.
-#' @param power Power. 
-#' @param rF The regional fractions, a \code{K x 1} vector with each component 
-#' representing the regional fraction in region \eqn{k} and the sum must equal 1.
-#' @param d The true mean of difference of response.
-#' @param sigmaTrt The standard deviation of response in the treatment group.
-#' @param sigmaCtrl The standard deviation of response in the control group. Defaults to \code{sigmaTrt}.
-#' @param pTrt The mean of the response in the treatment group.
-#' @param pCtrl The mean of the response in the control group.
-#' @param randRatio The randomization ratio between the treatment group and control group. Defaults to 1.
-#' @param responseType The type of response. One of "continuous" and "binary".
-#' @param B The number of simulation by Monto Carlo for \code{responseType} = "binary". Defaults to 100,000.
+#' @inheritParams conProb
+#' @param rF Positive fractions for all regions, summing to one.
+#' @param d,sigmaTrt,sigmaCtrl Continuous-endpoint effect and standard deviations;
+#'   see [conProb()]. Ignored for binary endpoints.
+#' @param pTrt,pCtrl Treatment and control response probabilities for a binary
+#'   endpoint, strictly between zero and one, with `pTrt > pCtrl`.
+#' @param responseType Endpoint type: `"continuous"` or `"binary"`.
+#' @param B Positive integer number of replicates; used only for binary endpoints.
 #'
 #' @details
-#' The consistency probability via criterion Method II of MHLW (2007) (conditional version),
-#' \deqn{\mathrm{Pr}\left(D_{k}\geq 0, k=1,\ldots,K\ |\ T>z_{1-\alpha}\right),}
-#' is approximately
-#' \deqn{
-#' \frac{1}{1-\beta}\int_{-z_{1-\beta}}^{\infty} \Phi_K\left\{ \mathbf{0};-(u + z_{1-\alpha} + z_{1-\beta})\mathbf{1}_K, \mathbf{\Lambda} - \mathbf{1}_K \mathbf{1}_K^\top \right\} \phi(u) \mathrm{d} u,
-#' }
-#' where \eqn{\Phi_K(\mathbf{x}; \vec{\mu}, \Sigma)} denotes the cumulative distribution function of a \eqn{K}-dimensional normal distribution with mean \eqn{\vec{\mu}}
-#' and covariance matrix \eqn{\Sigma}, \eqn{\mathbf{1}_K} is the vector of \eqn{K} ones, \eqn{\mathbf{\Lambda} = \text{diag}(f_{1}^{-1}, \dots, f_{K}^{-1})}. 
-#' 
-#' Since there is no closed form of above equation, \code{conProbII} utilizes the \code{\link[mvtnorm]{pmvnorm}} function for numerical integration.
-#'   
-#' As the first equation includes none of \code{d}, \code{sigmaTrt}, 
-#' \code{sigmaCtrl} and \code{randRatio}, if only the consistency probability
-#' is considered, then the values of \code{d} and \code{sigmaTrt} could be arbitrary.
-#' 
-#' For binary response, the above approximation loses precision under moderate sample size.
-#' Hence \code{conProbII} applies Monto Carlo to calculate the correct consistency probability.
+#' \deqn{\mathrm{CP} = \Pr(D_r \ge 0 \text{ for all }r
+#'   \mid T > z_{1-\alpha}).}
+#' Continuous endpoints use a joint normal probability, retaining dependence
+#' between regional and overall effects. Numerical integration can vary
+#' slightly with the random seed.
 #'
-#' The overall sample size is calculated in the same way as \code{\link{conProb}}. 
-#' 
-#' @returns A list containing the following two components:
+#' @section Sample sizes:
+#' CP uses the continuous design at the requested power. The recommended
+#' control count is rounded up first, followed by the treatment count.
+#' Returned counts do not re-evaluate CP after integer regional allocation.
+#'
+#' @section Binary calculation:
+#' The function simulates regional binomial counts with separately rounded
+#' arm sizes. CP is the number of consistent overall successes divided by
+#' the number of overall successes. Zero regional effects count as consistent.
+#' Wald tests use the actual arm counts. With zero estimated variance, only
+#' a positive estimated effect rejects the null.
+#'
+#' No overall successes gives `NA` for CP and its Monte Carlo standard error,
+#' with a warning. Set the random seed for reproducibility.
+#'
+#' @returns A list with `CP` and total sample size `N`.
+#' For binary endpoints, `N` is the actual simulated total and the list also contains:
 #' \describe{
-#'   \item{\code{CP}}{The consistency probability, a scalar.}
-#'   \item{\code{N}}{The overall sample size.}
-#' } 
-#' 
-#' @export 
-#' @importFrom mvtnorm pmvnorm GenzBretz
+#'   \item{nTrt, nCtrl}{Actual overall treatment and control counts.}
+#'   \item{nTrtReg, nCtrlReg}{Actual regional treatment and control counts.}
+#'   \item{achievedPower}{Simulated probability of the conditioning event.}
+#'   \item{MCSE}{Monte Carlo standard error of CP.}
+#'   \item{successes}{Number of replicates meeting the conditioning event.}
+#'   \item{consistentSuccesses}{Number also meeting regional consistency.}
+#'   \item{B}{Number of simulation replicates.}
+#' }
+#' @seealso [conProbII2()], [conProb()].
+#' @references Qing et al. (2025). Regional consistency evaluation and sample
+#' size calculation under two MRCTs. \doi{10.1002/sim.70306}.
+#' The implementation uses the corrected pooling weights and covariance structure.
 #' @examples
-#' # Example 1 in Qing et al (2025)
-#' alpha <- 0.05
-#' power <- 0.8
-#' conProbII(alpha, power, rF = rep(1/2,2), d = 1, sigmaTrt = 4, responseType = "continuous")
-#' conProbII(alpha, power, rF = rep(1/3,3), d = 1, sigmaTrt = 4, responseType = "continuous")
-#' conProbII(alpha, power, rF = rep(1/4,4), d = 1, sigmaTrt = 4, responseType = "continuous")
-#' rFk1 <- 0.110
-#' rFk2 <- rFk3 <- (1-rFk1)/2
-#' rF <- c(rFk1, rFk2, rFk3)
-#' conProbII(alpha, power, rF = rF, d = 1, sigmaTrt = 4, responseType = "continuous") 
-#' # Example 2 in Qing et al (2025)
-#' rFk1 <- 0.149
-#' rFk2 <- rFk3 <- (1-rFk1)/2
-#' rF <- c(rFk1, rFk2, rFk3)
-#' set.seed(123)
-#' conProbII(alpha, power, rF = rF, pTrt = 0.8, pCtrl = 0.7, responseType = "binary")
-#' rFk1 <- 0.14
-#' rFk2 <- rFk3 <- (1-rFk1)/2
-#' rF <- c(rFk1, rFk2, rFk3)
-#' set.seed(123)
-#' conProbII(alpha, power, rF = rF, pTrt = 0.7, pCtrl = 0.6, responseType = "binary")
-#' rFk1 <- 0.110
-#' rFk2 <- rFk3 <- (1-rFk1)/2
-#' rF <- c(rFk1, rFk2, rFk3)
-#' set.seed(123)
-#' conProbII(alpha, power, rF = rF, pTrt = 0.8, pCtrl = 0.7, responseType = "binary")
-#' conProbII(alpha, power, rF = rF, pTrt = 0.7, pCtrl = 0.6, responseType = "binary")
-#'
+#' set.seed(42)
+#' conProbII(alpha = 0.05, power = 0.8, rF = rep(1/3, 3),
+#'           d = 1, sigmaTrt = 4)
+#' conProbII(alpha = 0.05, power = 0.8, rF = rep(1/3, 3),
+#'           pTrt = 0.8, pCtrl = 0.7, responseType = "binary", B = 10000)
+#' @importFrom mvtnorm pmvnorm GenzBretz
 #' @export
-#'
-conProbII <- function(alpha, 
-                    power,  
-                    rF, 
-                    d,  
-                    sigmaTrt, 
-                    sigmaCtrl = sigmaTrt,  
-                    pTrt,
-                    pCtrl,
-                    randRatio = 1,
-                    responseType = c("continuous","binary"),
-                    B = 100000){
-  if ((sum(rF) != 1) || any(rF <= 0) ){
-    stop("the sum of 'rF' must equal 1 and each component must be greater than 0")
-    } 
-  ### consistency probability
-  if (responseType == "continuous"){
-    z_alpha = qnorm(1 - alpha)
-    z_beta = qnorm(power)
-    K <- length(rF)
-    Lambda = diag(1 / rF)
-    Sigma = Lambda - matrix(1, K, K)
-    
-    integrand <- function(z) {
-      sapply(z, function(zi) {
-        mu_val = -(zi + z_alpha + z_beta)
-        mu_vec = rep(mu_val, K) 
-        mvtnorm::pmvnorm(upper = -mu_vec, mean = rep(0, K), sigma = Sigma, algorithm = GenzBretz(abseps = 1e-5))[1] * dnorm(zi)
-      })
-    }
-    CP <- integrate(integrand, lower = -z_beta, upper = Inf, rel.tol = 1e-4)$value/(power)
-  ### sample size
-  NTrt <-  ceiling((1/randRatio*sigmaTrt^2 + sigmaCtrl^2)*(qnorm(1-alpha) + qnorm(power))^2/d^2)
-  NCtrl <- ceiling(randRatio*NTrt)
-  N <- NTrt + NCtrl
-  } else if (responseType == "binary"){
-    K <- length(rF)
-    d <- pTrt - pCtrl
-    sigmaTrt <- sqrt(pTrt*(1-pTrt))
-    sigmaCtrl <- sqrt(pCtrl*(1-pCtrl))
-    NTrt <-  ceiling((1/randRatio*sigmaTrt^2 + sigmaCtrl^2)*(qnorm(1-alpha) + qnorm(power))^2/d^2)
-    NCtrl <- ceiling(randRatio*NTrt)
-    NTrtReg <- ceiling(rF*NTrt)
-    NCtrlReg <- ceiling(rF*NCtrl)
-    NTrt <- sum(NTrtReg)
-    NCtrl <- sum(NCtrlReg)
-    N <- NTrt + NCtrl
-    consistencyCount <- 0
-    for (b in 1:B){
-      yTrt <- rbinom(NTrt,size = 1, prob = pTrt) 
-      yCtrl <- rbinom(NCtrl,size = 1, prob = pCtrl)  
-      pTrtHat <- sum(yTrt)/NTrt
-      pCtrlHat <- sum(yCtrl)/NCtrl
-      sigmaDHat <- sqrt((randRatio + 1)*(pTrtHat*(1-pTrtHat)+randRatio*pCtrlHat*(1-pCtrlHat))/randRatio/N)
-      dHat <- pTrtHat - pCtrlHat 
-      pTrtRegHat <- rep(0,K)
-      pCtrlRegHat <- rep(0,K)
-      startRowTrt <- startRowCtrl <- 1
-      for (k in 1:K){
-        endRowTrt <- NTrtReg[k] + startRowTrt - 1
-        endRowCtrl <- NCtrlReg[k] + startRowCtrl - 1 
-        pTrtRegHat[k] <- sum(yTrt[startRowTrt:endRowTrt])/NTrtReg[k]
-        pCtrlRegHat[k] <- sum(yCtrl[startRowCtrl:endRowCtrl])/NCtrlReg[k]
-        startRowTrt <- endRowTrt + 1
-        startRowCtrl <- endRowCtrl + 1
-      }
-      dRegHat <- pTrtRegHat - pCtrlRegHat
-      if ( all(dRegHat > 0) && (dHat/sigmaDHat > qnorm(1-alpha)) ){
-        consistencyCount <- consistencyCount + 1
-      }
-    }
-    CP <- as.numeric(consistencyCount/B)/power 
-  } else {stop("'responseType' must be one of 'continuous' and 'binary'")} 
-  return(list(CP = CP, N = N))
+conProbII <- function(alpha, power, rF, d, sigmaTrt,
+                      sigmaCtrl=sigmaTrt, pTrt, pCtrl, randRatio=1,
+                      responseType=c("continuous", "binary"), B=100000) {
+  responseType <- match.arg(responseType)
+  .check_design(alpha, power)
+  rF <- .fractions(rF, "rF")
+  if (responseType == "binary") {
+    des <- .binary_design(alpha, power, pTrt, pCtrl, randRatio, rF)
+    ans <- .binary_cp(list(des), alpha, B)
+    return(c(ans, list(N=sum(des$nTrtReg)+sum(des$nCtrlReg),
+                       nTrt=sum(des$nTrtReg), nCtrl=sum(des$nCtrlReg),
+                       nTrtReg=des$nTrtReg, nCtrlReg=des$nCtrlReg)))
+  }
+  des <- .fixed_design(alpha, power, d, sigmaTrt, sigmaCtrl, randRatio)
+  k <- length(rF)
+  if (k == 1L) return(list(CP=1, N=des$nTrt+des$nCtrl))
+  # Integrate the joint event; cross-covariances preserve the dependence on D.
+  Sigma <- diag(c(1/rF, 1))
+  Sigma[seq_len(k), k+1] <- Sigma[k+1, seq_len(k)] <- 1
+  z <- qnorm(1-alpha)+qnorm(power)
+  prob <- mvtnorm::pmvnorm(lower=c(rep(0,k), -qnorm(power)),
+    upper=rep(Inf,k+1), mean=c(rep(z,k),0), sigma=Sigma,
+    algorithm=mvtnorm::GenzBretz(maxpts=1000000, abseps=1e-6))
+  list(CP=as.numeric(prob)/power, N=des$nTrt+des$nCtrl)
 }

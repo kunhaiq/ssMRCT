@@ -1,53 +1,35 @@
-"_PACKAGE"
-
-#' @title Regional consistency evaluation and sample size calculation for MRCTs
+#' Regional consistency and sample size for MRCTs
 #'
-#' @name ssMRCT-package
-#' @description
-#' The \pkg{ssMRCT} package offers a comprehensive suite of functions for designing and analyzing
-#' Multi-Regional Clinical Trials (MRCTs), featuring specialized tools for:
-#' \itemize{
-#'   \item \strong{Consistency Probability Calculation}: Computes the probability that treatment effects
-#'         across regions satisfy predefined consistency criteria
-#'          under fixed effects model and random effects model;
-#'   \item \strong{Optimal Regional Fraction Determination}: Identifies the ideal regional enrollment
-#'         proportions to minimize regional sample size while maintaining consistency probability
-#'         under fixed effects model.
-#' }
-#' Support extends two MRCTs (two pivotal, independent MRCTs) under fixed effects model. 
-#' Developed for regulatory decision support and trial optimization in global drug development programs.
-#' In this package, all sample sizes are rounded up to be integers. 
-#' @section Functions:
-#' Key functions included in the package:
+#' @description Tools for multi-regional clinical trial (MRCT) design and
+#' regional treatment-effect estimation. CP denotes a consistency probability
+#' conditional on overall trial significance, not overall power or interval coverage.
+#'
+#' @section Choosing a function:
 #' \describe{
-#'   \item{\link{conProb}, \link{conProb2}}{
-#'    Calculate the (conditional) consistency probability under criterion Method I of MHLW (2007)
-#'    for one/two MRCT(s) with corresponding overall sample size(s) under fixed effects model.
-#'   }
-#'   \item{\link{regFrac}, \link{regFrac2}}{
-#'     Calculate the optimal regional fraction(s) given the (conditional) 
-#'     consistency probability under criterion Method I of MHLW (2007)
-#'     for one/two MRCT(s), with corresponding overall sample size(s) under fixed effects model.
-#'   }
-#'   \item{\link{ssCPnorm}, \link{ssCPbinary}}{
-#'     Calculate the (conditional) consistency probability under criterion Method I of MHLW (2007)
-#'     for MRCT with corresponding overall sample size under random effects model
-#'     with normal and binary response, respectively.
-#'   }
-#'   \item{\link{ssCPsurvPH}, \link{ssCPsurvNPH}}{
-#'     Calculate the (conditional) consistency probability under criterion Method I of MHLW (2007)
-#'     for MRCT with corresponding overall sample size under random effects model
-#'     with survival endpoints (proportional or non-proportional hazard).
-#'   }
+#'   \item{\link{conProb}, \link{conProb2}}{Fixed-effects Method I CP for one or two trials.}
+#'   \item{\link{regFrac}, \link{regFrac2}}{Regional fraction for a target Method I CP.
+#'     The two-trial solver requires a symmetric design.}
+#'   \item{\link{conProbII}, \link{conProbII2}}{Probability that all regional effects
+#'     are nonnegative, for one or two trials.}
+#'   \item{\link{ssCPnorm}, \link{ssCPbinary}}{Random-effects design for normal or binary endpoints.}
+#'   \item{\link{ssCPsurvPH}, \link{ssCPsurvNPH}}{Random-effects design for survival endpoints.}
+#'   \item{\link{CPlbd}}{Lower bound on random-effects Method I CP.}
+#'   \item{\link{regATE_dr}}{Covariate-adjusted regional ATE from participant-level data.}
 #' }
-#' 
-#' @references  
-#' MHLW (2007). Basic Principles on Global Clinical Trials. https://www.pmda.go.jp/files/000153265.pdf
-#' 
-#' Kunhai Qing, Xinru Ren, Shuping Jiang, Ping Yang, Menggang Yu and Jin Xu (2025). Regional consistency evaluation and sample size calculation under two MRCTs. Statistics in Medicine 44, no. 25-27 (2025): e70306, https://doi.org/10.1002/sim.70306.
-#' 
-#' Xinru Ren, Jin Xu (2025). Consistency assessment and regional sample size calculation for MRCTs under random effects model.  https://arxiv.org/abs/2508.09443
 #'
-#' @importFrom cubature adaptIntegrate
+#' @section Conventions:
+#' `alpha` is one-sided. Fixed-effects functions take `power`; random-effects
+#' functions take `beta = 1 - power`. Allocation ratios are treatment/control.
+#' Higher treatment effects indicate benefit; PH effects are negative log hazard ratios.
+#'
+#' Analytical CP uses the continuous design. Returned integer sample sizes
+#' are recommendations, not a re-evaluation of CP after regional rounding.
+#' Binary Method II simulation instead uses the returned actual regional arm counts.
+#'
+#' @references Qing et al. (2025). \doi{10.1002/sim.70306}.
+#'
+#' Ren and Xu (2026). \doi{10.1002/pst.70090}.
+#' @name ssMRCT-package
+#' @aliases ssMRCT
 #' @importFrom stats dnorm pnorm qnorm sd integrate uniroot rbinom rnorm
-NULL
+"_PACKAGE"

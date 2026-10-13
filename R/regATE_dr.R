@@ -1,47 +1,4 @@
-#' Compute the doubly robust (DR) estimate and EIF-based standard error
-#'
-#' @description
-#' Internal helper that implements the doubly robust estimator for the regional
-#' average treatment effect \eqn{\tau} in the target region, together with the
-#' efficient influence function (EIF) based standard error. The function fits
-#' outcome, region-propensity and treatment-propensity models, optionally
-#' adjusts for heterogeneous variance through the variance ratios \code{v1} and
-#' \code{v0}, and returns all nuisance components for downstream reuse.
-#'
-#' @param dat A data frame with columns \code{y}, \code{trt}, \code{D}
-#'   (target-region indicator) and covariates.
-#' @param q A scalar giving the target-region proportion \eqn{\mathrm{Pr}(D=1)}.
-#' @param covar_cols A character vector of covariate names.
-#' @param compute_se Logical. Whether to compute the EIF-based standard error.
-#' @param p1 Numeric scalar, numeric vector, or \code{NULL}. A constant treatment
-#'   propensity \eqn{p_1(X)}; if \code{NULL} it is estimated by logistic regression
-#'   within the target region.
-#' @param p0 Same as \code{p1}, but for \eqn{p_0(X)}.
-#' @param pi Numeric scalar, numeric vector, or \code{NULL}. A constant region
-#'   propensity; if \code{NULL} it is estimated by logistic regression.
-#' @param v1 Controls \eqn{v_1(X) = \mathrm{var}(Y \mid D=1, T=1) /
-#'   \mathrm{var}(Y \mid D=0, T=1)}:
-#'   \itemize{
-#'     \item a numeric scalar: a fixed constant for all observations;
-#'     \item \code{"const"}: a single constant estimated from the data;
-#'     \item \code{"log_linear"}: a log-linear model is fitted for the conditional
-#'           variance and \eqn{v_1(X)} is predicted pointwise.
-#'   }
-#' @param v0 Same as \code{v1}, but for \eqn{v_0(X) = \mathrm{var}(Y \mid D=1, T=0) /
-#'   \mathrm{var}(Y \mid D=0, T=0)}.
-#'
-#' @return A list with components:
-#' \item{tau_hat}{The doubly robust point estimate.}
-#' \item{se}{The EIF-based standard error (if \code{compute_se = TRUE}).}
-#' \item{m1_model, m0_model}{Fitted outcome models on the treated/control.}
-#' \item{m1_pred, m0_pred}{Predicted outcome on all observations.}
-#' \item{p1_model, p0_model, pi_model}{Fitted propensity models (or \code{NULL}).}
-#' \item{p1_pred, p0_pred, pi_pred}{Predicted propensity scores.}
-#' \item{v1, v0}{Variance ratio vectors.}
-#' \item{v1_model, v0_model}{Fitted log-linear variance models (or \code{NULL}).}
-#'
-#' @keywords internal
-#' @noRd
+# Internal DR estimator; dat$D marks the target region and q is its fraction.
 compute_dr_estimate <- function(dat, q, covar_cols, compute_se = TRUE,
                                 p1 = NULL, p0 = NULL, pi = NULL,
                                 v1 = "const", v0 = "const") {
@@ -50,6 +7,7 @@ compute_dr_estimate <- function(dat, q, covar_cols, compute_se = TRUE,
     sqrt(mean((IF_vec - mean(IF_vec))^2) / length(IF_vec))
   }
 
+  trt_ps_D1_model <- trt_ps_D0_model <- region_ps_model <- NULL
   n_all        <- nrow(dat)
   idx_D1       <- which(dat$D == 1)
   idx_D0       <- which(dat$D == 0)
@@ -58,7 +16,7 @@ compute_dr_estimate <- function(dat, q, covar_cols, compute_se = TRUE,
 
   covar_formula <- paste(covar_cols, collapse = " + ")
 
-  # ---- Outcome models ----
+  # Outcome models
   m1_formula <- as.formula(paste("y ~", covar_formula))
   m0_formula <- as.formula(paste("y ~", covar_formula))
 
@@ -70,7 +28,7 @@ compute_dr_estimate <- function(dat, q, covar_cols, compute_se = TRUE,
   R1_full       <- dat$y - m1_full_pred
   R0_full       <- dat$y - m0_full_pred
 
-  # ---- Region propensity pi(X) ----
+  # Region propensity pi(X)
   if (is.null(pi)) {
     region_ps_formula <- as.formula(paste("D ~", covar_formula))
     region_ps_model <- suppressWarnings(
@@ -83,7 +41,7 @@ compute_dr_estimate <- function(dat, q, covar_cols, compute_se = TRUE,
     pi_D1 <- pi
   }
 
-  # ---- Treatment propensity models p_d(X) ----
+  # Treatment propensity models p_d(X)
   dat_D1 <- dat[idx_D1, , drop = FALSE]
   dat_D0 <- dat[idx_D0, , drop = FALSE]
 
@@ -123,7 +81,7 @@ compute_dr_estimate <- function(dat, q, covar_cols, compute_se = TRUE,
     pi_T_D0 <- p0
   }
 
-  # ---- Variance ratios v1, v0 ----
+  # Variance ratios v1, v0
   # Helper: estimate a single constant ratio
   est_const_v1 <- function() {
     var_Y1_D1 <- var(dat$y[dat$D == 1 & dat$trt == 1])
@@ -202,21 +160,28 @@ compute_dr_estimate <- function(dat, q, covar_cols, compute_se = TRUE,
     stop("v0 must be a numeric scalar, 'const', or 'log_linear'")
   }
 
-  # ---- Weights ----
+  if (any(!is.finite(c(m1_full_pred, m0_full_pred, pi_D1, pi_T_D1, pi_T_D0,
+                       v1_vec, v0_vec))) || any(v1_vec <= 0 | v0_vec <= 0)) {
+    stop("Nuisance predictions must be finite, with positive variance ratios")
+  }
+  # Residual weights combine regional overlap, treatment assignment and variance.
+
   W1_num   <- dat$D * dat$trt * pi_D1 +
               (1 - dat$D) * dat$trt * pi_D1 * v1_vec
   W1_denom <- pi_D1 * pi_T_D1 + (1 - pi_D1) * pi_T_D0 * v1_vec
+  if (any(W1_denom <= 0)) stop("Treatment weights are undefined; check overlap")
   W1 <- W1_num / W1_denom
 
   W0_num   <- dat$D * (1 - dat$trt) * pi_D1 +
               (1 - dat$D) * (1 - dat$trt) * pi_D1 * v0_vec
   W0_denom <- pi_D1 * (1 - pi_T_D1) + (1 - pi_D1) * (1 - pi_T_D0) * v0_vec
+  if (any(W0_denom <= 0)) stop("Control weights are undefined; check overlap")
   W0 <- W0_num / W0_denom
 
-  # ---- DR estimate ----
+  # DR estimate
   tau_hat <- (1 / q) * mean(dat$D * delta_full + W1 * R1_full - W0 * R0_full)
 
-  # ---- EIF-based SE ----
+  # EIF-based SE
   se_val <- NULL
   if (compute_se) {
     IF_vec <- (1 / q) * (dat$D * (delta_full - tau_hat) +
@@ -224,9 +189,6 @@ compute_dr_estimate <- function(dat, q, covar_cols, compute_se = TRUE,
     se_val <- eif_se(IF_vec)
   }
 
-  p1_is_const <- !is.null(p1) && length(p1) == 1
-  p0_is_const <- !is.null(p0) && length(p0) == 1
-  pi_is_const <- !is.null(pi) && length(pi) == 1
 
   list(
     tau_hat     = tau_hat,
@@ -235,11 +197,11 @@ compute_dr_estimate <- function(dat, q, covar_cols, compute_se = TRUE,
     m0_model    = m0_full,
     m1_pred     = m1_full_pred,
     m0_pred     = m0_full_pred,
-    p1_model    = if (p1_is_const) NULL else trt_ps_D1_model,
+    p1_model    = trt_ps_D1_model,
     p1_pred     = pi_T_D1,
-    p0_model    = if (p0_is_const) NULL else trt_ps_D0_model,
+    p0_model    = trt_ps_D0_model,
     p0_pred     = pi_T_D0,
-    pi_model    = if (pi_is_const) NULL else region_ps_model,
+    pi_model    = region_ps_model,
     pi_pred     = pi_D1,
     v1          = v1_vec,
     v0          = v0_vec,
@@ -248,92 +210,79 @@ compute_dr_estimate <- function(dat, q, covar_cols, compute_se = TRUE,
   )
 }
 
-#' @name regATE_dr
+#' Doubly robust estimation of a regional treatment effect
 #'
-#' @title Doubly robust estimator for regional average treatment effects
+#' @description Estimate the average treatment effect (ATE) in a target
+#' region using covariate information from other regions. Optionally screen
+#' source regions before borrowing information.
 #'
-#' @description
-#' This function implements a doubly robust estimator for the average treatment
-#' effect (ATE) in a target region within a Multi-Regional Clinical Trial (MRCT).
-#' It optionally performs region-wise ANCOVA F-test screening to adaptively
-#' borrow information from source regions that are compatible with the target
-#' region.
-#'
-#' @param dat A data frame with columns \code{y}, \code{trt}, \code{region} and
-#'   numeric covariates.
-#' @param target_region Integer. The region of interest (default \code{1}).
-#' @param compute_se Logical. Whether to compute the EIF-based standard error
-#'   (default \code{TRUE}).
-#' @param region_wise Logical. Whether to run the region-wise ANCOVA F-test
-#'   screening (default \code{FALSE}).
-#' @param p1 Numeric scalar, numeric vector, or \code{NULL}. A constant treatment
-#'   propensity \eqn{p_1(X)}; if \code{NULL} it is estimated by logistic
-#'   regression within the target region.
-#' @param p0 Same as \code{p1}, but for \eqn{p_0(X)}.
-#' @param pi Numeric scalar, numeric vector, or \code{NULL}. A constant region
-#'   propensity; if \code{NULL} it is estimated by logistic regression.
-#' @param v1 Controls the variance ratio \eqn{v_1(X)}: a numeric scalar (fixed
-#'   constant), \code{"const"} (default; estimated constant), or
-#'   \code{"log_linear"} (pointwise prediction from a log-linear variance model).
-#' @param v0 Same as \code{v1}, but for \eqn{v_0(X)}.
-#' @param config A named list to override screening settings. The only supported
-#'   element is \code{check_p_threshold} (default \code{0.05}), the p-value
-#'   threshold used in the region-wise ANCOVA F-test.
+#' @param dat A data frame with numeric outcome `y`, binary treatment `trt`
+#'   (1 = treatment), region label `region`, and at least one numeric covariate.
+#'   All other numeric columns are covariates. Values must be complete and finite;
+#'   every region must contain both arms. Use valid R covariate names; `D`,
+#'   `D_src` and `resid_sq` are reserved for internal use.
+#' @param target_region A single label identifying the target region in `dat`.
+#' @param compute_se Calculate the influence-function standard error and 95% interval.
+#' @param region_wise Screen each source region using separate treatment-arm
+#'   and control-arm ANCOVA tests before refitting.
+#' @param p1,p0 Treatment assignment probabilities in the target and source
+#'   populations. Supply `NULL` to fit logistic models, a scalar constant,
+#'   or a vector aligned with all rows of `dat`. Supplied values must be in `(0, 1)`.
+#' @param pi Probability of membership in the target region, given covariates.
+#'   Accepts `NULL`, a scalar or a row-aligned vector, as for `p1`.
+#'   This is a selection probability, not the CP preservation fraction.
+#' @param v1,v0 Target-to-source variance ratios in the treatment and control
+#'   arms. Use a positive scalar, `"const"` for a marginal variance ratio,
+#'   or `"log_linear"` for a model based on log squared residuals.
+#' @param config A named list with optional `check_p_threshold` in `(0, 1)`
+#'   (default 0.05). Other entries are not supported.
 #'
 #' @details
-#' The doubly robust estimator is given by
-#' \deqn{
-#' \widehat{\tau}_{\mathrm{dr}} = \frac{1}{q} \sum_{i=1}^{n} \left[
-#'   D_i\{\widehat{m}_1(X_i) - \widehat{m}_0(X_i)\} +
-#'   \widehat{W}_{1,i}\{Y_i - \widehat{m}_1(X_i)\} -
-#'   \widehat{W}_{0,i}\{Y_i - \widehat{m}_0(X_i)\}
-#' \right],
-#' }
-#' where \eqn{q = \mathrm{Pr}(D=1)} is the target-region proportion and
-#' \eqn{\widehat{W}_{1,i}}, \eqn{\widehat{W}_{0,i}} are weights constructed from
-#' the region and treatment propensity scores (optionally adjusted by the
-#' variance ratios \eqn{v_1(X), v_0(X)}). When \code{region_wise = TRUE}, each
-#' source region is screened by an ANCOVA F-test comparing the reduced model
-#' \eqn{y \sim X} with the full model \eqn{y \sim X + D_s + X:D_s}; regions that
-#' fail the test (p-value below \code{check_p_threshold} in either the treated or
-#' the control group) are excluded from the borrowing pool.
+#' Let \eqn{D_i} indicate target-region membership and
+#' \eqn{\widehat q=n^{-1}\sum_i D_i}. The estimator is
+#' \deqn{\widehat\tau = \frac{1}{n\widehat q}\sum_{i=1}^n
+#'   \left[D_i\widehat\Delta(X_i)+\widehat W_{1i}\widehat U_{1i}
+#'   -\widehat W_{0i}\widehat U_{0i}\right].}
+#' Here \eqn{\widehat\Delta=\widehat m_1-\widehat m_0},
+#' \eqn{\widehat U_t=Y-\widehat m_t(X)}, and the residual weights combine
+#' selection scores, treatment assignment and variance ratios.
+#' Outcome models are linear; estimated probability models are logistic.
 #'
-#' @returns A list of class \code{regATE_dr} with components:
+#' Borrowing assumes conditional outcome-mean exchangeability across the
+#' regions retained. Double robustness concerns correct specification of
+#' either outcome models or both selection and treatment-assignment models;
+#' it does not remove the exchangeability assumption.
+#'
+#' @section Source screening:
+#' Each arm compares `y ~ X` with `y ~ X + D_src + X:D_src`.
+#' A source is excluded if either p-value is below `check_p_threshold`.
+#' Treatment probability vectors are subset with the retained rows. Selection
+#' probabilities are re-estimated after exclusions, because the population
+#' changes. If no sources remain, the estimator uses only the target region.
+#' The reported influence-function interval does not account for uncertainty
+#' from selecting the source regions.
+#'
+#' @returns A list of class `regATE_dr` with:
 #' \describe{
-#'   \item{\code{estimate}}{The simple-pooling doubly robust estimate.}
-#'   \item{\code{se_eif}}{The EIF-based standard error (if \code{compute_se = TRUE}).}
-#'   \item{\code{ci}}{The 95% Wald confidence interval (if \code{compute_se = TRUE}).}
-#'   \item{\code{remaining_regions}}{The candidate source regions.}
-#'   \item{\code{config}}{The (possibly merged) configuration list.}
-#'   \item{\code{check_results}}{A data frame of region-wise ANCOVA F-test
-#'         results (only if \code{region_wise = TRUE}).}
-#'   \item{\code{excluded_by_check}}{Source regions excluded by the screening
-#'         (only if \code{region_wise = TRUE}).}
-#'   \item{\code{region_wise_estimate}, \code{region_wise_se},
-#'         \code{region_wise_ci}}{The estimate, standard error and confidence
-#'         interval based on the retained regions (only if
-#'         \code{region_wise = TRUE}).}
-#'   \item{\code{region_wise_remaining_regions}}{Source regions retained after
-#'         screening (only if \code{region_wise = TRUE}).}
+#'   \item{estimate}{ATE using all candidate source regions.}
+#'   \item{se_eif, ci}{Standard error and 95% Wald interval, or `NULL` if disabled.}
+#'   \item{remaining_regions}{All candidate source-region labels.}
+#'   \item{config}{Screening settings used.}
 #' }
-#'
+#' With `region_wise = TRUE`, the list also contains:
+#' \describe{
+#'   \item{check_results}{Source labels, arm-specific p-values and pass indicators.}
+#'   \item{excluded_by_check}{Excluded source labels.}
+#'   \item{region_wise_estimate}{ATE after source screening.}
+#'   \item{region_wise_se, region_wise_ci}{Its standard error and 95% interval.}
+#'   \item{region_wise_remaining_regions}{Retained source labels.}
+#' }
 #' @examples
 #' set.seed(42)
-#' n <- 600
-#' region <- c(rep(1, 150), rep(2, 200), rep(3, 250))
-#' x1 <- rnorm(n)
-#' x2 <- rnorm(n)
-#' trt <- rbinom(n, 1, 0.5)
-#' y <- x1 + x2 + trt * (1 + 0.5 * x1) + rnorm(n)
-#' dat <- data.frame(y = y, trt = trt, region = region, x1 = x1, x2 = x2)
-#'
-#' ## Simple-pooling doubly robust estimate
-#' res <- regATE_dr(dat, target_region = 1)
-#' print(res)
-#'
-#' ## Region-wise screening
-#' res2 <- regATE_dr(dat, target_region = 1, region_wise = TRUE)
-#' print(res2)
+#' dat <- data.frame(region = rep(1:3, each = 100),
+#'                   trt = rep(c(0, 1), 150), x = rnorm(300))
+#' dat$y <- dat$x + dat$trt + rnorm(300)
+#' regATE_dr(dat, target_region = 1, p1 = 0.5, p0 = 0.5)
 #'
 #' @importFrom stats as.formula binomial glm lm predict qnorm var anova
 #' @importFrom utils modifyList
@@ -351,7 +300,14 @@ regATE_dr <- function(
     config        = list()
 ) {
 
-  K <- length(unique(dat$region))
+  if (!is.data.frame(dat)) stop("dat must be a data frame")
+  for (value in list(compute_se, region_wise)) {
+    if (!is.logical(value) || length(value) != 1 || is.na(value))
+      stop("compute_se and region_wise must be TRUE or FALSE")
+  }
+  if (!is.list(config) || (length(config) && (is.null(names(config)) ||
+      any(!names(config) %in% "check_p_threshold") || anyDuplicated(names(config)))))
+    stop("config may only contain check_p_threshold")
 
   default_config <- list(
     check_p_threshold = 0.05
@@ -364,6 +320,8 @@ regATE_dr <- function(
     stop("dat is missing required columns: ", paste(missing_cols, collapse = ", "))
   }
 
+  if (length(target_region) != 1L || is.na(target_region))
+    stop("target_region must be a single nonmissing label")
   if (!(target_region %in% unique(dat$region))) {
     stop("target_region = ", target_region, " not found in dat$region")
   }
@@ -372,6 +330,25 @@ regATE_dr <- function(
     stop("dat must contain at least 2 regions")
   }
 
+  if (anyNA(dat) || !is.numeric(dat$y) || any(!is.finite(dat$y)) ||
+      !all(dat$trt %in% c(0,1))) stop("dat must contain complete, finite outcomes and binary trt")
+  for (nm in c("p1", "p0", "pi")) {
+    value <- get(nm)
+    if (!is.null(value)) {
+      .check_number(value, nm, 0, 1, TRUE, TRUE, FALSE)
+      if (!length(value) %in% c(1L, nrow(dat)))
+        stop(nm, " must be scalar or have nrow(dat) entries")
+    }
+  }
+  for (nm in c("v1", "v0")) {
+    if (is.numeric(get(nm))) .check_number(get(nm), nm, 0, lower_open=TRUE)
+  }
+  .check_number(config$check_p_threshold, "check_p_threshold", 0, 1, TRUE, TRUE)
+  for (reg in unique(dat$region)) {
+    if (length(unique(dat$trt[dat$region == reg])) < 2)
+      stop("Each region must contain both treatment arms")
+  }
+  if (anyDuplicated(names(dat))) stop("dat column names must be unique")
   all_cols   <- names(dat)
   covar_cols <- setdiff(all_cols, c("y", "trt", "region"))
   covar_cols <- covar_cols[sapply(dat[covar_cols], is.numeric)]
@@ -380,13 +357,19 @@ regATE_dr <- function(
     stop("No numeric covariates found in dat")
   }
 
+  if (any(!vapply(dat[covar_cols], function(x) all(is.finite(x)), logical(1))))
+    stop("Covariates must be finite")
+  if (any(c("D", "D_src", "resid_sq") %in% covar_cols))
+    stop("D, D_src and resid_sq are reserved internal column names")
+  if (any(make.names(covar_cols) != covar_cols))
+    stop("Covariate names must be syntactically valid R names")
   all_regions       <- sort(unique(dat$region))
   source_candidates <- setdiff(all_regions, target_region)
 
   dat$D <- as.integer(dat$region == target_region)
   q     <- mean(dat$D)
 
-  # ---- Simple pooling estimate ----
+  # Fit using all candidate source regions.
   idx_pool     <- which(dat$region %in% c(target_region, source_candidates))
   dat_pool     <- dat[idx_pool, , drop = FALSE]
   dat_pool$D   <- as.integer(dat_pool$region == target_region)
@@ -411,7 +394,7 @@ regATE_dr <- function(
     return(out)
   }
 
-  # ---- Step 2: Region-wise checks ----
+  # Screen source regions separately in each arm.
   excluded_by_check <- character(0)
   check_rows        <- list()
 
@@ -485,21 +468,24 @@ regATE_dr <- function(
   out$check_results     <- check_results
   out$excluded_by_check <- excluded_by_check
 
-  if (length(source_pool) > 0) {
-    idx_wf     <- which(dat$region %in% c(target_region, source_pool))
-    dat_wf     <- dat[idx_wf, , drop = FALSE]
-    dat_wf$D   <- as.integer(dat_wf$region == target_region)
-    q_wf       <- mean(dat_wf$D)
-    wf_est <- compute_dr_estimate(dat_wf, q_wf, covar_cols, compute_se = compute_se,
-                                  p1 = p1, p0 = p0, pi = pi, v1 = v1, v0 = v0)
-  } else {
-    idx_wf     <- which(dat$region == target_region)
-    dat_wf     <- dat[idx_wf, , drop = FALSE]
-    dat_wf$D   <- 1
-    q_wf       <- 1
-    wf_est <- compute_dr_estimate(dat_wf, q_wf, covar_cols, compute_se = compute_se,
-                                  p1 = p1, p0 = p0, pi = pi, v1 = v1, v0 = v0)
+  idx_wf <- which(dat$region %in% c(target_region, source_pool))
+  dat_wf <- dat[idx_wf, , drop=FALSE]
+  q_wf <- mean(dat_wf$D)
+  subset_score <- function(x) if (is.null(x) || length(x) == 1) x else x[idx_wf]
+  pi_wf <- pi
+  p0_wf <- subset_score(p0)
+  if (length(source_pool) == 0) {
+    # Target-only AIPW: source propensity is irrelevant and region probability is one.
+    pi_wf <- 1
+    p0_wf <- 0.5
+  } else if (length(idx_wf) < nrow(dat)) {
+    # Selecting sources changes P(D=1|X); the original pi is no longer applicable.
+    pi_wf <- NULL
+    if (!is.null(pi)) warning("Re-estimating pi after source-region selection", call.=FALSE)
+    if (is.null(p0)) p0_wf <- NULL
   }
+  wf_est <- compute_dr_estimate(dat_wf, q_wf, covar_cols, compute_se=compute_se,
+    p1=subset_score(p1), p0=p0_wf, pi=pi_wf, v1=v1, v0=v0)
 
   out$region_wise_estimate      <- wf_est$tau_hat
   out$region_wise_se            <- wf_est$se
