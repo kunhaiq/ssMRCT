@@ -4,6 +4,8 @@
 
 # ssMRCT
 
+[![R-CMD-check](https://github.com/kunhaiq/ssMRCT/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/kunhaiq/ssMRCT/actions/workflows/R-CMD-check.yaml)
+
 **ssMRCT** calculates consistency probabilities (CP), overall sample sizes,
 and regional recruitment fractions for multi-regional clinical trials (MRCTs).
 It supports fixed-effects and random-effects designs, two independent trials,
@@ -227,3 +229,19 @@ function name) for arguments, formulas, return values and examples.
   [doi:10.1002/pst.70090](https://doi.org/10.1002/pst.70090).
 
 See [NEWS.md](NEWS.md) for changes that affect calculations and returned values.
+
+## License
+
+MIT license. See [LICENSE.md](LICENSE.md) for the full text.
+
+## Automated checks
+
+GitHub Actions runs package checks on every push and pull request, and can also
+be started from the Actions tab. The matrix covers Windows and macOS with
+R-release, plus Linux with R-release, R-devel and the previous R release.
+Errors and warnings fail the check; notes remain in the logs for review.
+Check reports are saved as workflow artifacts, including successful runs.
+
+The matrix checks examples, regression tests and help files using `--as-cran`.
+The Linux R-release job also compiles the PDF manual. All check logs and notes
+must be reviewed before a CRAN submission. The workflow does not publish the package to CRAN.

@@ -1,16 +1,20 @@
 Package: ssMRCT
 Type: Package
-Title: Regional consistency evaluation and sample size calculation for MRCTs
-Version: 0.2.0 
-Author: Kunhai Qing [cre, aut], Xinru Ren [aut], Jin Xu [aut]
-Maintainer: Kunhai Qing <kunhaiq@qq.com>
+Title: Regional Consistency Evaluation and Sample Size Calculation for MRCTs
+Version: 0.2.0
+Authors@R: c(
+    person("Kunhai", "Qing", role = c("aut", "cre"),
+           email = "kunhaiq@stu.ecnu.edu.cn"),
+    person("Xinru", "Ren", role = "aut"),
+    person("Jin", "Xu", role = "aut"))
 Description: Calculate conditional regional consistency probabilities and sample sizes
     for multi-regional clinical trials under fixed-effects and random-effects
     models. Supports two independent trials, regional fraction selection under
     symmetric designs, and doubly robust regional treatment-effect estimation.
-License: GPL-3
+    Methods include Qing et al. (2025) <doi:10.1002/sim.70306>
+    and Ren and Xu (2026) <doi:10.1002/pst.70090>.
+License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
 NeedsCompilation: no
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3

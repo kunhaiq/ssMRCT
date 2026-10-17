@@ -41,3 +41,13 @@ Qing et al. (2025). \doi{10.1002/sim.70306}.
 
 Ren and Xu (2026). \doi{10.1002/pst.70090}.
 }
+\author{
+\strong{Maintainer}: Kunhai Qing \email{kunhaiq@stu.ecnu.edu.cn}
+
+Authors:
+\itemize{
+  \item Xinru Ren
+  \item Jin Xu
+}
+
+}

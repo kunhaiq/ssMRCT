@@ -1,5 +1,13 @@
 # ssMRCT 0.2.0
 
+* Add GitHub Actions checks on push and pull requests for Windows, macOS and
+  Linux, including R-devel and the previous R release. The Linux R-release
+  job also compiles the PDF manual; successful check logs are retained.
+
+* Prepare the first CRAN submission: adopt the MIT license, add structured
+  author metadata and method references, and update the maintainer email to
+  kunhaiq@stu.ecnu.edu.cn.
+
 * Correct binary Method II arm allocation for unequal randomization, use actual
   arm sizes in Wald standard errors, include zero regional effects, and estimate
   conditional CP using observed overall successes. Return simulation diagnostics
