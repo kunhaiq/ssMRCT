@@ -29,9 +29,11 @@
 #' @returns A list with `CP`, `N1` and `N2`: the conditional consistency
 #' probability and recommended total sample sizes in studies 1 and 2.
 #' @seealso [conProb()], [regFrac2()].
-#' @references Qing et al. (2025). Regional consistency evaluation and sample
-#' size calculation under two MRCTs. \doi{10.1002/sim.70306}.
-#' The implementation uses the corrected pooling weights and covariance structure.
+#' @references
+#' Qing, Kunhai, Xinru Ren, Shuping Jiang, Ping Yang, Menggang Yu, and Jin Xu. 2025.
+#' \dQuote{Regional Consistency Evaluation and Sample Size Calculation under Two MRCTs.}
+#' \emph{Statistics in Medicine} 44 (\enc{25–27}{25-27}): e70306.
+#' \url{https://doi.org/10.1002/sim.70306}.
 #' @examples
 #' conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9,
 #'          rF1 = 0.141, d1 = 1, sigmaTrt1 = 4)

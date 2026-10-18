@@ -1,4 +1,4 @@
-#' Random-effects design for a normal endpoint
+#' Random-effects design for a normal endpoint: Method I
 #'
 #' @description Calculate overall sample size and conditional Method I
 #' consistency probability for an empirical shrinkage regional estimator.
@@ -43,9 +43,11 @@
 #'   \item{CP}{Conditional consistency probability, without rounding.}
 #' }
 #' @seealso [ssCPbinary()], [ssCPsurvPH()], [ssCPsurvNPH()], [CPlbd()].
-#' @references Ren and Xu (2026). Consistency Assessment and Regional Sample
-#' Size Calculation for MRCT Under Random Effects Model.
-#' \doi{10.1002/pst.70090}.
+#' @references
+#' Ren, Xinru, and Jin Xu. 2026.
+#' \dQuote{Consistency Assessment and Regional Sample Size Calculation for MRCT
+#' under Random Effects Model.} \emph{Pharmaceutical Statistics} 25 (3): e70090.
+#' \url{https://doi.org/10.1002/pst.70090}.
 #' @examples
 #' ssCPnorm(alpha = 0.025, beta = 0.2, delta = 0.25, tau = 0.1,
 #'          sigma1r = 1, sigma0r = 1, target = 1, f = rep(1/3, 3))

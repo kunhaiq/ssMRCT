@@ -2,7 +2,7 @@
 % Please edit documentation in R/ssCPsurvPH.R
 \name{ssCPsurvPH}
 \alias{ssCPsurvPH}
-\title{Random-effects design for a proportional-hazards endpoint}
+\title{Random-effects design for a PH endpoint: Method I}
 \usage{
 ssCPsurvPH(alpha, beta, lambda0r, hr, pi = 0.5, randRatio = 1, target, f, L)
 }
@@ -60,9 +60,10 @@ ssCPsurvPH(alpha = 0.025, beta = 0.2, lambda0r = 0.05,
            hr = c(0.7, 0.6, 0.4), target = 1, f = rep(1/3, 3), L = 36)
 }
 \references{
-Ren and Xu (2026). Consistency Assessment and Regional Sample
-Size Calculation for MRCT Under Random Effects Model.
-\doi{10.1002/pst.70090}.
+Ren, Xinru, and Jin Xu. 2026.
+\dQuote{Consistency Assessment and Regional Sample Size Calculation for MRCT
+under Random Effects Model.} \emph{Pharmaceutical Statistics} 25 (3): e70090.
+\url{https://doi.org/10.1002/pst.70090}.
 }
 \seealso{
 \code{\link[=ssCPnorm]{ssCPnorm()}}, \code{\link[=ssCPsurvNPH]{ssCPsurvNPH()}}.

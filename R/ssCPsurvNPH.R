@@ -1,4 +1,4 @@
-#' Random-effects design using restricted mean survival time
+#' Random-effects design using RMST: Method I
 #'
 #' @description Calculate sample size and shrinkage-based Method I consistency
 #' probability for a treatment-minus-control restricted mean survival time
@@ -49,9 +49,11 @@
 #'     Divide each by its regional arm count to obtain the estimator variance.}
 #' }
 #' @seealso [ssCPsurvPH()], [ssCPnorm()].
-#' @references Ren and Xu (2026). Consistency Assessment and Regional Sample
-#' Size Calculation for MRCT Under Random Effects Model.
-#' \doi{10.1002/pst.70090}.
+#' @references
+#' Ren, Xinru, and Jin Xu. 2026.
+#' \dQuote{Consistency Assessment and Regional Sample Size Calculation for MRCT
+#' under Random Effects Model.} \emph{Pharmaceutical Statistics} 25 (3): e70090.
+#' \url{https://doi.org/10.1002/pst.70090}.
 #' @examples
 #' # Piecewise exponential survival
 #' ssCPsurvNPH(alpha = 0.025, beta = 0.2,

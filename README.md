@@ -209,24 +209,155 @@ finite equality condition does not apply.
 
 ## Regional ATE estimation
 
-`regATE_dr()` accepts participant-level data with `y`, `trt`, `region`, and
-numeric covariates. It fits outcome and probability models to borrow information
-for a target-region ATE. With `region_wise = TRUE`, it screens source regions
-using arm-specific ANCOVA comparisons before refitting.
+`regATE_dr()` estimates the treatment-minus-control average treatment effect
+(ATE) in a **target region**, using participant-level covariates and information
+from other regions. It returns an effect estimate, an influence-function
+standard error and a 95% confidence interval. This is an analysis function,
+not a sample-size or CP calculation.
 
-Borrowing requires conditional outcome-mean exchangeability across retained
-regions. The reported influence-function interval does not include uncertainty
-from source-region selection. See `?regATE_dr` for the data format and model options.
+### Prepare participant-level data
+
+The input has one row per participant:
+
+| Column | Meaning |
+|:-------|:--------|
+| `y` | Numeric outcome |
+| `trt` | Treatment assignment: 1 = treatment, 0 = control |
+| `region` | Region label; `target_region` selects one of these labels |
+| Other numeric columns | Baseline covariates used in the models |
+
+Supply complete data with both treatment arms in each region. Include only
+intended covariates: a numeric participant ID, for example, would otherwise
+be treated as a covariate. The current interface uses numeric covariates;
+categorical covariates need suitable numeric indicator columns.
+
+The following example extends the one in `?regATE_dr`. There are three
+regions with 100 participants each, equal treatment allocation within each
+region, one baseline covariate `x`, and a true treatment effect of 1.
+
+
+``` r
+set.seed(42)
+dat <- data.frame(
+  region = rep(1:3, each = 100),
+  trt = unlist(lapply(1:3, function(i) sample(rep(c(0, 1), each = 50)))),
+  x = rnorm(300)
+)
+dat$y <- dat$x + dat$trt + rnorm(300)
+```
+
+### Estimate the target-region effect
+
+Use region 1 as the target and regions 2 and 3 as candidate sources:
+
+
+``` r
+fit <- regATE_dr(dat, target_region = 1, p1 = 0.5, p0 = 0.5)
+data.frame(
+  estimate = fit$estimate,
+  SE = fit$se_eif,
+  lower95 = fit$ci[1],
+  upper95 = fit$ci[2]
+)
+#>   estimate        SE  lower95  upper95
+#> 1  1.24205 0.1096899 1.027062 1.457038
+```
+
+`p1` and `p0` are **both treatment-assignment probabilities**: `p1` applies
+to the target population and `p0` to the source population. They are not the
+treatment and control response probabilities. For a trial randomized 1:1,
+supplying both as 0.5 uses the known assignment probabilities.
+
+Other commonly used options are:
+
+- `pi = NULL` (default): fit a logistic model for target-region membership
+  given covariates. Here `pi` is a selection probability, not the Method I
+  effect-preservation fraction. `p1` and `p0` can also be estimated by setting
+  them to `NULL`. Supplied probabilities can be scalars or vectors aligned
+  with all rows of `dat`.
+- `v1 = "const", v0 = "const"` (defaults): estimate marginal target-to-source
+  outcome variance ratios separately in the treatment and control arms.
+  Use `v1 = 1, v0 = 1` to specify equal variances, or `"log_linear"` to model
+  the ratios using covariates.
+- `compute_se = FALSE`: return the point estimate without its standard error
+  and confidence interval.
+
+### Screen source regions before borrowing
+
+With `region_wise = TRUE`, each source is compared with the target separately
+in the treatment and control arms. ANCOVA compares a common covariate model
+with a model allowing a region difference and region-by-covariate interactions.
+A source is excluded if either p-value is below `check_p_threshold`
+(default 0.05), and the estimator is refitted using the retained sources.
+
+To illustrate, give region 3 a larger treatment effect while keeping the
+target-region effect unchanged:
+
+
+``` r
+dat_heterogeneous <- dat
+dat_heterogeneous$y <- dat$y + 1.5 * (dat$region == 3) * dat$trt
+
+screened <- regATE_dr(
+  dat_heterogeneous, target_region = 1,
+  p1 = 0.5, p0 = 0.5, region_wise = TRUE,
+  config = list(check_p_threshold = 0.05)
+)
+screened$check_results
+#>   source_region  p_value_trt p_value_ctrl passed
+#> 1             2 4.420211e-01    0.3072005   TRUE
+#> 2             3 2.115335e-10    0.1645980  FALSE
+screened$region_wise_remaining_regions
+#> [1] 2
+
+data.frame(
+  analysis = c("All candidate sources", "After source screening"),
+  estimate = c(screened$estimate, screened$region_wise_estimate),
+  SE = c(screened$se_eif, screened$region_wise_se),
+  lower95 = c(screened$ci[1], screened$region_wise_ci[1]),
+  upper95 = c(screened$ci[2], screened$region_wise_ci[2])
+)
+#>                 analysis estimate        SE   lower95  upper95
+#> 1  All candidate sources 1.778874 0.1268094 1.5303323 2.027416
+#> 2 After source screening 1.149283 0.1381254 0.8785626 1.420004
+```
+
+`estimate`, `se_eif` and `ci` always describe the fit using all candidate
+sources. The corresponding `region_wise_*` entries describe the fit after
+screening. `remaining_regions` lists the original candidate sources;
+`region_wise_remaining_regions` lists the retained sources, excluding the
+target itself. If no sources remain, the refit uses target-region data only.
+Selection probabilities are re-estimated when sources are removed.
+
+### Interpretation
+
+Borrowing assumes conditional outcome-mean exchangeability across retained
+regions: after accounting for covariates, the outcome mean under each treatment
+is shared across those regions. Double robustness concerns correct specification
+of either the outcome models or both the selection and treatment-assignment
+models, under this assumption. It does not guarantee unbiased borrowing from
+incompatible sources, and a nonsignificant screening test does not establish
+exchangeability.
+
+The reported intervals use the estimated influence function. Intervals after
+screening do **not** include uncertainty from selecting the source regions.
+See `?regATE_dr` for the estimator formula and complete argument descriptions.
 
 ## Documentation and references
 
 Use `help(package = "ssMRCT")` for the function index and `?conProb` (or another
 function name) for arguments, formulas, return values and examples.
 
-- Qing et al. (2025), regional consistency under two MRCTs:
-  [doi:10.1002/sim.70306](https://doi.org/10.1002/sim.70306).
-- Ren and Xu (2026), random-effects consistency and regional sample size:
-  [doi:10.1002/pst.70090](https://doi.org/10.1002/pst.70090).
+### References
+
+Qing, Kunhai, Xinru Ren, Shuping Jiang, Ping Yang, Menggang Yu, and Jin Xu. 2025.
+“Regional Consistency Evaluation and Sample Size Calculation under Two MRCTs.”
+*Statistics in Medicine* 44 (25–27): e70306.
+[https://doi.org/10.1002/sim.70306](https://doi.org/10.1002/sim.70306).
+
+Ren, Xinru, and Jin Xu. 2026. “Consistency Assessment and Regional Sample Size
+Calculation for MRCT under Random Effects Model.” *Pharmaceutical Statistics*
+25 (3): e70090. [https://doi.org/10.1002/pst.70090](https://doi.org/10.1002/pst.70090).
 
 See [NEWS.md](NEWS.md) for changes that affect calculations and returned values.
 

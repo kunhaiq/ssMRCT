@@ -1,5 +1,14 @@
 # ssMRCT 0.2.0
 
+* Label consistency and design help-page titles by Method I or Method II,
+  and remove print-method arguments from the regional ATE help page.
+
+* Use complete Chicago author-date references in the README and help pages,
+  including all authors, journal volume and issue, article identifiers and DOIs.
+
+* Expand the regional ATE README guide with participant-level data, model options,
+  and executable examples comparing estimation before and after source screening.
+
 * Add GitHub Actions checks on push and pull requests for Windows, macOS and
   Linux, including R-devel and the previous R release. The Linux R-release
   job also compiles the PDF manual; successful check logs are retained.

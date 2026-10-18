@@ -499,9 +499,8 @@ regATE_dr <- function(
   return(out)
 }
 
-#' @rdname regATE_dr
-#' @param x An object of class \code{regATE_dr}.
-#' @param ... Additional arguments passed to other methods (currently unused).
+#' Print a regional ATE estimate
+#' @noRd
 #' @export
 print.regATE_dr <- function(x, ...) {
   cat("\n")

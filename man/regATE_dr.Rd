@@ -2,7 +2,6 @@
 % Please edit documentation in R/regATE_dr.R
 \name{regATE_dr}
 \alias{regATE_dr}
-\alias{print.regATE_dr}
 \title{Doubly robust estimation of a regional treatment effect}
 \usage{
 regATE_dr(
@@ -17,8 +16,6 @@ regATE_dr(
   v0 = "const",
   config = list()
 )
-
-\method{print}{regATE_dr}(x, ...)
 }
 \arguments{
 \item{dat}{A data frame with numeric outcome \code{y}, binary treatment \code{trt}
@@ -48,10 +45,6 @@ or \code{"log_linear"} for a model based on log squared residuals.}
 
 \item{config}{A named list with optional \code{check_p_threshold} in \verb{(0, 1)}
 (default 0.05). Other entries are not supported.}
-
-\item{x}{An object of class \code{regATE_dr}.}
-
-\item{...}{Additional arguments passed to other methods (currently unused).}
 }
 \value{
 A list of class \code{regATE_dr} with:

@@ -1,4 +1,4 @@
-#' Common regional fraction for two symmetric MRCTs
+#' Regional fraction for two symmetric MRCTs: Method I
 #'
 #' @description Solve for a common regional fraction attaining the target
 #' Method I consistency probability in two independent, symmetric trials.
@@ -15,9 +15,11 @@
 #'
 #' @returns A numeric scalar: the common regional fraction for both trials.
 #' @seealso [conProb2()] for a general two-trial CP calculation.
-#' @references Qing et al. (2025). Regional consistency evaluation and sample
-#' size calculation under two MRCTs. \doi{10.1002/sim.70306}.
-#' The implementation uses the corrected pooling weights and covariance structure.
+#' @references
+#' Qing, Kunhai, Xinru Ren, Shuping Jiang, Ping Yang, Menggang Yu, and Jin Xu. 2025.
+#' \dQuote{Regional Consistency Evaluation and Sample Size Calculation under Two MRCTs.}
+#' \emph{Statistics in Medicine} 44 (\enc{25–27}{25-27}): e70306.
+#' \url{https://doi.org/10.1002/sim.70306}.
 #' @examples
 #' fraction <- regFrac2(alpha = 0.05, power = 0.8)
 #' conProb2(alpha = 0.05, power1 = 0.8, rF1 = fraction,

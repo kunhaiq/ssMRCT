@@ -26,9 +26,16 @@
 #' are recommendations, not a re-evaluation of CP after regional rounding.
 #' Binary Method II simulation instead uses the returned actual regional arm counts.
 #'
-#' @references Qing et al. (2025). \doi{10.1002/sim.70306}.
+#' @references
+#' Qing, Kunhai, Xinru Ren, Shuping Jiang, Ping Yang, Menggang Yu, and Jin Xu. 2025.
+#' \dQuote{Regional Consistency Evaluation and Sample Size Calculation under Two MRCTs.}
+#' \emph{Statistics in Medicine} 44 (\enc{25–27}{25-27}): e70306.
+#' \url{https://doi.org/10.1002/sim.70306}.
 #'
-#' Ren and Xu (2026). \doi{10.1002/pst.70090}.
+#' Ren, Xinru, and Jin Xu. 2026.
+#' \dQuote{Consistency Assessment and Regional Sample Size Calculation for MRCT
+#' under Random Effects Model.} \emph{Pharmaceutical Statistics} 25 (3): e70090.
+#' \url{https://doi.org/10.1002/pst.70090}.
 #' @name ssMRCT-package
 #' @aliases ssMRCT
 #' @importFrom stats dnorm pnorm qnorm sd integrate uniroot rbinom rnorm

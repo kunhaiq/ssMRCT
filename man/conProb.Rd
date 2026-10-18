@@ -59,9 +59,10 @@ conProb(alpha = 0.05, power = 0.8, rF = 0.271,
         d = 1, sigmaTrt = 4)
 }
 \references{
-Qing et al. (2025). Regional consistency evaluation and sample
-size calculation under two MRCTs. \doi{10.1002/sim.70306}.
-The implementation uses the corrected pooling weights and covariance structure.
+Qing, Kunhai, Xinru Ren, Shuping Jiang, Ping Yang, Menggang Yu, and Jin Xu. 2025.
+\dQuote{Regional Consistency Evaluation and Sample Size Calculation under Two MRCTs.}
+\emph{Statistics in Medicine} 44 (\enc{25–27}{25-27}): e70306.
+\url{https://doi.org/10.1002/sim.70306}.
 }
 \seealso{
 \code{\link[=regFrac]{regFrac()}} to solve for a regional fraction; \code{\link[=conProb2]{conProb2()}} for two trials.

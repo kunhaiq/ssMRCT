@@ -1,4 +1,4 @@
-#' Lower bound on random-effects consistency probability
+#' Random-effects consistency bound: Method I
 #'
 #' @description Calculate the Method I CP lower bound from Ren and Xu (2026)
 #' and the regional normal-endpoint counts at its equality condition.
@@ -29,9 +29,11 @@
 #' }
 #' Sample-size entries are numeric `NA` when the equality condition fails.
 #' @seealso [ssCPnorm()].
-#' @references Ren and Xu (2026). Consistency Assessment and Regional Sample
-#' Size Calculation for MRCT Under Random Effects Model.
-#' \doi{10.1002/pst.70090}.
+#' @references
+#' Ren, Xinru, and Jin Xu. 2026.
+#' \dQuote{Consistency Assessment and Regional Sample Size Calculation for MRCT
+#' under Random Effects Model.} \emph{Pharmaceutical Statistics} 25 (3): e70090.
+#' \url{https://doi.org/10.1002/pst.70090}.
 #' @examples
 #' CPlbd(alpha = 0.05, beta = 0.2, tau_delta_r = 0.4, delta = 0.25,
 #'       sigma0r = 1, sigma1r = 1, fr = c(0.1, 0.5))

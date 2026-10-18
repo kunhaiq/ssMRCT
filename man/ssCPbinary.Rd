@@ -2,7 +2,7 @@
 % Please edit documentation in R/ssCPbinary.R
 \name{ssCPbinary}
 \alias{ssCPbinary}
-\title{Random-effects design for a binary endpoint}
+\title{Random-effects design for a binary endpoint: Method I}
 \usage{
 ssCPbinary(alpha, beta, p0r, p1r, pi = 0.5, randRatio = 1, target, f)
 }
@@ -56,9 +56,10 @@ ssCPbinary(alpha = 0.025, beta = 0.2, p0r = 0.3,
            p1r = c(0.6, 0.55, 0.5), target = 1, f = rep(1/3, 3))
 }
 \references{
-Ren and Xu (2026). Consistency Assessment and Regional Sample
-Size Calculation for MRCT Under Random Effects Model.
-\doi{10.1002/pst.70090}.
+Ren, Xinru, and Jin Xu. 2026.
+\dQuote{Consistency Assessment and Regional Sample Size Calculation for MRCT
+under Random Effects Model.} \emph{Pharmaceutical Statistics} 25 (3): e70090.
+\url{https://doi.org/10.1002/pst.70090}.
 }
 \seealso{
 \code{\link[=ssCPnorm]{ssCPnorm()}}, \code{\link[=CPlbd]{CPlbd()}}.
