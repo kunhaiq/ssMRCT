@@ -1,4 +1,6 @@
 # Run from the package root. Both test suites contribute to line coverage.
+# Generate reports without RStudio editor integration (also works on CI).
+options(covr.rstudio_source_markers = FALSE)
 dir.create("coverage", showWarnings = FALSE)
 coverage <- covr::package_coverage(type = "tests", quiet = FALSE)
 print(coverage)

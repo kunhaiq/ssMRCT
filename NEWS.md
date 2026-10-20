@@ -1,5 +1,8 @@
 # ssMRCT 0.2.0
 
+* Disable RStudio editor integration when generating coverage reports so the
+  GitHub Actions coverage job does not require rstudioapi.
+
 * Add GitHub Actions line-coverage reports for both test suites, with downloadable
   uncovered-line reports and optional Codecov uploads.
 
