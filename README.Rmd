@@ -11,6 +11,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", error = FALSE)
 # ssMRCT
 
 [![R-CMD-check](https://github.com/kunhaiq/ssMRCT/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/kunhaiq/ssMRCT/actions/workflows/R-CMD-check.yaml)
+[![Test coverage](https://github.com/kunhaiq/ssMRCT/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/kunhaiq/ssMRCT/actions/workflows/test-coverage.yaml)
 
 **ssMRCT** calculates consistency probabilities (CP), overall sample sizes,
 and regional recruitment fractions for multi-regional clinical trials (MRCTs).
@@ -299,6 +300,28 @@ See [NEWS.md](NEWS.md) for changes that affect calculations and returned values.
 
 MIT license. See [LICENSE.md](LICENSE.md) for the full text.
 
+## Running tests
+
+Run the grouped tests during development:
+
+``` r
+devtools::test()
+```
+
+The `testthat` suite covers regional fraction inversion, pooled-trial and
+regional-order invariance, random-effects sample sizes, PH event requirements,
+censored RMST moments, and regional ATE estimation and source screening.
+The existing `tests/regression.R` also checks published numerical benchmarks,
+exact binomial probabilities and independent simulations.
+
+Run both suites, together with examples and package checks, before release:
+
+``` r
+devtools::check()
+```
+
+GitHub Actions runs both suites automatically through `R CMD check`.
+
 ## Automated checks
 
 GitHub Actions runs package checks on every push and pull request, and can also
@@ -310,3 +333,29 @@ Check reports are saved as workflow artifacts, including successful runs.
 The matrix checks examples, regression tests and help files using `--as-cran`.
 The Linux R-release job also compiles the PDF manual. All check logs and notes
 must be reviewed before a CRAN submission. The workflow does not publish the package to CRAN.
+
+
+### Test coverage
+
+The `test-coverage` workflow measures line coverage on every push and pull request.
+It runs both `tests/regression.R` and the `testthat` suite, without coverage
+exclusions. The workflow summary shows the overall percentage and per-file
+coverage. Download the `test-coverage` artifact for the Cobertura XML report,
+uncovered-line CSV, and coverage RDS object. The README badge shows workflow
+status, not the coverage percentage.
+
+To generate the same reports locally, run from the package root:
+
+``` r
+install.packages(c("covr", "xml2")) # Once, if not already installed
+source(".github/scripts/coverage.R")
+```
+
+Reports are written to `coverage/`, which is excluded from Git and the package
+source archive. Coverage measures which lines were executed; the numerical
+assertions in the tests assess whether the results are correct.
+
+Codecov uploads are optional. Enable `kunhaiq/ssMRCT` in Codecov and add its upload
+token as the GitHub repository Actions secret `CODECOV_TOKEN`. The workflow then
+uploads its report automatically. Without this secret, the GitHub summary and
+artifacts remain available, and the upload step is skipped.

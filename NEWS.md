@@ -1,5 +1,11 @@
 # ssMRCT 0.2.0
 
+* Add GitHub Actions line-coverage reports for both test suites, with downloadable
+  uncovered-line reports and optional Codecov uploads.
+
+* Add grouped testthat tests for common trial designs, survival moments and
+  regional ATE estimation, alongside the existing regression suite.
+
 * Label consistency and design help-page titles by Method I or Method II,
   and remove print-method arguments from the regional ATE help page.
 
