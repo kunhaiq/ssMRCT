@@ -1,5 +1,7 @@
 # ssMRCT 0.2.0
 
+* Use DOI markup in help-page references as required by CRAN incoming checks.
+
 * Disable RStudio editor integration when generating coverage reports so the
   GitHub Actions coverage job does not require rstudioapi.
 

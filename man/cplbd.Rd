@@ -67,7 +67,7 @@ CPlbd(alpha = 0.05, beta = 0.2, tau_delta_r = 0.4, delta = 0.25,
 Ren, Xinru, and Jin Xu. 2026.
 \dQuote{Consistency Assessment and Regional Sample Size Calculation for MRCT
 under Random Effects Model.} \emph{Pharmaceutical Statistics} 25 (3): e70090.
-\url{https://doi.org/10.1002/pst.70090}.
+\doi{10.1002/pst.70090}.
 }
 \seealso{
 \code{\link[=ssCPnorm]{ssCPnorm()}}.

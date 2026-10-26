@@ -47,7 +47,7 @@
 #' Ren, Xinru, and Jin Xu. 2026.
 #' \dQuote{Consistency Assessment and Regional Sample Size Calculation for MRCT
 #' under Random Effects Model.} \emph{Pharmaceutical Statistics} 25 (3): e70090.
-#' \url{https://doi.org/10.1002/pst.70090}.
+#' \doi{10.1002/pst.70090}.
 #' @examples
 #' ssCPnorm(alpha = 0.025, beta = 0.2, delta = 0.25, tau = 0.1,
 #'          sigma1r = 1, sigma0r = 1, target = 1, f = rep(1/3, 3))

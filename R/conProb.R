@@ -31,7 +31,7 @@
 #' Qing, Kunhai, Xinru Ren, Shuping Jiang, Ping Yang, Menggang Yu, and Jin Xu. 2025.
 #' \dQuote{Regional Consistency Evaluation and Sample Size Calculation under Two MRCTs.}
 #' \emph{Statistics in Medicine} 44 (\enc{25–27}{25-27}): e70306.
-#' \url{https://doi.org/10.1002/sim.70306}.
+#' \doi{10.1002/sim.70306}.
 #' @examples
 #' conProb(alpha = 0.05, power = 0.8, rF = 0.271,
 #'         d = 1, sigmaTrt = 4)
