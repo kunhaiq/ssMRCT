@@ -298,7 +298,7 @@ See [NEWS.md](NEWS.md) for changes that affect calculations and returned values.
 
 ## License
 
-MIT license. See [LICENSE.md](LICENSE.md) for the full text.
+MIT license. See [LICENSE.md](https://github.com/kunhaiq/ssMRCT/blob/main/LICENSE.md) for the full text.
 
 ## Running tests
 

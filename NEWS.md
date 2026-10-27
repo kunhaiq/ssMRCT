@@ -1,5 +1,8 @@
 # ssMRCT 0.2.0
 
+* Fix the README license link to use its full GitHub URL, since LICENSE.md
+  is not included in the CRAN source package. Enable file-URI checks in CI.
+
 * Use DOI markup in help-page references as required by CRAN incoming checks.
 
 * Disable RStudio editor integration when generating coverage reports so the

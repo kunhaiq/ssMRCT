@@ -1,20 +1,22 @@
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
-
 
 # ssMRCT
 
 [![R-CMD-check](https://github.com/kunhaiq/ssMRCT/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/kunhaiq/ssMRCT/actions/workflows/R-CMD-check.yaml)
-[![Test coverage](https://github.com/kunhaiq/ssMRCT/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/kunhaiq/ssMRCT/actions/workflows/test-coverage.yaml)
+[![Test
+coverage](https://github.com/kunhaiq/ssMRCT/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/kunhaiq/ssMRCT/actions/workflows/test-coverage.yaml)
 
-**ssMRCT** calculates consistency probabilities (CP), overall sample sizes,
-and regional recruitment fractions for multi-regional clinical trials (MRCTs).
-It supports fixed-effects and random-effects designs, two independent trials,
-and covariate-adjusted regional treatment-effect estimation.
+**ssMRCT** calculates consistency probabilities (CP), overall sample
+sizes, and regional recruitment fractions for multi-regional clinical
+trials (MRCTs). It supports fixed-effects and random-effects designs,
+two independent trials, and covariate-adjusted regional treatment-effect
+estimation.
 
-CP is a probability of **regional consistency conditional on overall trial
-significance**. It is different from overall power and confidence-interval coverage.
-For two trials, the conditioning event is that **both trials are significant**.
+CP is a probability of **regional consistency conditional on overall
+trial significance**. It is different from overall power and
+confidence-interval coverage. For two trials, the conditioning event is
+that **both trials are significant**.
 
 ## Installation
 
@@ -26,7 +28,7 @@ pak::pak("kunhaiq/ssMRCT")
 ## Choose a function
 
 | Task | Functions |
-|:-----|:----------|
+|:---|:---|
 | Fixed-effects Method I: preserve a fraction of the overall effect | `conProb()`, `conProb2()` |
 | Find a regional fraction for a target Method I CP | `regFrac()`, `regFrac2()` |
 | Fixed-effects Method II: all regional effects are nonnegative | `conProbII()`, `conProbII2()` |
@@ -34,17 +36,18 @@ pak::pak("kunhaiq/ssMRCT")
 | Random-effects CP lower bound | `CPlbd()` |
 | Covariate-adjusted target-region ATE | `regATE_dr()` |
 
-The suffix `2` denotes two independent trials. `regFrac2()` requires a symmetric
-trial design; it does not optimize two different regional fractions.
-Random-effects CP uses a **shrinkage regional estimator**, so it has a different
-interpretation from fixed-effects CP based on the raw regional effect estimate.
+The suffix `2` denotes two independent trials. `regFrac2()` requires a
+symmetric trial design; it does not optimize two different regional
+fractions. Random-effects CP uses a **shrinkage regional estimator**, so
+it has a different interpretation from fixed-effects CP based on the raw
+regional effect estimate.
 
 ## One trial: CP and regional fraction
 
-Assume a one-sided significance level of 0.05, power of 0.80, treatment effect
-of 1, standard deviation of 4 in both arms, and equal randomization. Method I
-requires the regional estimate to preserve at least `pi = 0.5` of the overall estimate.
-
+Assume a one-sided significance level of 0.05, power of 0.80, treatment
+effect of 1, standard deviation of 4 in both arms, and equal
+randomization. Method I requires the regional estimate to preserve at
+least `pi = 0.5` of the overall estimate.
 
 ``` r
 library(ssMRCT)
@@ -67,16 +70,16 @@ design
 #> [1] 396
 ```
 
-`N` is the recommended overall sample size; `rF` is a continuous regional
-fraction. A recruitment plan must allocate whole participants to each regional
-arm. Multiplying `N` by `rF` alone does not establish CP for that integer allocation.
+`N` is the recommended overall sample size; `rF` is a continuous
+regional fraction. A recruitment plan must allocate whole participants
+to each regional arm. Multiplying `N` by `rF` alone does not establish
+CP for that integer allocation.
 
 ## Two trials: general CP and symmetric fraction selection
 
 The CP calculation allows different trial powers and regional fractions.
-Here study 2 has higher power; unspecified effect and variance parameters
-are inherited from study 1.
-
+Here study 2 has higher power; unspecified effect and variance
+parameters are inherited from study 1.
 
 ``` r
 conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9,
@@ -92,7 +95,6 @@ conProb2(alpha = 0.05, power1 = 0.8, power2 = 0.9,
 ```
 
 For two symmetric trials, find a common fraction and verify its CP:
-
 
 ``` r
 fraction <- regFrac2(alpha = 0.05, power = 0.8, pi = 0.5, CP = 0.8)
@@ -110,18 +112,17 @@ conProb2(alpha = 0.05, power1 = 0.8, pi = 0.5,
 #> [1] 396
 ```
 
-Both trials must share the effect, arm-specific variances, randomization ratio,
-power and regional fraction for this inverse calculation. For unequal
-randomization ratios in `conProb2()` or continuous `conProbII2()`, specify the
-control means (`muCtrl1`, `muCtrl2`) because separate arm pooling can make them
-relevant to the pooled effect.
+Both trials must share the effect, arm-specific variances, randomization
+ratio, power and regional fraction for this inverse calculation. For
+unequal randomization ratios in `conProb2()` or continuous
+`conProbII2()`, specify the control means (`muCtrl1`, `muCtrl2`) because
+separate arm pooling can make them relevant to the pooled effect.
 
 ## All-region consistency with a binary endpoint
 
 Method II requires every regional treatment-minus-control estimate to be
-nonnegative. This example uses three regions, response probabilities of 0.70
-and 0.55, and 2:1 treatment-to-control randomization.
-
+nonnegative. This example uses three regions, response probabilities of
+0.70 and 0.55, and 2:1 treatment-to-control randomization.
 
 ``` r
 set.seed(42)
@@ -150,15 +151,16 @@ binary[c("CP", "N", "nTrtReg", "nCtrlReg", "achievedPower", "MCSE")]
 
 The simulation uses the returned integer regional arm counts. CP is the
 proportion of significant trials that also meet regional consistency;
-zero regional effects count as consistent. `achievedPower` is the simulated
-probability of overall significance, and `MCSE` describes simulation uncertainty
-in CP. For `conProbII2()`, `achievedPower` instead refers to both trials succeeding.
+zero regional effects count as consistent. `achievedPower` is the
+simulated probability of overall significance, and `MCSE` describes
+simulation uncertainty in CP. For `conProbII2()`, `achievedPower`
+instead refers to both trials succeeding.
 
 ## Random-effects design
 
-For a normal endpoint, supply the mean regional effect `delta`, between-region
-standard deviation `tau`, outcome standard deviations, and regional fractions.
-
+For a normal endpoint, supply the mean regional effect `delta`,
+between-region standard deviation `tau`, outcome standard deviations,
+and regional fractions.
 
 ``` r
 ssCPnorm(alpha = 0.025, beta = 0.2, delta = 0.25, tau = 0.1,
@@ -178,64 +180,72 @@ ssCPnorm(alpha = 0.025, beta = 0.2, delta = 0.25, tau = 0.1,
 ```
 
 `n0`, `n1` and `n` are **overall** control, treatment and total counts.
-`CP` refers to the region indexed by `target`. The function sizes the trial for
-specified overall power and then evaluates regional CP; it does not solve for
-a user-specified CP target. A finite sample-size solution requires
+`CP` refers to the region indexed by `target`. The function sizes the
+trial for specified overall power and then evaluates regional CP; it
+does not solve for a user-specified CP target. A finite sample-size
+solution requires
 `tau * (qnorm(1 - alpha) + qnorm(1 - beta)) / delta < sqrt(length(f))`.
 
-`ssCPbinary()` uses regional response probabilities and a normal approximation.
-`ssCPsurvPH()` uses exponential survival with fixed follow-up; `ssCPsurvNPH()`
-uses RMST differences with piecewise exponential or Weibull survival and uniform
-censoring. These functions derive `delta` and `tau` from the unweighted mean and
-sample standard deviation of the supplied regional effects.
+`ssCPbinary()` uses regional response probabilities and a normal
+approximation. `ssCPsurvPH()` uses exponential survival with fixed
+follow-up; `ssCPsurvNPH()` uses RMST differences with piecewise
+exponential or Weibull survival and uniform censoring. These functions
+derive `delta` and `tau` from the unweighted mean and sample standard
+deviation of the supplied regional effects.
 
-`CPlbd()` returns a CP lower bound and **regional** counts at its equality
-condition, not an overall allocation. Its `fr` argument specifies output length;
-it does not divide the counts by regional fractions. Counts are `NA` when the
-finite equality condition does not apply.
+`CPlbd()` returns a CP lower bound and **regional** counts at its
+equality condition, not an overall allocation. Its `fr` argument
+specifies output length; it does not divide the counts by regional
+fractions. Counts are `NA` when the finite equality condition does not
+apply.
 
 ## Calculation conventions
 
-- `alpha` is one-sided. Fixed-effects functions take `power`; random-effects
-  functions take `beta = 1 - power`.
-- `randRatio` is treatment/control. `sigma` parameters are standard deviations,
-  not variances. Higher effects indicate benefit; PH effects are `-log(hr)`.
+- `alpha` is one-sided. Fixed-effects functions take `power`;
+  random-effects functions take `beta = 1 - power`.
+- `randRatio` is treatment/control. `sigma` parameters are standard
+  deviations, not variances. Higher effects indicate benefit; PH effects
+  are `-log(hr)`.
 - Method I uses `pi` for the fraction of the overall effect to preserve.
-  In `regATE_dr()`, `pi` instead denotes target-region membership probability.
-- Analytical CP uses the continuous sample-size design. Returned integer counts
-  are recommendations; CP is not recalculated after regional rounding.
-  Binary Method II simulation uses the actual returned integer allocation.
+  In `regATE_dr()`, `pi` instead denotes target-region membership
+  probability.
+- Analytical CP uses the continuous sample-size design. Returned integer
+  counts are recommendations; CP is not recalculated after regional
+  rounding. Binary Method II simulation uses the actual returned integer
+  allocation.
 - Set a seed for binary simulations and continuous Method II numerical
-  integration. The latter uses randomized multivariate normal integration.
+  integration. The latter uses randomized multivariate normal
+  integration.
 
 ## Regional ATE estimation
 
-`regATE_dr()` estimates the treatment-minus-control average treatment effect
-(ATE) in a **target region**, using participant-level covariates and information
-from other regions. It returns an effect estimate, an influence-function
-standard error and a 95% confidence interval. This is an analysis function,
-not a sample-size or CP calculation.
+`regATE_dr()` estimates the treatment-minus-control average treatment
+effect (ATE) in a **target region**, using participant-level covariates
+and information from other regions. It returns an effect estimate, an
+influence-function standard error and a 95% confidence interval. This is
+an analysis function, not a sample-size or CP calculation.
 
 ### Prepare participant-level data
 
 The input has one row per participant:
 
 | Column | Meaning |
-|:-------|:--------|
+|:---|:---|
 | `y` | Numeric outcome |
 | `trt` | Treatment assignment: 1 = treatment, 0 = control |
 | `region` | Region label; `target_region` selects one of these labels |
 | Other numeric columns | Baseline covariates used in the models |
 
-Supply complete data with both treatment arms in each region. Include only
-intended covariates: a numeric participant ID, for example, would otherwise
-be treated as a covariate. The current interface uses numeric covariates;
-categorical covariates need suitable numeric indicator columns.
+Supply complete data with both treatment arms in each region. Include
+only intended covariates: a numeric participant ID, for example, would
+otherwise be treated as a covariate. The current interface uses numeric
+covariates; categorical covariates need suitable numeric indicator
+columns.
 
 The following example extends the one in `?regATE_dr`. There are three
-regions with 100 participants each, equal treatment allocation within each
-region, one baseline covariate `x`, and a true treatment effect of 1.
-
+regions with 100 participants each, equal treatment allocation within
+each region, one baseline covariate `x`, and a true treatment effect of
+1.
 
 ``` r
 set.seed(42)
@@ -251,7 +261,6 @@ dat$y <- dat$x + dat$trt + rnorm(300)
 
 Use region 1 as the target and regions 2 and 3 as candidate sources:
 
-
 ``` r
 fit <- regATE_dr(dat, target_region = 1, p1 = 0.5, p0 = 0.5)
 data.frame(
@@ -264,36 +273,37 @@ data.frame(
 #> 1  1.24205 0.1096899 1.027062 1.457038
 ```
 
-`p1` and `p0` are **both treatment-assignment probabilities**: `p1` applies
-to the target population and `p0` to the source population. They are not the
-treatment and control response probabilities. For a trial randomized 1:1,
-supplying both as 0.5 uses the known assignment probabilities.
+`p1` and `p0` are **both treatment-assignment probabilities**: `p1`
+applies to the target population and `p0` to the source population. They
+are not the treatment and control response probabilities. For a trial
+randomized 1:1, supplying both as 0.5 uses the known assignment
+probabilities.
 
 Other commonly used options are:
 
-- `pi = NULL` (default): fit a logistic model for target-region membership
-  given covariates. Here `pi` is a selection probability, not the Method I
-  effect-preservation fraction. `p1` and `p0` can also be estimated by setting
-  them to `NULL`. Supplied probabilities can be scalars or vectors aligned
-  with all rows of `dat`.
-- `v1 = "const", v0 = "const"` (defaults): estimate marginal target-to-source
-  outcome variance ratios separately in the treatment and control arms.
-  Use `v1 = 1, v0 = 1` to specify equal variances, or `"log_linear"` to model
-  the ratios using covariates.
-- `compute_se = FALSE`: return the point estimate without its standard error
-  and confidence interval.
+- `pi = NULL` (default): fit a logistic model for target-region
+  membership given covariates. Here `pi` is a selection probability, not
+  the Method I effect-preservation fraction. `p1` and `p0` can also be
+  estimated by setting them to `NULL`. Supplied probabilities can be
+  scalars or vectors aligned with all rows of `dat`.
+- `v1 = "const", v0 = "const"` (defaults): estimate marginal
+  target-to-source outcome variance ratios separately in the treatment
+  and control arms. Use `v1 = 1, v0 = 1` to specify equal variances, or
+  `"log_linear"` to model the ratios using covariates.
+- `compute_se = FALSE`: return the point estimate without its standard
+  error and confidence interval.
 
 ### Screen source regions before borrowing
 
-With `region_wise = TRUE`, each source is compared with the target separately
-in the treatment and control arms. ANCOVA compares a common covariate model
-with a model allowing a region difference and region-by-covariate interactions.
-A source is excluded if either p-value is below `check_p_threshold`
-(default 0.05), and the estimator is refitted using the retained sources.
+With `region_wise = TRUE`, each source is compared with the target
+separately in the treatment and control arms. ANCOVA compares a common
+covariate model with a model allowing a region difference and
+region-by-covariate interactions. A source is excluded if either p-value
+is below `check_p_threshold` (default 0.05), and the estimator is
+refitted using the retained sources.
 
 To illustrate, give region 3 a larger treatment effect while keeping the
 target-region effect unchanged:
-
 
 ``` r
 dat_heterogeneous <- dat
@@ -323,48 +333,55 @@ data.frame(
 #> 2 After source screening 1.149283 0.1381254 0.8785626 1.420004
 ```
 
-`estimate`, `se_eif` and `ci` always describe the fit using all candidate
-sources. The corresponding `region_wise_*` entries describe the fit after
-screening. `remaining_regions` lists the original candidate sources;
-`region_wise_remaining_regions` lists the retained sources, excluding the
-target itself. If no sources remain, the refit uses target-region data only.
-Selection probabilities are re-estimated when sources are removed.
+`estimate`, `se_eif` and `ci` always describe the fit using all
+candidate sources. The corresponding `region_wise_*` entries describe
+the fit after screening. `remaining_regions` lists the original
+candidate sources; `region_wise_remaining_regions` lists the retained
+sources, excluding the target itself. If no sources remain, the refit
+uses target-region data only. Selection probabilities are re-estimated
+when sources are removed.
 
 ### Interpretation
 
-Borrowing assumes conditional outcome-mean exchangeability across retained
-regions: after accounting for covariates, the outcome mean under each treatment
-is shared across those regions. Double robustness concerns correct specification
-of either the outcome models or both the selection and treatment-assignment
-models, under this assumption. It does not guarantee unbiased borrowing from
-incompatible sources, and a nonsignificant screening test does not establish
-exchangeability.
+Borrowing assumes conditional outcome-mean exchangeability across
+retained regions: after accounting for covariates, the outcome mean
+under each treatment is shared across those regions. Double robustness
+concerns correct specification of either the outcome models or both the
+selection and treatment-assignment models, under this assumption. It
+does not guarantee unbiased borrowing from incompatible sources, and a
+nonsignificant screening test does not establish exchangeability.
 
-The reported intervals use the estimated influence function. Intervals after
-screening do **not** include uncertainty from selecting the source regions.
-See `?regATE_dr` for the estimator formula and complete argument descriptions.
+The reported intervals use the estimated influence function. Intervals
+after screening do **not** include uncertainty from selecting the source
+regions. See `?regATE_dr` for the estimator formula and complete
+argument descriptions.
 
 ## Documentation and references
 
-Use `help(package = "ssMRCT")` for the function index and `?conProb` (or another
-function name) for arguments, formulas, return values and examples.
+Use `help(package = "ssMRCT")` for the function index and `?conProb` (or
+another function name) for arguments, formulas, return values and
+examples.
 
 ### References
 
-Qing, Kunhai, Xinru Ren, Shuping Jiang, Ping Yang, Menggang Yu, and Jin Xu. 2025.
-“Regional Consistency Evaluation and Sample Size Calculation under Two MRCTs.”
-*Statistics in Medicine* 44 (25–27): e70306.
-[https://doi.org/10.1002/sim.70306](https://doi.org/10.1002/sim.70306).
+Qing, Kunhai, Xinru Ren, Shuping Jiang, Ping Yang, Menggang Yu, and Jin
+Xu. 2025. “Regional Consistency Evaluation and Sample Size Calculation
+under Two MRCTs.” *Statistics in Medicine* 44 (25–27): e70306.
+<https://doi.org/10.1002/sim.70306>.
 
-Ren, Xinru, and Jin Xu. 2026. “Consistency Assessment and Regional Sample Size
-Calculation for MRCT under Random Effects Model.” *Pharmaceutical Statistics*
-25 (3): e70090. [https://doi.org/10.1002/pst.70090](https://doi.org/10.1002/pst.70090).
+Ren, Xinru, and Jin Xu. 2026. “Consistency Assessment and Regional
+Sample Size Calculation for MRCT under Random Effects Model.”
+*Pharmaceutical Statistics* 25 (3): e70090.
+<https://doi.org/10.1002/pst.70090>.
 
-See [NEWS.md](NEWS.md) for changes that affect calculations and returned values.
+See [NEWS.md](NEWS.md) for changes that affect calculations and returned
+values.
 
 ## License
 
-MIT license. See [LICENSE.md](LICENSE.md) for the full text.
+MIT license. See
+[LICENSE.md](https://github.com/kunhaiq/ssMRCT/blob/main/LICENSE.md) for
+the full text.
 
 ## Running tests
 
@@ -374,13 +391,15 @@ Run the grouped tests during development:
 devtools::test()
 ```
 
-The `testthat` suite covers regional fraction inversion, pooled-trial and
-regional-order invariance, random-effects sample sizes, PH event requirements,
-censored RMST moments, and regional ATE estimation and source screening.
-The existing `tests/regression.R` also checks published numerical benchmarks,
-exact binomial probabilities and independent simulations.
+The `testthat` suite covers regional fraction inversion, pooled-trial
+and regional-order invariance, random-effects sample sizes, PH event
+requirements, censored RMST moments, and regional ATE estimation and
+source screening. The existing `tests/regression.R` also checks
+published numerical benchmarks, exact binomial probabilities and
+independent simulations.
 
-Run both suites, together with examples and package checks, before release:
+Run both suites, together with examples and package checks, before
+release:
 
 ``` r
 devtools::check()
@@ -390,25 +409,27 @@ GitHub Actions runs both suites automatically through `R CMD check`.
 
 ## Automated checks
 
-GitHub Actions runs package checks on every push and pull request, and can also
-be started from the Actions tab. The matrix covers Windows and macOS with
-R-release, plus Linux with R-release, R-devel and the previous R release.
-Errors and warnings fail the check; notes remain in the logs for review.
-Check reports are saved as workflow artifacts, including successful runs.
+GitHub Actions runs package checks on every push and pull request, and
+can also be started from the Actions tab. The matrix covers Windows and
+macOS with R-release, plus Linux with R-release, R-devel and the
+previous R release. Errors and warnings fail the check; notes remain in
+the logs for review. Check reports are saved as workflow artifacts,
+including successful runs.
 
-The matrix checks examples, regression tests and help files using `--as-cran`.
-The Linux R-release job also compiles the PDF manual. All check logs and notes
-must be reviewed before a CRAN submission. The workflow does not publish the package to CRAN.
-
+The matrix checks examples, regression tests and help files using
+`--as-cran`. The Linux R-release job also compiles the PDF manual. All
+check logs and notes must be reviewed before a CRAN submission. The
+workflow does not publish the package to CRAN.
 
 ### Test coverage
 
-The `test-coverage` workflow measures line coverage on every push and pull request.
-It runs both `tests/regression.R` and the `testthat` suite, without coverage
-exclusions. The workflow summary shows the overall percentage and per-file
-coverage. Download the `test-coverage` artifact for the Cobertura XML report,
-uncovered-line CSV, and coverage RDS object. The README badge shows workflow
-status, not the coverage percentage.
+The `test-coverage` workflow measures line coverage on every push and
+pull request. It runs both `tests/regression.R` and the `testthat`
+suite, without coverage exclusions. The workflow summary shows the
+overall percentage and per-file coverage. Download the `test-coverage`
+artifact for the Cobertura XML report, uncovered-line CSV, and coverage
+RDS object. The README badge shows workflow status, not the coverage
+percentage.
 
 To generate the same reports locally, run from the package root:
 
@@ -417,11 +438,13 @@ install.packages(c("covr", "xml2")) # Once, if not already installed
 source(".github/scripts/coverage.R")
 ```
 
-Reports are written to `coverage/`, which is excluded from Git and the package
-source archive. Coverage measures which lines were executed; the numerical
-assertions in the tests assess whether the results are correct.
+Reports are written to `coverage/`, which is excluded from Git and the
+package source archive. Coverage measures which lines were executed; the
+numerical assertions in the tests assess whether the results are
+correct.
 
-Codecov uploads are optional. Enable `kunhaiq/ssMRCT` in Codecov and add its upload
-token as the GitHub repository Actions secret `CODECOV_TOKEN`. The workflow then
-uploads its report automatically. Without this secret, the GitHub summary and
-artifacts remain available, and the upload step is skipped.
+Codecov uploads are optional. Enable `kunhaiq/ssMRCT` in Codecov and add
+its upload token as the GitHub repository Actions secret
+`CODECOV_TOKEN`. The workflow then uploads its report automatically.
+Without this secret, the GitHub summary and artifacts remain available,
+and the upload step is skipped.
